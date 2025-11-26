@@ -84,11 +84,14 @@ class DocumentProcessingService:
         )
 
         try:
+            # Get absolute file path for extraction
+            absolute_path = await self.file_storage.get_file_path(file_path)
+
             # Extract text
             if use_ocr:
-                text = await self.ocr_extractor.extract_from_pdf(file_path)
+                text = await self.ocr_extractor.extract_from_pdf(absolute_path)
             else:
-                text = await self.pdf_extractor.extract_text(file_path)
+                text = await self.pdf_extractor.extract_text(absolute_path)
 
             # Parse fields if parser available
             extracted_fields = {}
