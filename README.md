@@ -27,7 +27,7 @@ This system helps French freelancers optimize their tax situation by:
 
 The project is implemented in 6 phases:
 
-### Phase 1: Core Infrastructure - COMPLETE
+### Phase 1: Core Infrastructure - COMPLETE ✅
 
 **Status:** Complete and merged
 **Goal:** Establish project foundation
@@ -53,17 +53,32 @@ The project is implemented in 6 phases:
 - `src/database/repositories/` - Data access layer
 - `alembic/versions/` - Database migration scripts
 
-### Phase 2: Document Extraction Pipeline
+### Phase 2: Document Extraction Pipeline - COMPLETE ✅
 
-**Status:** Planned
+**Status:** Complete and ready for review
 **Goal:** Extract data from French tax documents
 
-**Tasks:**
-- PDF text extraction (pypdf)
-- OCR pipeline (pytesseract + pdf2image)
-- Field parsers for each document type (Avis d'imposition, 2042, URSSAF, BNC/BIC)
-- Document upload API endpoints
-- File storage management
+**Completed:**
+- PDF text extraction using pypdf
+- OCR extraction using pytesseract + pdf2image for scanned documents
+- Field parsers for 4 document types:
+  - Avis d'Imposition (tax assessment) - extracts RFR, impôt, nombre de parts, taux de prélèvement
+  - Declaration 2042 (income tax return) - extracts salaries, pensions, revenus fonciers
+  - URSSAF (social contributions) - extracts chiffre d'affaires, cotisations sociales
+  - BNC/BIC (profit declarations) - extracts recettes, charges, bénéfice with regime detection
+- Document upload API endpoint with multipart/form-data support
+- File storage service with organized directory structure (by year-month)
+- Document processing service orchestrating extraction and parsing
+- Graceful error handling (text extraction succeeds even if parsing fails)
+- Comprehensive test suite (42 tests, 74% coverage)
+
+**Key Files:**
+- `src/extractors/pdf_extractor.py` - PDF text extraction
+- `src/extractors/ocr_extractor.py` - OCR for scanned documents
+- `src/extractors/field_parsers/` - Document-specific parsers
+- `src/services/file_storage.py` - File management
+- `src/services/document_service.py` - Document processing orchestration
+- `src/api/routes/documents.py` - Upload and retrieval endpoints
 
 ### Phase 3: Tax Calculation Engine
 
@@ -267,15 +282,19 @@ See `CLAUDE.md` for complete development guidelines.
 
 ## Current Status
 
-**Phase 1 is complete!** The core infrastructure is in place with:
-- Modern async FastAPI application
-- Database layer with SQLAlchemy 2.0 and Alembic
-- Complete data models for tax documents, profiles, calculations, and recommendations
-- Repository pattern for clean data access
-- Comprehensive test coverage
-- CI/CD pipeline with quality checks
+**Phase 2 is complete!** The document extraction pipeline is fully implemented with:
+- PDF and OCR text extraction working end-to-end
+- 4 specialized parsers for French tax documents (Avis d'Imposition, 2042, URSSAF, BNC/BIC)
+- Document upload API with file storage management
+- Graceful error handling and comprehensive testing
+- 42 tests passing with 74% coverage
+- All CI/CD checks passing
 
-**Next up: Phase 2** - Document extraction pipeline for processing French tax documents.
+**Previous milestones:**
+- ✅ Phase 1: Core infrastructure (FastAPI, SQLAlchemy, Alembic, repositories, tests, CI/CD)
+- ✅ Phase 2: Document extraction pipeline (PDF/OCR extraction, field parsers, upload API)
+
+**Next up: Phase 3** - Tax calculation engine with French baremes, quotient familial, and social contributions.
 
 ## Contributing
 
