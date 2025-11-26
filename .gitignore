@@ -14,3 +14,12 @@ wheels/
 .coverage
 htmlcov/
 coverage.xml
+
+# Application data
+data/database/
+data/uploads/
+data/temp/
+logs/
+
+# Environment variables
+.env
