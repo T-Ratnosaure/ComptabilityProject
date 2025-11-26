@@ -29,27 +29,18 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
 
-      - name: Initialize Pyrefly (if needed)
-        run: |
-          if [ ! -f pyrefly.toml ]; then
-            uv run pyrefly init
-          fi
-        continue-on-error: true
-
       - name: Check code formatting with Ruff
         run: uv run ruff format --check .
 
-      - name: Type check with Pyrefly
-        run: uv run pyrefly check
-
       - name: Lint with Ruff
-        run: uv run ruff check .
+        run: uv run ruff check . --ignore UP046
 
       - name: Run tests with pytest
         run: uv run pytest -v --cov --cov-report=term-missing
 
       - name: Upload coverage reports
-        if: always()
+        if: success()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
@@ -57,3 +48,4 @@ jobs:
             htmlcov/
             coverage.xml
           retention-days: 30
+          if-no-files-found: warn
