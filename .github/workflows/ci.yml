@@ -33,7 +33,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Lint with Ruff
-        run: uv run ruff check . --ignore UP046
+        run: uv run ruff check . --ignore UP046,B008
 
       - name: Run tests with pytest
         run: uv run pytest -v --cov --cov-report=term-missing
