@@ -41,7 +41,10 @@ class TaxDocumentBase(BaseModel):
 class TaxDocumentCreate(TaxDocumentBase):
     """Model for creating a new tax document."""
 
+    status: DocumentStatus = DocumentStatus.UPLOADED
     file_path: str
+    extracted_fields: dict[str, Any] = Field(default_factory=dict)
+    raw_text: str | None = None
 
 
 class TaxDocumentUpdate(BaseModel):
