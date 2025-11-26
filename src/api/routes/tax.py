@@ -1,5 +1,6 @@
 """Tax calculation API endpoints."""
 
+from enum import Enum
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -10,14 +11,22 @@ from src.tax_engine.calculator import calculate_tax
 router = APIRouter(prefix="/tax", tags=["tax"])
 
 
+class TaxRegime(str, Enum):
+    """Valid tax regimes."""
+
+    MICRO_BNC = "micro_bnc"
+    MICRO_BIC_SERVICE = "micro_bic_service"
+    MICRO_BIC_VENTE = "micro_bic_vente"
+    REEL_BNC = "reel_bnc"
+    REEL_BIC = "reel_bic"
+
+
 class PersonData(BaseModel):
     """Person/taxpayer data."""
 
     name: str = Field(default="ANON", description="Name (anonymized)")
     nb_parts: float = Field(ge=0.5, le=10.0, description="Nombre de parts fiscales")
-    status: str = Field(
-        description="Tax regime (micro_bnc, micro_bic_service, reel_bnc, reel_bic)"
-    )
+    status: TaxRegime = Field(description="Tax regime")
 
 
 class IncomeData(BaseModel):
