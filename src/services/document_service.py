@@ -79,8 +79,8 @@ class DocumentProcessingService:
         doc_model = await self.repository.create(doc_data)
 
         # Update status to processing
-        await self.repository.update(
-            doc_model.id, {"status": DocumentStatus.PROCESSING}
+        doc_model = await self.repository.update(
+            doc_model, {"status": DocumentStatus.PROCESSING}
         )
 
         try:
@@ -97,8 +97,8 @@ class DocumentProcessingService:
                 extracted_fields = await parser.parse(text)
 
             # Update document with extracted data
-            await self.repository.update(
-                doc_model.id,
+            doc_model = await self.repository.update(
+                doc_model,
                 {
                     "raw_text": text,
                     "extracted_fields": extracted_fields,
@@ -111,7 +111,7 @@ class DocumentProcessingService:
         except Exception as e:
             # Update document with error
             await self.repository.update(
-                doc_model.id,
+                doc_model,
                 {
                     "status": DocumentStatus.FAILED,
                     "error_message": str(e),
