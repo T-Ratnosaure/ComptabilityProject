@@ -1,0 +1,120 @@
+"""Document processing service."""
+
+from src.database.repositories.tax_document import TaxDocumentRepository
+from src.extractors.field_parsers.avis_imposition import AvisImpositionParser
+from src.extractors.field_parsers.bnc_bic import BNCBICParser
+from src.extractors.field_parsers.declaration_2042 import Declaration2042Parser
+from src.extractors.field_parsers.urssaf import URSSAFParser
+from src.extractors.ocr_extractor import OCRExtractor
+from src.extractors.pdf_extractor import PDFTextExtractor
+from src.models.tax_document import (
+    DocumentStatus,
+    DocumentType,
+    TaxDocumentCreate,
+)
+from src.services.file_storage import FileStorageService
+
+
+class DocumentProcessingService:
+    """Service for processing uploaded tax documents."""
+
+    def __init__(self, repository: TaxDocumentRepository):
+        """Initialize document processing service.
+
+        Args:
+            repository: Repository for tax documents
+        """
+        self.repository = repository
+        self.file_storage = FileStorageService()
+        self.pdf_extractor = PDFTextExtractor()
+        self.ocr_extractor = OCRExtractor(lang="fra")
+
+        # Map document types to parsers
+        self.parsers = {
+            DocumentType.AVIS_IMPOSITION: AvisImpositionParser(),
+            DocumentType.DECLARATION_2042: Declaration2042Parser(),
+            DocumentType.URSSAF: URSSAFParser(),
+            DocumentType.BNC: BNCBICParser(),
+            DocumentType.BIC: BNCBICParser(),
+        }
+
+    async def process_document(
+        self,
+        file_content: bytes,
+        original_filename: str,
+        document_type: DocumentType,
+        year: int,
+        use_ocr: bool = False,
+    ) -> int:
+        """Process an uploaded document.
+
+        Args:
+            file_content: Binary content of the file
+            original_filename: Original filename
+            document_type: Type of document
+            year: Tax year
+            use_ocr: Whether to use OCR (for scanned documents)
+
+        Returns:
+            ID of the created document record
+
+        Raises:
+            ValueError: If document processing fails
+        """
+        # Save file to storage
+        file_path, _ = await self.file_storage.save_file(
+            file_content, original_filename
+        )
+
+        # Create initial document record
+        doc_data = TaxDocumentCreate(
+            type=document_type,
+            year=year,
+            status=DocumentStatus.UPLOADED,
+            file_path=file_path,
+            original_filename=original_filename,
+            extracted_fields={},
+        )
+
+        doc_model = await self.repository.create(doc_data)
+
+        # Update status to processing
+        await self.repository.update(
+            doc_model.id, {"status": DocumentStatus.PROCESSING}
+        )
+
+        try:
+            # Extract text
+            if use_ocr:
+                text = await self.ocr_extractor.extract_from_pdf(file_path)
+            else:
+                text = await self.pdf_extractor.extract_text(file_path)
+
+            # Parse fields if parser available
+            extracted_fields = {}
+            if document_type in self.parsers:
+                parser = self.parsers[document_type]
+                extracted_fields = await parser.parse(text)
+
+            # Update document with extracted data
+            await self.repository.update(
+                doc_model.id,
+                {
+                    "raw_text": text,
+                    "extracted_fields": extracted_fields,
+                    "status": DocumentStatus.PROCESSED,
+                },
+            )
+
+            return doc_model.id
+
+        except Exception as e:
+            # Update document with error
+            await self.repository.update(
+                doc_model.id,
+                {
+                    "status": DocumentStatus.FAILED,
+                    "error_message": str(e),
+                },
+            )
+            raise ValueError(f"Document processing failed: {e}") from e
