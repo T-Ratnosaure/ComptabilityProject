@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(if exist .githubcopilot-instructions.md type .githubcopilot-instructions.md)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh api:*)",
+      "Bash(uv run:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git branch:*)",
+      "Bash(uv add:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(timeout 5 uv run:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
