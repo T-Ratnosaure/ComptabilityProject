@@ -9,6 +9,8 @@ ComptabilityProject is a Python 3.12 application managed with UV (fast Python pa
 
 ## Development Commands
 
+When exiting plan mode to begin implementation, ALWAYS save the implementation plan first as a markdown file in @docs/
+
 ### Package Management
 - Install dependencies: `uv sync`
 - Add a new dependency: `uv add <package-name>`
