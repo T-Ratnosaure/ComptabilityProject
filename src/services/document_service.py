@@ -95,9 +95,16 @@ class DocumentProcessingService:
 
             # Parse fields if parser available
             extracted_fields = {}
+            error_message = None
+
             if document_type in self.parsers:
-                parser = self.parsers[document_type]
-                extracted_fields = await parser.parse(text)
+                try:
+                    parser = self.parsers[document_type]
+                    extracted_fields = await parser.parse(text)
+                except ValueError as parse_error:
+                    # Parsing failed but text extraction succeeded
+                    # Store error message but don't fail the entire process
+                    error_message = f"Field parsing failed: {parse_error}"
 
             # Update document with extracted data
             doc_model = await self.repository.update(
@@ -106,18 +113,19 @@ class DocumentProcessingService:
                     "raw_text": text,
                     "extracted_fields": extracted_fields,
                     "status": DocumentStatus.PROCESSED,
+                    "error_message": error_message,
                 },
             )
 
             return doc_model.id
 
         except Exception as e:
-            # Update document with error
+            # Update document with error (for extraction failures)
             await self.repository.update(
                 doc_model,
                 {
                     "status": DocumentStatus.FAILED,
-                    "error_message": str(e),
+                    "error_message": f"Text extraction failed: {e}",
                 },
             )
             raise ValueError(f"Document processing failed: {e}") from e
