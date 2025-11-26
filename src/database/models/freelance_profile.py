@@ -1,6 +1,5 @@
 """SQLAlchemy model for freelance profiles."""
 
-
 from sqlalchemy import JSON, Enum, Float, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
