@@ -102,6 +102,19 @@ When exiting plan mode to begin implementation:
 
 - use pydantic and langchain
 
+## Documentation
+
+### README.md
+- **ALWAYS update the README.md** when completing a phase or adding major functionality
+- Keep it synchronized with the current state of the project
+- Include:
+  - Project overview and goals
+  - Implementation plan summary (phase progress)
+  - Completed features and accomplishments
+  - Setup instructions
+  - Tech stack and dependencies
+  - Usage examples (when applicable)
+
 ## Pull Requests
 
 - Create a detailed message of what changed. Focus on the high level description of
