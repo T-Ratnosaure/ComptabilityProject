@@ -136,6 +136,32 @@ The project is implemented in 6 phases:
 - `src/api/routes/optimization.py` - API endpoints including quick simulation
 - `docs/phase4.md` - Complete architecture documentation
 - `docs/LANDING_PAGE_FEATURE.md` - BONUS feature marketing strategy
+**Status:** Complete and merged
+**Goal:** Identify tax optimization opportunities
+
+**Completed:**
+- 7 optimization strategies with personalized recommendations
+- Regime optimization (micro vs réel) with threshold warnings
+- PER contribution calculator (optimal/max recommendations)
+- LMNP investment analysis for high TMI profiles (≥30%)
+- Girardin Industriel 110% reduction via Profina (recommended operator)
+- FCPI/FIP innovation investments (18% reduction)
+- Simple deductions: Dons (66%), Services à la personne (50%), Garde (50%)
+- Company structure recommendations (SASU/EURL/Holding)
+- Main TaxOptimizer orchestrator with priority ranking
+- Type-safe Pydantic models for recommendations
+- JSON-based rule system with official sources
+- Optimization API endpoints (POST /api/v1/optimization/run)
+- Executive summary generation with total savings
+- Comprehensive test suite (46 tests, 90-100% coverage)
+
+**Key Files:**
+- `src/analyzers/optimizer.py` - Main orchestration
+- `src/analyzers/strategies/` - 7 optimization strategies
+- `src/analyzers/rules/` - JSON rule files (PER, LMNP, Girardin, FCPI, general)
+- `src/models/optimization.py` - Pydantic models
+- `src/api/routes/optimization.py` - API endpoints
+- `docs/phase4.md` - Complete architecture documentation
 
 ### Phase 5: LLM Integration (Claude)
 
@@ -323,6 +349,18 @@ See `CLAUDE.md` for complete development guidelines.
 - 58 optimization tests passing with 90-100% coverage on all modules
 - Official sources referenced (impots.gouv.fr, service-public.fr, Profina)
 - All 114 tests passing with CI/CD checks green
+- 7 comprehensive optimization strategies (Regime, PER, LMNP, Girardin, FCPI/FIP, Deductions, Structure)
+- Personalized recommendations ranked by impact and savings potential
+- Girardin Industriel via Profina (110% tax reduction)
+- PER calculator with TMI-based optimal/max recommendations
+- LMNP analysis for high-earners (TMI ≥30%)
+- Simple deductions: Dons (66%), Services (50%), Garde (50%)
+- Company structure recommendations (SASU/EURL/Holding)
+- Type-safe Pydantic models and JSON-based rule system
+- Optimization API endpoint with executive summary generation
+- 46 tests passing with 90-100% coverage on optimization modules
+- All 114 tests passing (68 previous + 46 new) with CI/CD checks green
+- Complete documentation with official sources
 
 **Previous milestones:**
 - ✅ Phase 1: Core infrastructure (FastAPI, SQLAlchemy, Alembic, repositories, tests, CI/CD)
@@ -331,6 +369,9 @@ See `CLAUDE.md` for complete development guidelines.
 - ✅ Phase 4: Tax optimization engine (7 strategies, BONUS quick simulation, 90-100% coverage)
 
 **Next up: Phase 5** - LLM Integration with Anthropic Claude for AI-powered conversational assistance.
+- ✅ Phase 4: Tax optimization engine (7 strategies, personalized recommendations, Profina integration)
+
+**Next up: Phase 5** - LLM Integration with Anthropic Claude for AI-powered conversational tax assistance.
 
 ## Contributing
 
