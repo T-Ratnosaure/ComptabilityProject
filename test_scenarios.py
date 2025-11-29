@@ -158,9 +158,8 @@ for i, scenario in enumerate(scenarios, 1):
         result = response.json()
 
         # Print key results
-        print(
-            f"   CA/Revenue: {scenario['payload']['income']['professional_gross']:,.0f} EUR"
-        )
+        ca = scenario["payload"]["income"]["professional_gross"]
+        print(f"   CA/Revenue: {ca:,.0f} EUR")
         print(f"   Revenu imposable: {result['impot']['revenu_imposable']:,.2f} EUR")
         print(f"   Impot net: {result['impot']['impot_net']:,.2f} EUR")
         print(f"   URSSAF expected: {result['socials']['urssaf_expected']:,.2f} EUR")

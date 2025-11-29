@@ -4,7 +4,14 @@
       "Bash(git restore:*)",
       "Bash(powershell -Command \"cd C:\\Users\\larai\\ComptabilityProject; $env:API_V1_PREFIX=''/api/v1''; uv run pytest tests/test_per_plafond_sync.py -v --tb=short\")",
       "Bash(powershell -Command \"cd C:\\Users\\larai\\ComptabilityProject; $env:API_V1_PREFIX='/api/v1'; uv run pytest tests/test_tax_engine_core_enhanced.py::TestApplyTaxReductions::test_dons_reduction_66_percent -v --tb=long\":*)",
-      "Bash(powershell -Command \"cd C:\\Users\\larai\\ComptabilityProject; $env:API_V1_PREFIX=''/api/v1''; uv run pytest tests/test_optimization.py::test_per_plafond_calculation -v --tb=long\")"
+      "Bash(powershell -Command \"cd C:\\Users\\larai\\ComptabilityProject; $env:API_V1_PREFIX=''/api/v1''; uv run pytest tests/test_optimization.py::test_per_plafond_calculation -v --tb=long\")",
+      "Bash(git checkout:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv run ruff:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(uv run python:*)",
+      "Bash(python -c:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
