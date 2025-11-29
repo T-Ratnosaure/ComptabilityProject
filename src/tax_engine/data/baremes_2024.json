@@ -1,0 +1,74 @@
+{
+  "year": 2024,
+  "source": "https://www.impots.gouv.fr/particulier/calcul-de-limpot",
+  "source_date": "2024-01-01",
+  "income_tax_brackets": [
+    {
+      "rate": 0.0,
+      "lower_bound": 0,
+      "upper_bound": 11294,
+      "description": "Tranche 0% (revenus jusqu'à 11 294€)"
+    },
+    {
+      "rate": 0.11,
+      "lower_bound": 11294,
+      "upper_bound": 28797,
+      "description": "Tranche 11% (11 294€ à 28 797€)"
+    },
+    {
+      "rate": 0.30,
+      "lower_bound": 28797,
+      "upper_bound": 82341,
+      "description": "Tranche 30% (28 797€ à 82 341€)"
+    },
+    {
+      "rate": 0.41,
+      "lower_bound": 82341,
+      "upper_bound": 177106,
+      "description": "Tranche 41% (82 341€ à 177 106€)"
+    },
+    {
+      "rate": 0.45,
+      "lower_bound": 177106,
+      "upper_bound": null,
+      "description": "Tranche 45% (au-delà de 177 106€)"
+    }
+  ],
+  "abattements": {
+    "micro_bnc": 0.34,
+    "micro_bic_vente": 0.71,
+    "micro_bic_service": 0.50,
+    "micro_bic_hebergement": 0.71,
+    "description": "Abattements forfaitaires micro-régime"
+  },
+  "plafonds_micro": {
+    "bnc": 77700,
+    "bic_service": 77700,
+    "bic_vente": 188700,
+    "description": "Plafonds CA pour micro-régime 2024"
+  },
+  "per_plafonds": {
+    "base_rate": 0.10,
+    "max_tns": 83088,
+    "max_salarie": 35194,
+    "max_married_salarie": 70388,
+    "description": "Plafonds déduction PER (10% revenus pro, plafonds selon statut)"
+  },
+  "urssaf_rates": {
+    "liberal_bnc": 0.218,
+    "commercial_bic": 0.128,
+    "artisan_bic": 0.128,
+    "description": "Taux URSSAF micro-entrepreneur 2024 (approximatifs)",
+    "note": "Taux réels varient selon activité exacte et ACRE. Vérifier sur autoentrepreneur.urssaf.fr"
+  },
+  "quotient_familial": {
+    "celibataire": 1.0,
+    "marie": 2.0,
+    "enfant_1": 0.5,
+    "enfant_2": 0.5,
+    "enfant_3": 1.0,
+    "description": "Parts fiscales par situation familiale",
+    "plafond_avantage_par_demi_part": 1759,
+    "plafond_note": "Plafonnement de l'avantage fiscal par demi-part (enfants notamment)"
+  }
+}
