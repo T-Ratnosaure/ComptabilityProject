@@ -29,7 +29,8 @@ class TestAvisImpositionParser:
         """
 
         parser = AvisImpositionParser()
-        fields = await parser.parse(text)
+        result = await parser.parse(text)
+        fields = result.model_dump(exclude_none=True)
 
         assert fields["revenu_fiscal_reference"] == 45000
         assert fields["revenu_imposable"] == 42000
@@ -47,7 +48,8 @@ class TestAvisImpositionParser:
         """
 
         parser = AvisImpositionParser()
-        fields = await parser.parse(text)
+        result = await parser.parse(text)
+        fields = result.model_dump(exclude_none=True)
 
         assert fields["revenu_fiscal_reference"] == 30000
 
@@ -78,7 +80,8 @@ class TestDeclaration2042Parser:
         """
 
         parser = Declaration2042Parser()
-        fields = await parser.parse(text)
+        result = await parser.parse(text)
+        fields = result.model_dump(exclude_none=True)
 
         assert fields["salaires_declarant1"] == 35000
         assert fields["salaires_declarant2"] == 28000
@@ -93,7 +96,8 @@ class TestDeclaration2042Parser:
         """
 
         parser = Declaration2042Parser()
-        fields = await parser.parse(text)
+        result = await parser.parse(text)
+        fields = result.model_dump(exclude_none=True)
 
         assert fields["pensions_declarant1"] == 15000
         assert fields["pensions_declarant2"] == 12000
@@ -136,7 +140,8 @@ class TestURSSAFParser:
         """
 
         parser = URSSAFParser()
-        fields = await parser.parse(text)
+        result = await parser.parse(text)
+        fields = result.model_dump(exclude_none=True)
 
         assert fields["chiffre_affaires"] == 50000
         assert fields["cotisations_sociales"] == 8500
@@ -155,7 +160,8 @@ class TestURSSAFParser:
         """
 
         parser = URSSAFParser()
-        fields = await parser.parse(text)
+        result = await parser.parse(text)
+        fields = result.model_dump(exclude_none=True)
 
         assert fields["chiffre_affaires"] == 25000
 
@@ -176,7 +182,8 @@ class TestBNCBICParser:
         """
 
         parser = BNCBICParser()
-        fields = await parser.parse(text)
+        result = await parser.parse(text)
+        fields = result.model_dump(exclude_none=True)
 
         assert fields["regime"] == "micro_bnc"
         assert fields["recettes"] == 40000
@@ -203,7 +210,8 @@ class TestBNCBICParser:
         """
 
         parser = BNCBICParser()
-        fields = await parser.parse(text)
+        result = await parser.parse(text)
+        fields = result.model_dump(exclude_none=True)
 
         assert fields["regime"] == "reel_bic"
         assert fields["recettes"] == 80000

@@ -1,12 +1,13 @@
 """Parser for Avis d'Imposition documents."""
 
 from src.extractors.field_parsers.base import BaseFieldParser
+from src.models.extracted_fields import AvisImpositionExtracted
 
 
 class AvisImpositionParser(BaseFieldParser):
     """Parse fields from French Avis d'Imposition (tax assessment notice)."""
 
-    async def parse(self, text: str) -> dict[str, str | float | int]:
+    async def parse(self, text: str) -> AvisImpositionExtracted:
         """Parse Avis d'Imposition fields from text.
 
         Args:
@@ -79,4 +80,5 @@ class AvisImpositionParser(BaseFieldParser):
         ):
             raise ValueError("Could not extract critical fields from Avis d'Imposition")
 
-        return fields
+        # Return validated Pydantic model
+        return AvisImpositionExtracted(**fields)

@@ -1,5 +1,12 @@
 """Pydantic domain models."""
 
+from src.models.extracted_fields import (
+    AvisImpositionExtracted,
+    BNCBICExtracted,
+    Declaration2042Extracted,
+    URSSAFExtracted,
+)
+from src.models.fiscal_profile import FiscalProfile
 from src.models.freelance_profile import (
     FamilySituation,
     FreelanceProfile,
@@ -7,22 +14,13 @@ from src.models.freelance_profile import (
     FreelanceProfileUpdate,
     FreelanceStatus,
 )
+from src.models.llm_context import LLMContext, TaxCalculationSummary
 from src.models.optimization import (
     ComplexityLevel,
     OptimizationProfile,
     OptimizationResult,
-    RecommendationCategory,
-)
-from src.models.optimization import (
-    Recommendation as OptimizationRecommendation,
-)
-from src.models.optimization import (
-    RiskLevel as OptimizationRiskLevel,
-)
-from src.models.recommendation import (
     Recommendation,
-    RecommendationCreate,
-    RecommendationType,
+    RecommendationCategory,
     RiskLevel,
 )
 from src.models.tax_calculation import (
@@ -55,16 +53,20 @@ __all__ = [
     "TaxBracket",
     "TaxCalculation",
     "TaxCalculationCreate",
-    # Recommendation
-    "RecommendationType",
-    "RiskLevel",
+    # Optimization (Phase 4)
     "Recommendation",
-    "RecommendationCreate",
-    # Optimization
+    "RiskLevel",
     "ComplexityLevel",
+    "RecommendationCategory",
     "OptimizationProfile",
     "OptimizationResult",
-    "OptimizationRecommendation",
-    "RecommendationCategory",
-    "OptimizationRiskLevel",
+    # Extracted Fields (Phase 2 - Validated)
+    "AvisImpositionExtracted",
+    "URSSAFExtracted",
+    "BNCBICExtracted",
+    "Declaration2042Extracted",
+    # LLM Context (Phase 5)
+    "FiscalProfile",
+    "TaxCalculationSummary",
+    "LLMContext",
 ]

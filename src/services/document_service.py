@@ -100,7 +100,11 @@ class DocumentProcessingService:
             if document_type in self.parsers:
                 try:
                     parser = self.parsers[document_type]
-                    extracted_fields = await parser.parse(text)
+                    # Parse returns Pydantic model, convert to dict for storage
+                    extracted_data = await parser.parse(text)
+                    extracted_fields = extracted_data.model_dump(
+                        exclude_none=True
+                    )  # Exclude None values for cleaner JSON
                 except ValueError as parse_error:
                     # Parsing failed but text extraction succeeded
                     # Store error message but don't fail the entire process

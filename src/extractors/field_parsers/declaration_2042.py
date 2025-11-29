@@ -1,12 +1,13 @@
 """Parser for Declaration 2042 documents."""
 
 from src.extractors.field_parsers.base import BaseFieldParser
+from src.models.extracted_fields import Declaration2042Extracted
 
 
 class Declaration2042Parser(BaseFieldParser):
     """Parse fields from French Declaration 2042 (income tax return)."""
 
-    async def parse(self, text: str) -> dict[str, str | float | int]:
+    async def parse(self, text: str) -> Declaration2042Extracted:
         """Parse Declaration 2042 fields from text.
 
         Args:
@@ -88,4 +89,5 @@ class Declaration2042Parser(BaseFieldParser):
                 "Could not extract any income fields from Declaration 2042"
             )
 
-        return fields
+        # Return validated Pydantic model
+        return Declaration2042Extracted(**fields)

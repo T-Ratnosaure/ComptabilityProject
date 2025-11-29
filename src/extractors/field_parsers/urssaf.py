@@ -1,12 +1,13 @@
 """Parser for URSSAF documents."""
 
 from src.extractors.field_parsers.base import BaseFieldParser
+from src.models.extracted_fields import URSSAFExtracted
 
 
 class URSSAFParser(BaseFieldParser):
     """Parse fields from URSSAF social contribution documents."""
 
-    async def parse(self, text: str) -> dict[str, str | float | int]:
+    async def parse(self, text: str) -> URSSAFExtracted:
         """Parse URSSAF fields from text.
 
         Args:
@@ -96,4 +97,5 @@ class URSSAFParser(BaseFieldParser):
         if "chiffre_affaires" not in fields and ("cotisations_sociales" not in fields):
             raise ValueError("Could not extract critical fields from URSSAF document")
 
-        return fields
+        # Return validated Pydantic model
+        return URSSAFExtracted(**fields)
