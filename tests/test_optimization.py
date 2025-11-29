@@ -256,7 +256,7 @@ def test_per_with_quotient_familial():
 
 
 def test_lmnp_recommendation_for_eligible_profile():
-    """Test LMNP recommendation for eligible profile (high TMI + investment capacity)."""
+    """Test LMNP for eligible profile (high TMI + investment capacity)."""
     strategy = LMNPStrategy()
 
     tax_result = {"impot": {"revenu_imposable": 60000}}
@@ -841,7 +841,10 @@ async def test_quick_simulation_high_savings():
     result = await quick_simulation(input_data)
 
     # Should generate high savings message
-    assert "💣 ALERTE" in result.message_accroche or "💡 Bonne nouvelle" in result.message_accroche
+    assert (
+        "💣 ALERTE" in result.message_accroche
+        or "💡 Bonne nouvelle" in result.message_accroche
+    )
     assert result.economies_potentielles > 500
     assert len(result.quick_wins) >= 2  # Should have multiple recommendations
 
@@ -928,7 +931,11 @@ async def test_quick_simulation_per_recommendation():
     assert result.per_plafond <= 35200
 
     # Optimal contribution is 70% of plafond
-    assert result.per_versement_optimal == pytest.approx(result.per_plafond * 0.70, rel=0.01)
+    assert result.per_versement_optimal == pytest.approx(
+        result.per_plafond * 0.70, rel=0.01
+    )
 
     # Savings should be versement * TMI
-    assert result.per_economie == pytest.approx(result.per_versement_optimal * result.tmi, rel=0.01)
+    assert result.per_economie == pytest.approx(
+        result.per_versement_optimal * result.tmi, rel=0.01
+    )

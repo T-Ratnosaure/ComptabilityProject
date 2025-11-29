@@ -186,21 +186,15 @@ class QuickSimulationResult(BaseModel):
     """Quick simulation result with key insights."""
 
     # Headline numbers
-    impot_actuel_estime: float = Field(
-        ..., description="Estimated current tax amount"
-    )
+    impot_actuel_estime: float = Field(..., description="Estimated current tax amount")
     impot_optimise: float = Field(..., description="Optimized tax amount")
-    economies_potentielles: float = Field(
-        ..., description="Total potential savings"
-    )
+    economies_potentielles: float = Field(..., description="Total potential savings")
 
     # Key insights
     tmi: float = Field(..., description="Marginal tax rate (TMI)")
     regime_actuel: str = Field(..., description="Current regime")
     regime_recommande: str = Field(..., description="Recommended regime")
-    changement_regime_gain: float = Field(
-        ..., description="Savings from regime change"
-    )
+    changement_regime_gain: float = Field(..., description="Savings from regime change")
 
     # PER recommendation
     per_plafond: float = Field(..., description="PER plafond for the year")
@@ -246,15 +240,9 @@ async def quick_simulation(input_data: QuickSimulationInput) -> QuickSimulationR
         nb_parts = 2.0
     nb_parts += input_data.enfants * 0.5
 
-    # Determine if BNC or BIC
+    # Determine if BNC or BIC and get abattement rate for micro
     is_bnc = "bnc" in input_data.status.lower()
-    activity_type = "BNC" if is_bnc else "BIC"
-
-    # Get abattement rate for micro
-    if is_bnc:
-        abattement_rate = 0.34  # BNC
-    else:
-        abattement_rate = 0.50  # BIC services (conservative)
+    abattement_rate = 0.34 if is_bnc else 0.50  # BNC: 34%, BIC: 50%
 
     # Calculate micro taxable income
     revenu_micro = input_data.chiffre_affaires * (1 - abattement_rate)
@@ -303,11 +291,9 @@ async def quick_simulation(input_data: QuickSimulationInput) -> QuickSimulationR
     if impot_micro < impot_reel:
         regime_recommande = "Micro"
         impot_actuel = impot_micro if regime_actuel == "Micro" else impot_reel
-        impot_optimise_regime = impot_micro
     else:
         regime_recommande = "Réel"
         impot_actuel = impot_micro if regime_actuel == "Micro" else impot_reel
-        impot_optimise_regime = impot_reel
 
     changement_regime_gain = abs(impot_micro - impot_reel)
 
@@ -315,10 +301,6 @@ async def quick_simulation(input_data: QuickSimulationInput) -> QuickSimulationR
     per_plafond = max(4399, min(35200, revenu_micro * 0.10))
     per_versement_optimal = per_plafond * 0.70  # 70% of plafond
     per_economie = per_versement_optimal * tmi
-
-    # Total optimized tax (with PER)
-    revenu_apres_per = revenu_micro - per_versement_optimal
-    impot_avec_per = calculate_simple_tax(revenu_apres_per, nb_parts)
 
     # Total savings
     economies_regime = (
@@ -346,7 +328,7 @@ async def quick_simulation(input_data: QuickSimulationInput) -> QuickSimulationR
 
     if tmi >= 0.30:
         quick_wins.append(
-            f"📊 Votre TMI est de {tmi*100:.0f}% → "
+            f"📊 Votre TMI est de {tmi * 100:.0f}% → "
             f"Chaque euro déduit = {tmi:.2f}€ économisé"
         )
 
