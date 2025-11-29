@@ -80,18 +80,32 @@ The project is implemented in 6 phases:
 - `src/services/document_service.py` - Document processing orchestration
 - `src/api/routes/documents.py` - Upload and retrieval endpoints
 
-### Phase 3: Tax Calculation Engine
+### Phase 3: Tax Calculation Engine - COMPLETE ✅
 
-**Status:** Planned
+**Status:** Complete and merged
 **Goal:** Accurate French tax calculations
 
-**Tasks:**
-- Income tax calculator with tranches (2024/2025 baremes)
-- Quotient familial calculation
-- Social contributions calculator
-- Regime comparison (micro vs reel)
-- Tax deductions and reductions
-- Calculation API endpoints
+**Completed:**
+- Income tax calculator with progressive brackets (2024/2025 barèmes)
+- Quotient familial calculation with French tax rules
+- URSSAF social contributions calculator (BNC 21.8%, BIC 12.8%)
+- Regime comparison engine (micro vs réel with recommendations)
+- Micro regime abattements (BNC 34%, BIC prestations 50%, BIC ventes 71%)
+- PER deduction support with plafond structure
+- PAS (Prélèvement à la Source) reconciliation
+- Warning system for thresholds and compliance issues
+- Tax calculation API endpoints with type-safe Pydantic models
+- Comprehensive test suite (26 tests, 78% coverage)
+- Official sources documented (impots.gouv.fr, URSSAF)
+
+**Key Files:**
+- `src/tax_engine/calculator.py` - Main orchestration layer
+- `src/tax_engine/core.py` - Core tax calculation functions
+- `src/tax_engine/rules.py` - Versioned tax rules loader
+- `src/tax_engine/data/baremes_2024.json` - 2024 tax rules
+- `src/tax_engine/data/baremes_2025.json` - 2025 tax rules
+- `src/api/routes/tax.py` - Tax calculation API endpoints
+- `docs/sources.md` - Official reference documentation
 
 ### Phase 4: Optimization Detection
 
@@ -282,19 +296,24 @@ See `CLAUDE.md` for complete development guidelines.
 
 ## Current Status
 
-**Phase 2 is complete!** The document extraction pipeline is fully implemented with:
-- PDF and OCR text extraction working end-to-end
-- 4 specialized parsers for French tax documents (Avis d'Imposition, 2042, URSSAF, BNC/BIC)
-- Document upload API with file storage management
-- Graceful error handling and comprehensive testing
-- 42 tests passing with 74% coverage
-- All CI/CD checks passing
+**Phase 3 is complete!** The tax calculation engine is fully implemented with:
+- Complete French tax calculation system (IR + social contributions)
+- Progressive tax brackets with quotient familial (2024/2025 barèmes)
+- URSSAF contributions for auto-entrepreneurs (BNC & BIC)
+- Micro vs Réel regime comparison with automated recommendations
+- PER deduction support and PAS reconciliation
+- Warning system for thresholds and compliance issues
+- Tax calculation API with type-safe Pydantic models
+- 26 tests passing with 78% coverage
+- Official sources documented (impots.gouv.fr, URSSAF)
+- All 68 tests passing with CI/CD checks green
 
 **Previous milestones:**
 - ✅ Phase 1: Core infrastructure (FastAPI, SQLAlchemy, Alembic, repositories, tests, CI/CD)
 - ✅ Phase 2: Document extraction pipeline (PDF/OCR extraction, field parsers, upload API)
+- ✅ Phase 3: Tax calculation engine (IR, quotient familial, social contributions, regime comparison)
 
-**Next up: Phase 3** - Tax calculation engine with French baremes, quotient familial, and social contributions.
+**Next up: Phase 4** - Optimization detection to identify tax savings opportunities (regime changes, PER, LMNP, FCPI/FIP, Girardin, company structure).
 
 ## Contributing
 
