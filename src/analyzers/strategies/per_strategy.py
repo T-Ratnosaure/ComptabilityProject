@@ -12,6 +12,7 @@ from src.models.optimization import (
 )
 from src.tax_engine.core import calculate_tmi
 from src.tax_engine.rules import get_tax_rules
+from src.tax_engine.tax_utils import calculate_per_plafond
 
 
 class PERStrategy:
@@ -60,8 +61,10 @@ class PERStrategy:
             # Not worth it for non-taxable people
             return recommendations
 
-        # Calculate PER plafond
-        plafond = self._calculate_plafond(revenu_imposable)
+        # Calculate PER plafond using centralized function
+        plafond = calculate_per_plafond(
+            revenu_imposable, self.tax_rules, status="salarie"
+        )
 
         # Calculate remaining room
         remaining_room = max(0, plafond - per_contributed)
@@ -92,13 +95,6 @@ class PERStrategy:
             recommendations.append(max_rec)
 
         return recommendations
-
-    def _calculate_plafond(self, revenu_prof: float) -> float:
-        """Calculate PER plafond (10% of professional income)."""
-        plafond = revenu_prof * self.rules["plafond_calculation"]["rate"]
-        plafond = max(plafond, self.rules["plafond_calculation"]["min_plafond"])
-        plafond = min(plafond, self.rules["plafond_calculation"]["max_plafond"])
-        return plafond
 
     def _get_min_interest_for_tmi(self, tmi: float) -> float:
         """Get minimum interest threshold for a given TMI."""

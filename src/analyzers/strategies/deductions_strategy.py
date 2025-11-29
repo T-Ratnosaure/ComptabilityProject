@@ -10,6 +10,11 @@ from src.models.optimization import (
     RecommendationCategory,
     RiskLevel,
 )
+from src.tax_engine.rules import get_tax_rules
+from src.tax_engine.tax_utils import (
+    calculate_tax_reduction,
+    get_tax_reduction_plafond,
+)
 
 
 class DeductionsStrategy:
@@ -20,6 +25,9 @@ class DeductionsStrategy:
         rules_path = Path(__file__).parent.parent / "rules" / "optimization_rules.json"
         with open(rules_path, encoding="utf-8") as f:
             self.rules = json.load(f)["deductions"]
+
+        # Load tax rules for centralized fiscal values
+        self.tax_rules = get_tax_rules(2024)
 
     def analyze(
         self, tax_result: dict, profile: dict, context: dict
@@ -61,10 +69,12 @@ class DeductionsStrategy:
         current_dons = context.get("dons_declared", 0)
         revenu_imposable = tax_result.get("impot", {}).get("revenu_imposable", 0)
 
-        # Calculate plafond (20% of taxable income)
-        plafond = revenu_imposable * dons_rules["plafond_rate"]
+        # Calculate plafond using centralized function
+        plafond = get_tax_reduction_plafond(
+            "dons", self.tax_rules, revenu_imposable=revenu_imposable
+        )
 
-        # Get recommendation thresholds from JSON
+        # Get recommendation thresholds from JSON (business logic)
         min_income = dons_rules["min_income_for_recommendation"]
         suggested_amount = dons_rules["suggested_amount"]
 
@@ -72,10 +82,16 @@ class DeductionsStrategy:
         if current_dons < plafond and revenu_imposable > min_income:
             # Suggest modest donation
             suggested_don = min(suggested_amount, (plafond - current_dons) * 0.3)
-            reduction = suggested_don * dons_rules["reduction_rate"]
 
-            reduction_pct = dons_rules["reduction_rate"] * 100
-            plafond_pct = dons_rules["plafond_rate"] * 100
+            # Calculate reduction using centralized function
+            reduction, _ = calculate_tax_reduction(
+                "dons", suggested_don, self.tax_rules, revenu_imposable=revenu_imposable
+            )
+
+            # Get rates from centralized source for display
+            tax_red_config = self.tax_rules.tax_reductions["dons"]
+            reduction_pct = tax_red_config["rate"] * 100
+            plafond_pct = tax_red_config["plafond_rate"] * 100
             description = (
                 f"🎁 Dons aux associations - Réduction d'impôt 66%\n\n"
                 f"Les dons aux associations ouvrent droit à une réduction d'impôt "

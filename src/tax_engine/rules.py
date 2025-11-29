@@ -107,6 +107,15 @@ class TaxRules:
         return self.data.get("quotient_familial", {})
 
     @property
+    def tax_reductions(self) -> dict[str, dict[str, Any]]:
+        """Get tax reductions and credits configuration.
+
+        Returns:
+            Dict with dons, services_personne, frais_garde config
+        """
+        return self.data.get("tax_reductions", {})
+
+    @property
     def source_url(self) -> str:
         """Get official source URL.
 

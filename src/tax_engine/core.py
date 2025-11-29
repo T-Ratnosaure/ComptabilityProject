@@ -3,6 +3,7 @@
 from typing import Any
 
 from src.tax_engine.rules import TaxRules
+from src.tax_engine.tax_utils import calculate_tax_reduction
 
 
 def compute_taxable_professional_income(
@@ -194,6 +195,7 @@ def apply_tax_reductions(
     impot_brut: float,
     revenu_imposable: float,
     reductions_data: dict[str, float],
+    rules: TaxRules,
 ) -> tuple[float, dict[str, float]]:
     """Apply tax reductions and credits.
 
@@ -205,6 +207,7 @@ def apply_tax_reductions(
             - services_personne: Services à la personne expenses
             - frais_garde: Childcare expenses
             - children_under_6: Number of children under 6 (for garde plafond)
+        rules: Tax rules with reduction rates and plafonds
 
     Returns:
         Tuple of (impot_net, reductions_applied_dict)
@@ -212,32 +215,32 @@ def apply_tax_reductions(
     reductions_applied = {}
     total_reduction = 0.0
 
-    # 1. Dons (66% reduction, plafond 20% of revenu_imposable)
+    # 1. Dons - Use centralized function
     dons = reductions_data.get("dons", 0.0)
     if dons > 0:
-        plafond_dons = revenu_imposable * 0.20
-        dons_eligible = min(dons, plafond_dons)
-        reduction_dons = dons_eligible * 0.66
-        reductions_applied["dons"] = round(reduction_dons, 2)
+        reduction_dons, _ = calculate_tax_reduction(
+            "dons", dons, rules, revenu_imposable=revenu_imposable
+        )
+        reductions_applied["dons"] = reduction_dons
         total_reduction += reduction_dons
 
-    # 2. Services à la personne (50% credit, plafond 12000€)
+    # 2. Services à la personne - Use centralized function
     services = reductions_data.get("services_personne", 0.0)
     if services > 0:
-        plafond_services = 12000
-        services_eligible = min(services, plafond_services)
-        credit_services = services_eligible * 0.50
-        reductions_applied["services_personne"] = round(credit_services, 2)
+        credit_services, _ = calculate_tax_reduction(
+            "services_personne", services, rules
+        )
+        reductions_applied["services_personne"] = credit_services
         total_reduction += credit_services
 
-    # 3. Frais de garde (50% credit, 3500€ per child under 6)
+    # 3. Frais de garde - Use centralized function
     frais_garde = reductions_data.get("frais_garde", 0.0)
     children_under_6 = reductions_data.get("children_under_6", 0)
     if frais_garde > 0 and children_under_6 > 0:
-        plafond_garde = 3500 * children_under_6
-        garde_eligible = min(frais_garde, plafond_garde)
-        credit_garde = garde_eligible * 0.50
-        reductions_applied["frais_garde"] = round(credit_garde, 2)
+        credit_garde, _ = calculate_tax_reduction(
+            "frais_garde", frais_garde, rules, children_under_6=children_under_6
+        )
+        reductions_applied["frais_garde"] = credit_garde
         total_reduction += credit_garde
 
     # Apply reductions to gross tax
@@ -325,6 +328,7 @@ def compute_ir(
         impot_brut=impot_brut,
         revenu_imposable=revenu_imposable,
         reductions_data=reductions_data,
+        rules=rules,
     )
 
     return {

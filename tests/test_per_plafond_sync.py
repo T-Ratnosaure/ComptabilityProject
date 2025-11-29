@@ -19,6 +19,7 @@ import pytest
 
 from src.tax_engine.core import apply_per_deduction_with_limit
 from src.tax_engine.rules import get_tax_rules
+from src.tax_engine.tax_utils import calculate_per_plafond
 
 
 class TestPERPlafondSync:
@@ -64,12 +65,10 @@ class TestPERPlafondSync:
 
     def test_per_strategy_calculates_correctly(self):
         """Verify PER strategy uses correct plafond value."""
-        from src.analyzers.strategies.per_strategy import PERStrategy
-
-        strategy = PERStrategy()
+        rules = get_tax_rules(2024)
 
         # High income should hit max plafond
-        plafond = strategy._calculate_plafond(500000)
+        plafond = calculate_per_plafond(500000, rules, status="salarie")
         assert plafond == 35194  # Max plafond
 
     def test_min_plafond_respected(self):
@@ -105,12 +104,10 @@ class TestPERPlafondSync:
 
     def test_per_strategy_min_plafond(self):
         """Verify PER strategy respects minimum plafond."""
-        from src.analyzers.strategies.per_strategy import PERStrategy
-
-        strategy = PERStrategy()
+        rules = get_tax_rules(2024)
 
         # Low income
-        plafond = strategy._calculate_plafond(10000)
+        plafond = calculate_per_plafond(10000, rules, status="salarie")
         assert plafond == 4399  # Min plafond
 
 
@@ -127,10 +124,8 @@ class TestPERPlafondSync:
 )
 def test_per_plafond_calculation_scenarios(professional_income, expected_plafond):
     """Test PER plafond calculation across various income levels."""
-    from src.analyzers.strategies.per_strategy import PERStrategy
-
-    strategy = PERStrategy()
-    plafond = strategy._calculate_plafond(professional_income)
+    rules = get_tax_rules(2024)
+    plafond = calculate_per_plafond(professional_income, rules, status="salarie")
     assert plafond == expected_plafond
 
 
@@ -149,9 +144,10 @@ def test_no_divergence_between_sources():
     max_from_per_rules = per_rules["rules"]["plafond_calculation"]["max_plafond"]
 
     # They MUST be identical
-    assert (
-        max_from_baremes == max_from_per_rules
-    ), f"Divergence detected: baremes={max_from_baremes}, per_rules={max_from_per_rules}"
+    assert max_from_baremes == max_from_per_rules, (
+        f"Divergence detected: baremes={max_from_baremes}, "
+        f"per_rules={max_from_per_rules}"
+    )
 
     # Verify it's the official value
     assert max_from_baremes == 35194, f"Expected 35194, got {max_from_baremes}"
