@@ -53,7 +53,8 @@ class TestMIMEValidation:
             # If python-magic detects as octet-stream, use fallback
             if "octet-stream" in str(e) or "not allowed" in str(e):
                 pytest.skip(
-                    "python-magic detected minimal PNG as octet-stream (expected with small test data)"
+                    "python-magic detected minimal PNG as octet-stream "
+                    "(expected with small test data)"
                 )
             raise
 
@@ -255,7 +256,8 @@ class TestImageValidation:
             result = FileValidator.validate_image(jpeg_content)
             assert result["valid"] is True
         except ValueError as e:
-            # PIL might not recognize minimal JPEG or python-magic detects as octet-stream
+            # PIL might not recognize minimal JPEG or python-magic
+            # detects as octet-stream
             if (
                 "cannot identify" in str(e)
                 or "octet-stream" in str(e)
