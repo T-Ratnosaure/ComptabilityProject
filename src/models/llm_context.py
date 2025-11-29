@@ -4,7 +4,6 @@ These models provide a sanitized, validated context for LLM interactions,
 excluding all technical fields, system paths, and sensitive data.
 """
 
-
 from pydantic import BaseModel, Field
 
 from src.models.fiscal_profile import FiscalProfile
