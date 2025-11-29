@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field
 
 from src.analyzers.optimizer import TaxOptimizer
 from src.models.optimization import OptimizationResult
+from src.tax_engine.core import compute_ir
+from src.tax_engine.rules import get_tax_rules
 
 router = APIRouter(prefix="/api/v1/optimization", tags=["optimization"])
 
@@ -234,78 +236,83 @@ async def quick_simulation(input_data: QuickSimulationInput) -> QuickSimulationR
         Input: CA 50k€, charges 10k€, célibataire
         Output: "Vous payez 2,500€ d'impôts. Vous pourriez économiser 1,200€!"
     """
+    # Load tax rules
+    rules = get_tax_rules(2024)
+
     # Calculate nb_parts from family situation
     nb_parts = 1.0
     if input_data.situation_familiale in ["marie", "pacse"]:
         nb_parts = 2.0
     nb_parts += input_data.enfants * 0.5
 
-    # Determine if BNC or BIC and get abattement rate for micro
-    is_bnc = "bnc" in input_data.status.lower()
-    abattement_rate = 0.34 if is_bnc else 0.50  # BNC: 34%, BIC: 50%
-
-    # Calculate micro taxable income
-    revenu_micro = input_data.chiffre_affaires * (1 - abattement_rate)
-
-    # Calculate réel taxable income
-    revenu_reel = input_data.chiffre_affaires - input_data.charges_reelles
-
-    # Estimate TMI based on income
-    revenu_par_part_micro = revenu_micro / nb_parts
-    if revenu_par_part_micro <= 11294:
-        tmi = 0.0
-    elif revenu_par_part_micro <= 28797:
-        tmi = 0.11
-    elif revenu_par_part_micro <= 82341:
-        tmi = 0.30
-    elif revenu_par_part_micro <= 177106:
-        tmi = 0.41
-    else:
-        tmi = 0.45
-
-    # Quick tax calculation (simplified)
-    def calculate_simple_tax(revenu_imposable: float, nb_parts: float) -> float:
-        """Simplified tax calculation."""
-        revenu_par_part = revenu_imposable / nb_parts
-
-        # Apply brackets
-        tax_par_part = 0.0
-        if revenu_par_part > 11294:
-            tax_par_part += min(revenu_par_part - 11294, 28797 - 11294) * 0.11
-        if revenu_par_part > 28797:
-            tax_par_part += min(revenu_par_part - 28797, 82341 - 28797) * 0.30
-        if revenu_par_part > 82341:
-            tax_par_part += min(revenu_par_part - 82341, 177106 - 82341) * 0.41
-        if revenu_par_part > 177106:
-            tax_par_part += (revenu_par_part - 177106) * 0.45
-
-        return tax_par_part * nb_parts
-
-    # Calculate tax for both regimes
-    impot_micro = calculate_simple_tax(revenu_micro, nb_parts)
-    impot_reel = calculate_simple_tax(revenu_reel, nb_parts)
-
     # Determine current and recommended regime
     regime_actuel = "Micro" if "micro" in input_data.status.lower() else "Réel"
 
-    if impot_micro < impot_reel:
-        regime_recommande = "Micro"
-        impot_actuel = impot_micro if regime_actuel == "Micro" else impot_reel
+    # Prepare person and income data
+    person = {"nb_parts": nb_parts, "status": input_data.status}
+    income = {
+        "professional_gross": input_data.chiffre_affaires,
+        "deductible_expenses": input_data.charges_reelles,
+        "salary": 0.0,
+        "rental_income": 0.0,
+        "capital_income": 0.0,
+    }
+    deductions = {
+        "per_contributions": 0.0,
+        "alimony": 0.0,
+        "other_deductions": 0.0,
+    }
+
+    # Calculate tax with current regime
+    ir_result_current = compute_ir(person, income, deductions, rules)
+    impot_actuel = ir_result_current["impot_net"]
+    tmi = ir_result_current["tmi"]
+
+    # Calculate tax with alternative regime
+    is_bnc = "bnc" in input_data.status.lower()
+    if regime_actuel == "Micro":
+        alternative_regime = "reel_bnc" if is_bnc else "reel_bic"
     else:
-        regime_recommande = "Réel"
-        impot_actuel = impot_micro if regime_actuel == "Micro" else impot_reel
+        alternative_regime = "micro_bnc" if is_bnc else "micro_bic_service"
 
-    changement_regime_gain = abs(impot_micro - impot_reel)
+    person_alt = {"nb_parts": nb_parts, "status": alternative_regime}
+    ir_result_alt = compute_ir(person_alt, income, deductions, rules)
+    impot_alt = ir_result_alt["impot_net"]
 
-    # PER calculation
-    per_plafond = max(4399, min(35200, revenu_micro * 0.10))
+    # Determine recommended regime
+    if impot_actuel <= impot_alt:
+        regime_recommande = regime_actuel
+        changement_regime_gain = 0.0
+    else:
+        regime_recommande = "Réel" if alternative_regime.startswith("reel") else "Micro"
+        changement_regime_gain = impot_actuel - impot_alt
+
+    # PER calculation using centralized function
+    # Calculate professional taxable income for PER plafond
+    from src.tax_engine.core import (
+        apply_per_deduction_with_limit,
+        compute_taxable_professional_income,
+    )
+
+    taxable_prof = compute_taxable_professional_income(
+        regime=input_data.status,
+        professional_gross=input_data.chiffre_affaires,
+        deductible_expenses=input_data.charges_reelles,
+        rules=rules,
+    )
+
+    # Calculate PER plafond
+    per_plafond, _ = apply_per_deduction_with_limit(
+        per_contribution=999999,  # Large number to get full plafond
+        professional_income=taxable_prof,
+        rules=rules,
+    )
+
     per_versement_optimal = per_plafond * 0.70  # 70% of plafond
     per_economie = per_versement_optimal * tmi
 
     # Total savings
-    economies_regime = (
-        changement_regime_gain if regime_actuel != regime_recommande else 0
-    )
+    economies_regime = changement_regime_gain
     economies_totales = economies_regime + per_economie
 
     # Optimized tax amount
