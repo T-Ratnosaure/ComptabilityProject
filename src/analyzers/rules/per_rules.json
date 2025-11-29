@@ -36,14 +36,6 @@
       "optimal": {
         "description": "Optimise le ratio gain fiscal / capacité d'épargne",
         "target_rate": 0.7
-      },
-      "safe": {
-        "description": "Approche prudente avec 50% du plafond",
-        "target_rate": 0.5
-      },
-      "max": {
-        "description": "Utilisation maximale du plafond",
-        "target_rate": 1.0
       }
     }
   },

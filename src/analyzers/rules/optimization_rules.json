@@ -7,6 +7,8 @@
       "name": "Dons aux associations",
       "reduction_rate": 0.66,
       "plafond_rate": 0.20,
+      "min_income_for_recommendation": 10000,
+      "suggested_amount": 500,
       "description": "66% de réduction d'impôt, plafonné à 20% du revenu imposable",
       "sources": [
         "https://www.service-public.fr/particuliers/vosdroits/F426"
@@ -17,6 +19,7 @@
       "credit_rate": 0.50,
       "plafond": 12000,
       "plafond_first_year": 15000,
+      "min_impot_for_recommendation": 500,
       "description": "50% de crédit d'impôt, plafond 12 000€ (15 000€ première année)",
       "examples": [
         "Ménage",
@@ -38,14 +41,6 @@
       "sources": [
         "https://www.service-public.fr/particuliers/vosdroits/F8"
       ]
-    },
-    "renovation_energetique": {
-      "name": "Rénovation énergétique",
-      "description": "MaPrimeRénov' et crédit d'impôt transition énergétique",
-      "note": "Montants variables selon travaux et revenus",
-      "sources": [
-        "https://www.service-public.fr/particuliers/vosdroits/F35083"
-      ]
     }
   },
   "regime_thresholds": {
@@ -62,20 +57,24 @@
       "abattement": 0.71
     }
   },
+  "regime_optimization": {
+    "min_delta_for_recommendation": 500,
+    "threshold_proximity_alert": 0.85,
+    "description": "Recommander changement si delta > 500€, alerter à 85% du seuil"
+  },
   "structure_thresholds": {
     "consider_sasu": {
       "ca_min": 50000,
       "charges_rate_min": 0.25,
+      "estimated_savings_rate": 0.03,
+      "creation_cost": 3000,
       "description": "Envisager SASU IS si CA > 50k€ et charges > 25%"
-    },
-    "consider_eurl": {
-      "ca_min": 50000,
-      "charges_rate_min": 0.25,
-      "description": "Envisager EURL IS comme alternative à SASU"
     },
     "consider_holding": {
       "ca_min": 100000,
       "patrimony_strategy": true,
+      "estimated_savings_rate": 0.02,
+      "creation_cost": 10000,
       "description": "Holding patrimoniale si CA > 100k€ et stratégie patrimoniale"
     }
   },

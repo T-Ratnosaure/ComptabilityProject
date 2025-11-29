@@ -64,10 +64,14 @@ class DeductionsStrategy:
         # Calculate plafond (20% of taxable income)
         plafond = revenu_imposable * dons_rules["plafond_rate"]
 
+        # Get recommendation thresholds from JSON
+        min_income = dons_rules["min_income_for_recommendation"]
+        suggested_amount = dons_rules["suggested_amount"]
+
         # If user hasn't maxed out and has some income
-        if current_dons < plafond and revenu_imposable > 10000:
+        if current_dons < plafond and revenu_imposable > min_income:
             # Suggest modest donation
-            suggested_don = min(500, (plafond - current_dons) * 0.3)
+            suggested_don = min(suggested_amount, (plafond - current_dons) * 0.3)
             reduction = suggested_don * dons_rules["reduction_rate"]
 
             reduction_pct = dons_rules["reduction_rate"] * 100
@@ -128,8 +132,11 @@ class DeductionsStrategy:
         current_services = context.get("services_personne_declared", 0)
         impot_net = tax_result.get("impot", {}).get("impot_net", 0)
 
+        # Get recommendation threshold from JSON
+        min_impot = services_rules["min_impot_for_recommendation"]
+
         # Only recommend if user has tax to pay
-        if impot_net < 500:
+        if impot_net < min_impot:
             return None
 
         plafond = services_rules["plafond"]

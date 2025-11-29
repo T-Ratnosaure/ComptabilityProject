@@ -3,6 +3,11 @@
   "description": "Défiscalisation via investissement productif en Outre-Mer",
   "year": 2024,
   "rules": {
+    "recommended_investment": {
+      "target_reduction_rate": 0.35,
+      "min_tax_remaining": 500,
+      "description": "Viser 35% de l'impôt net, garder minimum 500€"
+    },
     "types": {
       "industriel": {
         "reduction_rate": 1.10,
@@ -10,12 +15,6 @@
         "risk": "high",
         "commitment_years": 5,
         "note": "Engagement de conservation pendant 5 ans minimum"
-      },
-      "habitation": {
-        "reduction_rate": 0.48,
-        "description": "48% de réduction d'impôt",
-        "risk": "medium",
-        "commitment_years": 6
       }
     },
     "eligibility": {

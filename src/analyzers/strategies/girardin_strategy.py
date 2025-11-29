@@ -65,13 +65,19 @@ class GirardinStrategy:
         self, impot_net: float
     ) -> Recommendation:
         """Create Girardin Industriel recommendation with Profina."""
-        # Calculate optimal investment
-        # Aim for ~30-50% of annual tax with 110% return
+        # Calculate optimal investment using rules from JSON
         industriel_rules = self.rules["types"]["industriel"]
         reduction_rate = industriel_rules["reduction_rate"]
 
-        # Suggest investing to get 30-40% of tax back
-        target_reduction = min(impot_net * 0.35, impot_net - 500)
+        # Get investment parameters from JSON
+        investment_rules = self.rules["recommended_investment"]
+        target_reduction_rate = investment_rules["target_reduction_rate"]
+        min_tax_remaining = investment_rules["min_tax_remaining"]
+
+        # Calculate optimal investment
+        target_reduction = min(
+            impot_net * target_reduction_rate, impot_net - min_tax_remaining
+        )
         optimal_investment = target_reduction / reduction_rate
 
         # Net gain = reduction - investment
@@ -79,6 +85,14 @@ class GirardinStrategy:
 
         # Get Profina info
         profina = self.rules["recommended_provider"]
+
+        # Map risk level from JSON
+        risk_level_map = {
+            "low": RiskLevel.LOW,
+            "medium": RiskLevel.MEDIUM,
+            "high": RiskLevel.HIGH,
+        }
+        risk = risk_level_map.get(industriel_rules["risk"], RiskLevel.HIGH)
 
         rendement_pct = (net_gain / optimal_investment) * 100
         commitment_years = industriel_rules["commitment_years"]
@@ -129,7 +143,7 @@ class GirardinStrategy:
             title="Girardin Industriel via Profina - Réduction 110%",
             description=description,
             impact_estimated=net_gain,
-            risk=RiskLevel.HIGH,
+            risk=risk,
             complexity=ComplexityLevel.MODERATE,
             confidence=0.75,
             category=RecommendationCategory.INVESTMENT,
