@@ -72,16 +72,30 @@ class FCPIFIPStrategy:
             else fcpi_rules["plafond_individual"]
         )
 
-        # Suggest investing 30-50% of plafond
-        recommended_investment = min(plafond * 0.4, impot_net * 0.3)
+        # Get investment parameters from JSON
+        investment_rules = self.rules["recommended_investment"]
+        plafond_rate = investment_rules["plafond_rate"]
+        impot_rate = investment_rules["impot_rate"]
+        min_amount = investment_rules["min_amount"]
 
-        if recommended_investment < 1000:
+        # Calculate recommended investment
+        recommended_investment = min(plafond * plafond_rate, impot_net * impot_rate)
+
+        if recommended_investment < min_amount:
             return None
 
         reduction = recommended_investment * reduction_rate
         effective_cost = recommended_investment - reduction
         reduction_pct = reduction_rate * 100
         commitment_years = fcpi_rules["commitment_years"]
+
+        # Map risk level from JSON
+        risk_level_map = {
+            "low": RiskLevel.LOW,
+            "medium": RiskLevel.MEDIUM,
+            "high": RiskLevel.HIGH,
+        }
+        risk = risk_level_map.get(fcpi_rules["risk"], RiskLevel.MEDIUM)
 
         description = (
             f"💼 FCPI (Fonds Communs de Placement dans l'Innovation)\n\n"
@@ -117,7 +131,7 @@ class FCPIFIPStrategy:
             title=f"FCPI - Réduction {reduction_rate * 100:.0f}% + Innovation",
             description=description,
             impact_estimated=reduction,
-            risk=RiskLevel.MEDIUM,
+            risk=risk,
             complexity=ComplexityLevel.MODERATE,
             confidence=0.80,
             category=RecommendationCategory.INVESTMENT,

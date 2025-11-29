@@ -115,9 +115,13 @@ class StructureStrategy:
             "Ne pas décider uniquement pour la fiscalité",
         ]
 
+        # Get estimated savings and costs from JSON
+        sasu_rules = self.rules["consider_sasu"]
+        estimated_savings_rate = sasu_rules["estimated_savings_rate"]
+        creation_cost = sasu_rules["creation_cost"]
+
         # Estimated savings are hard to calculate without full simulation
-        # Conservative estimate: 2-5% of revenue in tax optimization
-        estimated_savings = annual_revenue * 0.03
+        estimated_savings = annual_revenue * estimated_savings_rate
 
         return Recommendation(
             id=str(uuid.uuid4()),
@@ -133,7 +137,7 @@ class StructureStrategy:
                 "https://www.impots.gouv.fr/professionnel/limpot-sur-les-societes-is",
             ],
             action_steps=action_steps,
-            required_investment=3000,  # Approximate creation + first year costs
+            required_investment=creation_cost,
             eligibility_criteria=[
                 f"CA >= {self.rules['consider_sasu']['ca_min']}€",
                 f"Taux charges >= "
@@ -181,11 +185,16 @@ class StructureStrategy:
             f"- Conseillé par expert-comptable ET avocat fiscaliste"
         )
 
+        # Get estimated savings and costs from JSON
+        holding_rules = self.rules["consider_holding"]
+        estimated_savings_rate = holding_rules["estimated_savings_rate"]
+        creation_cost = holding_rules["creation_cost"]
+
         return Recommendation(
             id=str(uuid.uuid4()),
             title="Holding patrimoniale - Structure avancée",
             description=description,
-            impact_estimated=annual_revenue * 0.02,  # Conservative estimate
+            impact_estimated=annual_revenue * estimated_savings_rate,
             risk=RiskLevel.MEDIUM,
             complexity=ComplexityLevel.COMPLEX,
             confidence=0.50,  # Highly situation-dependent
@@ -202,7 +211,7 @@ class StructureStrategy:
                 "Anticiper les aspects juridiques et fiscaux",
                 "Ne jamais décider seul - expertise obligatoire",
             ],
-            required_investment=10000,  # Structure costs
+            required_investment=creation_cost,
             eligibility_criteria=[
                 f"CA >= {self.rules['consider_holding']['ca_min']}€",
                 "Stratégie patrimoniale long terme",

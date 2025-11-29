@@ -3,6 +3,12 @@
   "description": "Fonds Communs de Placement dans l'Innovation / Fonds d'Investissement de Proximité",
   "year": 2024,
   "rules": {
+    "recommended_investment": {
+      "plafond_rate": 0.4,
+      "impot_rate": 0.3,
+      "min_amount": 1000,
+      "description": "Investir 40% du plafond ou 30% de l'impôt, minimum 1000€"
+    },
     "fcpi": {
       "name": "FCPI (Fonds Communs de Placement dans l'Innovation)",
       "reduction_rate": 0.18,
@@ -11,20 +17,6 @@
       "plafond_couple": 24000,
       "commitment_years": 5,
       "risk": "medium"
-    },
-    "fip": {
-      "name": "FIP (Fonds d'Investissement de Proximité)",
-      "reduction_rate": 0.18,
-      "description": "18% de réduction d'impôt (peut aller jusqu'à 25% selon région)",
-      "plafond_individual": 12000,
-      "plafond_couple": 24000,
-      "commitment_years": 5,
-      "risk": "medium",
-      "regional_bonus": {
-        "corse": 0.25,
-        "outre_mer": 0.25,
-        "description": "Taux bonifié pour certaines régions"
-      }
     },
     "eligibility": {
       "min_impot": 1000,

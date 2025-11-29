@@ -10,6 +10,8 @@ from src.models.optimization import (
     RecommendationCategory,
     RiskLevel,
 )
+from src.tax_engine.core import calculate_tmi
+from src.tax_engine.rules import get_tax_rules
 
 
 class LMNPStrategy:
@@ -20,6 +22,9 @@ class LMNPStrategy:
         rules_path = Path(__file__).parent.parent / "rules" / "lmnp_rules.json"
         with open(rules_path, encoding="utf-8") as f:
             self.rules = json.load(f)["rules"]
+
+        # Load tax rules for TMI calculation
+        self.tax_rules = get_tax_rules(2024)
 
     def analyze(
         self, tax_result: dict, profile: dict, context: dict
@@ -40,7 +45,9 @@ class LMNPStrategy:
         # Extract data
         revenu_imposable = tax_result.get("impot", {}).get("revenu_imposable", 0)
         nb_parts = profile.get("nb_parts", 1)
-        tmi = self._estimate_tmi(revenu_imposable, nb_parts)
+
+        # Use centralized TMI calculation
+        tmi = calculate_tmi(revenu_imposable, nb_parts, self.tax_rules)
 
         # Check eligibility
         investment_capacity = context.get("investment_capacity", 0)
@@ -61,31 +68,20 @@ class LMNPStrategy:
 
         return recommendations
 
-    def _estimate_tmi(self, revenu_imposable: float, nb_parts: float) -> float:
-        """Estimate marginal tax rate (TMI)."""
-        revenu_par_part = revenu_imposable / nb_parts
-
-        if revenu_par_part <= 11294:
-            return 0.0
-        elif revenu_par_part <= 28797:
-            return 0.11
-        elif revenu_par_part <= 82341:
-            return 0.30
-        elif revenu_par_part <= 177106:
-            return 0.41
-        else:
-            return 0.45
-
     def _create_lmnp_recommendation(
         self, tmi: float, investment_capacity: float, risk_tolerance: str
     ) -> Recommendation:
         """Create LMNP investment recommendation."""
-        # Estimate annual rental income (conservative 4% yield)
-        estimated_rental = investment_capacity * 0.04
+        # Get LMNP réel parameters from rules
+        reel_rules = self.rules["regimes"]["reel"]
+        estimated_yield = reel_rules["estimated_yield"]
+        total_deduction_rate = reel_rules["avg_total_deduction_rate"]
+
+        # Estimate annual rental income
+        estimated_rental = investment_capacity * estimated_yield
 
         # Estimate tax savings with LMNP réel
-        # Average: 70% charges + amortissement = near-zero taxable income
-        estimated_savings = estimated_rental * tmi * 0.85
+        estimated_savings = estimated_rental * tmi * total_deduction_rate
 
         description = (
             f"🏠 LMNP (Location Meublée Non Professionnelle)\n"

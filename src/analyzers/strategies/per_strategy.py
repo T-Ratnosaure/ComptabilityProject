@@ -46,6 +46,12 @@ class PERStrategy:
         revenu_imposable = tax_result.get("impot", {}).get("revenu_imposable", 0)
         per_contributed = context.get("per_contributed", 0)
 
+        # Check minimum income eligibility from JSON
+        min_income = self.rules["eligibility"]["min_income"]
+        if revenu_imposable < min_income:
+            # Not eligible for PER recommendation
+            return recommendations
+
         # Get marginal tax rate (TMI) using centralized function
         nb_parts = profile.get("nb_parts", 1.0)
         tmi = calculate_tmi(revenu_imposable, nb_parts, self.tax_rules)

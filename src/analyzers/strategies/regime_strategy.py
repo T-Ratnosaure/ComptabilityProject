@@ -37,12 +37,16 @@ class RegimeStrategy:
         """
         recommendations = []
 
+        # Get regime optimization thresholds from JSON
+        regime_opt = self.rules.get("regime_optimization", {})
+        min_delta = regime_opt.get("min_delta_for_recommendation", 500)
+
         # Check if micro vs réel comparison is available
         if "comparisons" in tax_result and "micro_vs_reel" in tax_result["comparisons"]:
             comparison = tax_result["comparisons"]["micro_vs_reel"]
 
             # If delta is significant, recommend a switch
-            if abs(comparison["delta"]) > 500:  # More than 500€ difference
+            if abs(comparison["delta"]) > min_delta:
                 rec = self._create_regime_recommendation(comparison, profile, context)
                 if rec:
                     recommendations.append(rec)
@@ -158,9 +162,13 @@ class RegimeStrategy:
         if not threshold:
             return None
 
-        # Check if within 10% of threshold
+        # Get proximity alert threshold from JSON
+        regime_opt = self.rules.get("regime_optimization", {})
+        proximity_alert = regime_opt.get("threshold_proximity_alert", 0.85)
+
+        # Check if approaching threshold
         proximity_rate = revenue / threshold
-        if 0.85 <= proximity_rate < 1.0:
+        if proximity_alert <= proximity_rate < 1.0:
             remaining = threshold - revenue
             description = (
                 f"⚠️ Attention : votre chiffre d'affaires ({revenue:.2f}€) approche "

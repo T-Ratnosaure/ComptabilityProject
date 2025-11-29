@@ -13,7 +13,9 @@
         "description": "Régime réel avec amortissement",
         "avg_amortissement_rate": 0.035,
         "avg_charges_rate": 0.70,
-        "note": "Permet déduction charges réelles + amortissement du bien"
+        "avg_total_deduction_rate": 0.85,
+        "estimated_yield": 0.04,
+        "note": "Permet déduction charges réelles + amortissement du bien (total ~85% de déduction, rendement estimé 4%)"
       }
     },
     "eligibility": {
