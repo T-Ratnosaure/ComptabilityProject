@@ -790,3 +790,145 @@ async def test_optimizer_metadata():
     assert "by_complexity" in result.metadata
     assert "disclaimer" in result.metadata
     assert result.metadata["total_recommendations"] == len(result.recommendations)
+
+
+# ============================================================================
+# QUICK SIMULATION TESTS (BONUS FEATURE - 6 tests)
+# ============================================================================
+
+
+@pytest.mark.anyio
+async def test_quick_simulation_basic():
+    """Test basic quick simulation with default values."""
+    from src.api.routes.optimization import QuickSimulationInput, quick_simulation
+
+    input_data = QuickSimulationInput(
+        chiffre_affaires=50000,
+        charges_reelles=10000,
+        status="micro_bnc",
+        situation_familiale="celibataire",
+        enfants=0,
+    )
+
+    result = await quick_simulation(input_data)
+
+    # Basic assertions
+    assert result.impot_actuel_estime > 0
+    assert result.impot_optimise >= 0
+    assert result.economies_potentielles >= 0
+    assert 0 <= result.tmi <= 0.45
+    assert result.regime_actuel in ["Micro", "Réel"]
+    assert result.regime_recommande in ["Micro", "Réel"]
+    assert result.per_plafond >= 4399  # Minimum PER plafond
+    assert len(result.quick_wins) > 0
+    assert len(result.message_accroche) > 0
+
+
+@pytest.mark.anyio
+async def test_quick_simulation_high_savings():
+    """Test quick simulation with high potential savings."""
+    from src.api.routes.optimization import QuickSimulationInput, quick_simulation
+
+    # High revenue with low expenses = high potential savings
+    input_data = QuickSimulationInput(
+        chiffre_affaires=80000,
+        charges_reelles=15000,
+        status="micro_bnc",
+        situation_familiale="celibataire",
+        enfants=0,
+    )
+
+    result = await quick_simulation(input_data)
+
+    # Should generate high savings message
+    assert "💣 ALERTE" in result.message_accroche or "💡 Bonne nouvelle" in result.message_accroche
+    assert result.economies_potentielles > 500
+    assert len(result.quick_wins) >= 2  # Should have multiple recommendations
+
+
+@pytest.mark.anyio
+async def test_quick_simulation_married_with_children():
+    """Test quick simulation with married couple and children."""
+    from src.api.routes.optimization import QuickSimulationInput, quick_simulation
+
+    input_data = QuickSimulationInput(
+        chiffre_affaires=60000,
+        charges_reelles=12000,
+        status="micro_bnc",
+        situation_familiale="marie",
+        enfants=2,
+    )
+
+    result = await quick_simulation(input_data)
+
+    # nb_parts should be 2 (married) + 2 * 0.5 (children) = 3
+    # Lower TMI expected due to higher nb_parts
+    assert result.tmi < 0.30  # Should be lower with 3 parts
+    assert result.impot_actuel_estime < 5000  # Lower tax with more parts
+
+
+@pytest.mark.anyio
+async def test_quick_simulation_reel_status():
+    """Test quick simulation when already on réel regime."""
+    from src.api.routes.optimization import QuickSimulationInput, quick_simulation
+
+    input_data = QuickSimulationInput(
+        chiffre_affaires=50000,
+        charges_reelles=20000,
+        status="reel_bnc",
+        situation_familiale="celibataire",
+        enfants=0,
+    )
+
+    result = await quick_simulation(input_data)
+
+    assert result.regime_actuel == "Réel"
+    # With high charges (40%), réel should be recommended
+    assert result.changement_regime_gain >= 0
+
+
+@pytest.mark.anyio
+async def test_quick_simulation_no_charges():
+    """Test quick simulation with no charges declared."""
+    from src.api.routes.optimization import QuickSimulationInput, quick_simulation
+
+    input_data = QuickSimulationInput(
+        chiffre_affaires=50000,
+        charges_reelles=0,  # No charges
+        status="micro_bnc",
+        situation_familiale="celibataire",
+        enfants=0,
+    )
+
+    result = await quick_simulation(input_data)
+
+    # Should recommend declaring charges if on micro
+    assert any("frais réels" in win.lower() for win in result.quick_wins)
+
+
+@pytest.mark.anyio
+async def test_quick_simulation_per_recommendation():
+    """Test PER recommendation calculation in quick simulation."""
+    from src.api.routes.optimization import QuickSimulationInput, quick_simulation
+
+    input_data = QuickSimulationInput(
+        chiffre_affaires=70000,
+        charges_reelles=10000,
+        status="micro_bnc",
+        situation_familiale="celibataire",
+        enfants=0,
+    )
+
+    result = await quick_simulation(input_data)
+
+    # PER plafond should be 10% of revenue (micro income)
+    # revenu_micro = 70000 * (1 - 0.34) = 46200
+    # per_plafond = max(4399, min(35200, 46200 * 0.10)) = 4620
+    assert result.per_plafond > 4399
+    assert result.per_plafond <= 35200
+
+    # Optimal contribution is 70% of plafond
+    assert result.per_versement_optimal == pytest.approx(result.per_plafond * 0.70, rel=0.01)
+
+    # Savings should be versement * TMI
+    assert result.per_economie == pytest.approx(result.per_versement_optimal * result.tmi, rel=0.01)

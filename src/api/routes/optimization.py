@@ -154,3 +154,242 @@ async def list_strategies() -> dict:
             },
         ]
     }
+
+
+# 💣 BONUS: Quick Simulation for Landing Page / Acquisition
+# This is the viral feature: "Calcule combien tu paies trop d'impôts"
+
+
+class QuickSimulationInput(BaseModel):
+    """Minimal input for quick 30-second simulation."""
+
+    chiffre_affaires: float = Field(
+        ..., description="Annual revenue (CA) in euros", ge=0, le=500000
+    )
+    charges_reelles: float = Field(
+        default=0,
+        description="Real expenses in euros (0 if unknown)",
+        ge=0,
+    )
+    status: str = Field(
+        default="micro_bnc",
+        description="Current status (micro_bnc, micro_bic, reel_bnc, reel_bic)",
+    )
+    situation_familiale: str = Field(
+        default="celibataire",
+        description="Family situation (celibataire, marie, pacse)",
+    )
+    enfants: int = Field(default=0, description="Number of children", ge=0, le=10)
+
+
+class QuickSimulationResult(BaseModel):
+    """Quick simulation result with key insights."""
+
+    # Headline numbers
+    impot_actuel_estime: float = Field(
+        ..., description="Estimated current tax amount"
+    )
+    impot_optimise: float = Field(..., description="Optimized tax amount")
+    economies_potentielles: float = Field(
+        ..., description="Total potential savings"
+    )
+
+    # Key insights
+    tmi: float = Field(..., description="Marginal tax rate (TMI)")
+    regime_actuel: str = Field(..., description="Current regime")
+    regime_recommande: str = Field(..., description="Recommended regime")
+    changement_regime_gain: float = Field(
+        ..., description="Savings from regime change"
+    )
+
+    # PER recommendation
+    per_plafond: float = Field(..., description="PER plafond for the year")
+    per_versement_optimal: float = Field(..., description="Optimal PER contribution")
+    per_economie: float = Field(..., description="Tax savings from PER")
+
+    # Quick wins
+    quick_wins: list[str] = Field(
+        default_factory=list, description="List of quick actionable wins"
+    )
+
+    # Call to action
+    message_accroche: str = Field(..., description="Catchy message for user")
+
+
+@router.post("/quick-simulation", response_model=QuickSimulationResult)
+async def quick_simulation(input_data: QuickSimulationInput) -> QuickSimulationResult:
+    """
+    🧨 VIRAL FEATURE: Quick 30-second tax simulation.
+
+    Perfect for landing pages with "Calcule combien tu paies trop d'impôts".
+
+    This endpoint provides instant insights:
+    - Current vs optimized tax amount
+    - TMI (marginal tax rate)
+    - Micro vs Réel comparison
+    - PER recommendation
+    - Total potential savings
+
+    Args:
+        input_data: Minimal input (CA, charges, status, family)
+
+    Returns:
+        Quick simulation with headline numbers and quick wins
+
+    Example:
+        Input: CA 50k€, charges 10k€, célibataire
+        Output: "Vous payez 2,500€ d'impôts. Vous pourriez économiser 1,200€!"
+    """
+    # Calculate nb_parts from family situation
+    nb_parts = 1.0
+    if input_data.situation_familiale in ["marie", "pacse"]:
+        nb_parts = 2.0
+    nb_parts += input_data.enfants * 0.5
+
+    # Determine if BNC or BIC
+    is_bnc = "bnc" in input_data.status.lower()
+    activity_type = "BNC" if is_bnc else "BIC"
+
+    # Get abattement rate for micro
+    if is_bnc:
+        abattement_rate = 0.34  # BNC
+    else:
+        abattement_rate = 0.50  # BIC services (conservative)
+
+    # Calculate micro taxable income
+    revenu_micro = input_data.chiffre_affaires * (1 - abattement_rate)
+
+    # Calculate réel taxable income
+    revenu_reel = input_data.chiffre_affaires - input_data.charges_reelles
+
+    # Estimate TMI based on income
+    revenu_par_part_micro = revenu_micro / nb_parts
+    if revenu_par_part_micro <= 11294:
+        tmi = 0.0
+    elif revenu_par_part_micro <= 28797:
+        tmi = 0.11
+    elif revenu_par_part_micro <= 82341:
+        tmi = 0.30
+    elif revenu_par_part_micro <= 177106:
+        tmi = 0.41
+    else:
+        tmi = 0.45
+
+    # Quick tax calculation (simplified)
+    def calculate_simple_tax(revenu_imposable: float, nb_parts: float) -> float:
+        """Simplified tax calculation."""
+        revenu_par_part = revenu_imposable / nb_parts
+
+        # Apply brackets
+        tax_par_part = 0.0
+        if revenu_par_part > 11294:
+            tax_par_part += min(revenu_par_part - 11294, 28797 - 11294) * 0.11
+        if revenu_par_part > 28797:
+            tax_par_part += min(revenu_par_part - 28797, 82341 - 28797) * 0.30
+        if revenu_par_part > 82341:
+            tax_par_part += min(revenu_par_part - 82341, 177106 - 82341) * 0.41
+        if revenu_par_part > 177106:
+            tax_par_part += (revenu_par_part - 177106) * 0.45
+
+        return tax_par_part * nb_parts
+
+    # Calculate tax for both regimes
+    impot_micro = calculate_simple_tax(revenu_micro, nb_parts)
+    impot_reel = calculate_simple_tax(revenu_reel, nb_parts)
+
+    # Determine current and recommended regime
+    regime_actuel = "Micro" if "micro" in input_data.status.lower() else "Réel"
+
+    if impot_micro < impot_reel:
+        regime_recommande = "Micro"
+        impot_actuel = impot_micro if regime_actuel == "Micro" else impot_reel
+        impot_optimise_regime = impot_micro
+    else:
+        regime_recommande = "Réel"
+        impot_actuel = impot_micro if regime_actuel == "Micro" else impot_reel
+        impot_optimise_regime = impot_reel
+
+    changement_regime_gain = abs(impot_micro - impot_reel)
+
+    # PER calculation
+    per_plafond = max(4399, min(35200, revenu_micro * 0.10))
+    per_versement_optimal = per_plafond * 0.70  # 70% of plafond
+    per_economie = per_versement_optimal * tmi
+
+    # Total optimized tax (with PER)
+    revenu_apres_per = revenu_micro - per_versement_optimal
+    impot_avec_per = calculate_simple_tax(revenu_apres_per, nb_parts)
+
+    # Total savings
+    economies_regime = (
+        changement_regime_gain if regime_actuel != regime_recommande else 0
+    )
+    economies_totales = economies_regime + per_economie
+
+    # Optimized tax amount
+    impot_optimise = impot_actuel - economies_totales
+
+    # Generate quick wins
+    quick_wins = []
+
+    if regime_actuel != regime_recommande and changement_regime_gain > 500:
+        quick_wins.append(
+            f"💰 Passer au régime {regime_recommande} → "
+            f"économie de {changement_regime_gain:.0f}€"
+        )
+
+    if per_economie > 500:
+        quick_wins.append(
+            f"🎯 Verser {per_versement_optimal:.0f}€ au PER → "
+            f"économie de {per_economie:.0f}€"
+        )
+
+    if tmi >= 0.30:
+        quick_wins.append(
+            f"📊 Votre TMI est de {tmi*100:.0f}% → "
+            f"Chaque euro déduit = {tmi:.2f}€ économisé"
+        )
+
+    if input_data.charges_reelles == 0 and regime_actuel == "Micro":
+        quick_wins.append(
+            "📝 Astuce : Déclarez vos frais réels pour potentiellement "
+            "économiser encore plus"
+        )
+
+    if not quick_wins:
+        quick_wins.append(
+            "✅ Votre situation semble déjà optimisée ! "
+            "Consultez notre analyse complète pour plus de détails."
+        )
+
+    # Generate catchy message
+    if economies_totales > 1000:
+        message = (
+            f"💣 ALERTE : Vous pourriez économiser {economies_totales:.0f}€ "
+            f"d'impôts cette année !"
+        )
+    elif economies_totales > 500:
+        message = (
+            f"💡 Bonne nouvelle : {economies_totales:.0f}€ d'économies "
+            f"possibles sur vos impôts !"
+        )
+    else:
+        message = (
+            "✅ Votre situation est déjà bien optimisée ! "
+            "Découvrez nos conseils personnalisés."
+        )
+
+    return QuickSimulationResult(
+        impot_actuel_estime=impot_actuel,
+        impot_optimise=max(0, impot_optimise),
+        economies_potentielles=economies_totales,
+        tmi=tmi,
+        regime_actuel=regime_actuel,
+        regime_recommande=regime_recommande,
+        changement_regime_gain=changement_regime_gain,
+        per_plafond=per_plafond,
+        per_versement_optimal=per_versement_optimal,
+        per_economie=per_economie,
+        quick_wins=quick_wins,
+        message_accroche=message,
+    )
