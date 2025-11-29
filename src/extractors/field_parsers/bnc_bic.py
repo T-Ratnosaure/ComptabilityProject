@@ -1,12 +1,13 @@
 """Parser for BNC and BIC declaration documents."""
 
 from src.extractors.field_parsers.base import BaseFieldParser
+from src.models.extracted_fields import BNCBICExtracted
 
 
 class BNCBICParser(BaseFieldParser):
     """Parse fields from BNC (non-commercial profits) and BIC (commercial profits)."""
 
-    async def parse(self, text: str) -> dict[str, str | float | int]:
+    async def parse(self, text: str) -> BNCBICExtracted:
         """Parse BNC/BIC declaration fields from text.
 
         Args:
@@ -101,4 +102,5 @@ class BNCBICParser(BaseFieldParser):
         if "recettes" not in fields and "benefice" not in fields:
             raise ValueError("Could not extract critical fields from BNC/BIC document")
 
-        return fields
+        # Return validated Pydantic model
+        return BNCBICExtracted(**fields)

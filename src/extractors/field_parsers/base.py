@@ -3,19 +3,21 @@
 import re
 from abc import ABC, abstractmethod
 
+from pydantic import BaseModel
+
 
 class BaseFieldParser(ABC):
     """Abstract base class for parsing fields from document text."""
 
     @abstractmethod
-    async def parse(self, text: str) -> dict[str, str | float | int]:
+    async def parse(self, text: str) -> BaseModel:
         """Parse fields from document text.
 
         Args:
             text: Raw text extracted from document
 
         Returns:
-            Dictionary of parsed fields
+            Validated Pydantic model with parsed fields
 
         Raises:
             ValueError: If required fields cannot be extracted
