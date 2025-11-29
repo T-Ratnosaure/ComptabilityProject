@@ -7,7 +7,7 @@ A comprehensive system that processes French tax documents, performs accurate ta
 This system helps French freelancers optimize their tax situation by:
 - **Processing tax documents** (PDF/OCR) - Avis d'imposition, 2042, URSSAF, BNC/BIC, PER, LMNP, etc.
 - **Calculating taxes accurately** - IR, quotient familial, social contributions
-- **Detecting optimizations** - Regime changes, PER contributions, LMNP investments, Girardin, FCPI/FIP, company structure changes
+- **Detecting optimizations** - 7 strategies: Regime changes, PER, LMNP, Girardin (via Profina), FCPI/FIP, Deductions, Company structure + BONUS: 30-second quick simulation
 - **AI assistance** - Conversational interface powered by Claude for tax questions and guidance
 - **REST API** - Complete API for integration with other systems
 
@@ -109,6 +109,33 @@ The project is implemented in 6 phases:
 
 ### Phase 4: Tax Optimization Engine - COMPLETE ✅
 
+**Status:** Complete and ready for review
+**Goal:** Identify tax optimization opportunities
+
+**Completed:**
+- 7 comprehensive optimization strategies with ranked recommendations
+- **Regime optimization** - Micro vs Réel comparison with threshold warnings
+- **PER (Plan Épargne Retraite)** - Optimal contribution calculator with TMI estimation
+- **LMNP (Location Meublée Non Professionnelle)** - Investment opportunity detection
+- **Girardin Industriel** - 110% tax reduction via Profina (recommended operator)
+- **FCPI/FIP** - Innovation investment funds with 18% reduction
+- **Simple deductions** - Dons (66%), Services à la personne (50%), Frais de garde (50%)
+- **Company structure** - SASU/EURL IS and Holding recommendations
+- JSON-based rule system for maintainability and versioning
+- Optimization orchestrator with impact-based ranking
+- Complete API endpoints (/run, /strategies, /quick-simulation)
+- **BONUS: Quick simulation** - Viral 30-second micro vs réel simulation for landing pages
+- Comprehensive test suite (58 tests, 90-100% coverage on all modules)
+- Official sources referenced (impots.gouv.fr, service-public.fr, Profina)
+
+**Key Files:**
+- `src/analyzers/optimizer.py` - Main optimization orchestrator
+- `src/analyzers/strategies/` - 7 strategy modules (regime, per, lmnp, girardin, fcpi_fip, deductions, structure)
+- `src/analyzers/rules/` - JSON rule files with versioned tax rules
+- `src/models/optimization.py` - Pydantic models for recommendations
+- `src/api/routes/optimization.py` - API endpoints including quick simulation
+- `docs/phase4.md` - Complete architecture documentation
+- `docs/LANDING_PAGE_FEATURE.md` - BONUS feature marketing strategy
 **Status:** Complete and merged
 **Goal:** Identify tax optimization opportunities
 
@@ -313,6 +340,15 @@ See `CLAUDE.md` for complete development guidelines.
 ## Current Status
 
 **Phase 4 is complete!** The tax optimization engine is fully implemented with:
+- 7 comprehensive optimization strategies with ranked recommendations
+- Complete optimization orchestrator with impact-based ranking
+- Regime optimization (Micro vs Réel), PER, LMNP, Girardin (via Profina), FCPI/FIP, Deductions, Company structure
+- JSON-based rule system for maintainability and versioning
+- **BONUS: Quick simulation** - Viral 30-second micro vs réel simulation for landing pages
+- Complete API endpoints (/run, /strategies, /quick-simulation)
+- 58 optimization tests passing with 90-100% coverage on all modules
+- Official sources referenced (impots.gouv.fr, service-public.fr, Profina)
+- All 114 tests passing with CI/CD checks green
 - 7 comprehensive optimization strategies (Regime, PER, LMNP, Girardin, FCPI/FIP, Deductions, Structure)
 - Personalized recommendations ranked by impact and savings potential
 - Girardin Industriel via Profina (110% tax reduction)
@@ -330,6 +366,9 @@ See `CLAUDE.md` for complete development guidelines.
 - ✅ Phase 1: Core infrastructure (FastAPI, SQLAlchemy, Alembic, repositories, tests, CI/CD)
 - ✅ Phase 2: Document extraction pipeline (PDF/OCR extraction, field parsers, upload API)
 - ✅ Phase 3: Tax calculation engine (IR, quotient familial, social contributions, regime comparison)
+- ✅ Phase 4: Tax optimization engine (7 strategies, BONUS quick simulation, 90-100% coverage)
+
+**Next up: Phase 5** - LLM Integration with Anthropic Claude for AI-powered conversational assistance.
 - ✅ Phase 4: Tax optimization engine (7 strategies, personalized recommendations, Profina integration)
 
 **Next up: Phase 5** - LLM Integration with Anthropic Claude for AI-powered conversational tax assistance.
