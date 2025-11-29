@@ -153,19 +153,25 @@ class TestApplyPERDeductionWithLimit:
 class TestApplyTaxReductions:
     """Test tax reductions and credits."""
 
-    def test_dons_reduction_66_percent(self):
+    @pytest.fixture
+    def rules(self):
+        """Load 2024 tax rules."""
+        return get_tax_rules(2024)
+
+    def test_dons_reduction_66_percent(self, rules):
         """Test donations reduction (66%)."""
         impot_net, reductions = apply_tax_reductions(
             impot_brut=5000,
             revenu_imposable=50000,
             reductions_data={"dons": 1000},
+            rules=rules,
         )
 
         # 1000€ dons → 660€ reduction
         assert reductions["dons"] == 660.0
         assert impot_net == 5000 - 660
 
-    def test_dons_plafond_20_percent(self):
+    def test_dons_plafond_20_percent(self, rules):
         """Test donations plafond (20% of taxable income)."""
         # Revenu imposable = 50k → plafond = 10k
         # Dons of 15k → only 10k eligible
@@ -173,35 +179,38 @@ class TestApplyTaxReductions:
             impot_brut=5000,
             revenu_imposable=50000,
             reductions_data={"dons": 15000},
+            rules=rules,
         )
 
         # Only 10k eligible → 6600€ reduction
         assert reductions["dons"] == 6600.0
 
-    def test_services_personne_credit_50_percent(self):
+    def test_services_personne_credit_50_percent(self, rules):
         """Test services à la personne credit (50%)."""
         impot_net, reductions = apply_tax_reductions(
             impot_brut=5000,
             revenu_imposable=50000,
             reductions_data={"services_personne": 4000},
+            rules=rules,
         )
 
         # 4000€ services → 2000€ credit
         assert reductions["services_personne"] == 2000.0
         assert impot_net == 5000 - 2000
 
-    def test_services_personne_plafond_12000(self):
+    def test_services_personne_plafond_12000(self, rules):
         """Test services à la personne plafond (12000€)."""
         impot_net, reductions = apply_tax_reductions(
             impot_brut=10000,
             revenu_imposable=100000,
             reductions_data={"services_personne": 20000},
+            rules=rules,
         )
 
         # Only 12000€ eligible → 6000€ credit
         assert reductions["services_personne"] == 6000.0
 
-    def test_frais_garde_credit_50_percent(self):
+    def test_frais_garde_credit_50_percent(self, rules):
         """Test childcare expenses credit (50%)."""
         impot_net, reductions = apply_tax_reductions(
             impot_brut=5000,
@@ -210,13 +219,14 @@ class TestApplyTaxReductions:
                 "frais_garde": 3000,
                 "children_under_6": 1,
             },
+            rules=rules,
         )
 
         # 3000€ garde → 1500€ credit
         assert reductions["frais_garde"] == 1500.0
         assert impot_net == 5000 - 1500
 
-    def test_frais_garde_plafond_per_child(self):
+    def test_frais_garde_plafond_per_child(self, rules):
         """Test childcare plafond (3500€ per child)."""
         # 2 children → plafond = 7000€
         impot_net, reductions = apply_tax_reductions(
@@ -226,12 +236,13 @@ class TestApplyTaxReductions:
                 "frais_garde": 10000,
                 "children_under_6": 2,
             },
+            rules=rules,
         )
 
         # Only 7000€ eligible → 3500€ credit
         assert reductions["frais_garde"] == 3500.0
 
-    def test_no_garde_without_children(self):
+    def test_no_garde_without_children(self, rules):
         """Test no garde credit without children under 6."""
         impot_net, reductions = apply_tax_reductions(
             impot_brut=5000,
@@ -240,13 +251,14 @@ class TestApplyTaxReductions:
                 "frais_garde": 3000,
                 "children_under_6": 0,
             },
+            rules=rules,
         )
 
         # No children → no credit
         assert "frais_garde" not in reductions
         assert impot_net == 5000
 
-    def test_multiple_reductions_combined(self):
+    def test_multiple_reductions_combined(self, rules):
         """Test combining multiple tax reductions."""
         impot_net, reductions = apply_tax_reductions(
             impot_brut=10000,
@@ -257,6 +269,7 @@ class TestApplyTaxReductions:
                 "frais_garde": 3000,
                 "children_under_6": 1,
             },
+            rules=rules,
         )
 
         # Dons: 2000 * 0.66 = 1320€
@@ -268,7 +281,7 @@ class TestApplyTaxReductions:
         assert reductions["frais_garde"] == 1500.0
         assert impot_net == 10000 - 4820
 
-    def test_reductions_cannot_make_negative_tax(self):
+    def test_reductions_cannot_make_negative_tax(self, rules):
         """Test that reductions cannot make tax negative."""
         impot_net, reductions = apply_tax_reductions(
             impot_brut=1000,
@@ -277,6 +290,7 @@ class TestApplyTaxReductions:
                 "dons": 2000,  # Would give 1320€ reduction
                 "services_personne": 2000,  # Would give 1000€ reduction
             },
+            rules=rules,
         )
 
         # Total reduction would be 2320€, but tax is only 1000€

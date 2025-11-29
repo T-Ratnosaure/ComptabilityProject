@@ -1,0 +1,25 @@
+{
+  "tax_year": 2024,
+  "person": {
+    "name": "ANON",
+    "nb_parts": 1.0,
+    "status": "micro_bnc"
+  },
+  "income": {
+    "professional_gross": 28000.0,
+    "salary": 0.0,
+    "rental_income": 0.0,
+    "capital_income": 0.0,
+    "deductible_expenses": 0.0
+  },
+  "deductions": {
+    "per_contributions": 2000.0,
+    "alimony": 0.0,
+    "other_deductions": 0.0
+  },
+  "social": {
+    "urssaf_declared_ca": 28000.0,
+    "urssaf_paid": 6000.0
+  },
+  "pas_withheld": 0.0
+}

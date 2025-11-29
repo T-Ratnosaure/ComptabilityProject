@@ -10,6 +10,8 @@ from src.analyzers.strategies.lmnp_strategy import LMNPStrategy
 from src.analyzers.strategies.per_strategy import PERStrategy
 from src.analyzers.strategies.regime_strategy import RegimeStrategy
 from src.analyzers.strategies.structure_strategy import StructureStrategy
+from src.tax_engine.rules import get_tax_rules
+from src.tax_engine.tax_utils import calculate_per_plafond
 
 # ============================================================================
 # REGIME OPTIMIZATION TESTS (6 tests)
@@ -213,10 +215,10 @@ def test_per_no_recommendation_for_low_income():
 
 def test_per_plafond_calculation():
     """Test PER plafond calculation (10% of revenue)."""
-    strategy = PERStrategy()
+    rules = get_tax_rules(2024)
 
     revenue = 40000
-    plafond = strategy._calculate_plafond(revenue)
+    plafond = calculate_per_plafond(revenue, rules, status="salarie")
 
     # 10% of 40k = 4000, but minimum is 4399
     assert plafond == 4399

@@ -70,5 +70,41 @@
     "description": "Parts fiscales par situation familiale",
     "plafond_avantage_par_demi_part": 1759,
     "plafond_note": "Plafonnement de l'avantage fiscal par demi-part (enfants notamment)"
+  },
+  "tax_reductions": {
+    "dons": {
+      "rate": 0.66,
+      "plafond_rate": 0.20,
+      "description": "Dons aux associations: 66% de réduction, plafonné à 20% du revenu imposable",
+      "sources": [
+        "https://www.service-public.fr/particuliers/vosdroits/F426"
+      ]
+    },
+    "services_personne": {
+      "rate": 0.50,
+      "plafond": 12000,
+      "plafond_first_year": 15000,
+      "description": "Services à la personne: 50% de crédit d'impôt, plafond 12 000€ (15 000€ 1ère année)",
+      "examples": [
+        "Ménage",
+        "Garde d'enfants à domicile",
+        "Jardinage",
+        "Petits travaux de bricolage",
+        "Soutien scolaire à domicile",
+        "Assistance aux personnes âgées ou handicapées"
+      ],
+      "sources": [
+        "https://www.service-public.fr/particuliers/vosdroits/F12"
+      ]
+    },
+    "frais_garde": {
+      "rate": 0.50,
+      "plafond_per_child": 3500,
+      "age_limit": 6,
+      "description": "Frais de garde d'enfants: 50% de crédit d'impôt, 3 500€ par enfant de moins de 6 ans",
+      "sources": [
+        "https://www.service-public.fr/particuliers/vosdroits/F8"
+      ]
+    }
   }
 }
