@@ -36,12 +36,14 @@ class FreelanceProfileModel(Base):
         nullable=False,
     )
     nb_parts: Mapped[float] = mapped_column(Float, nullable=False)
-    annual_revenue: Mapped[float] = mapped_column(Float, nullable=False)
-    annual_expenses: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
-    social_contributions: Mapped[float] = mapped_column(
+    chiffre_affaires: Mapped[float] = mapped_column(Float, nullable=False)
+    charges_deductibles: Mapped[float] = mapped_column(
         Float, nullable=False, default=0.0
     )
-    other_income: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    cotisations_sociales: Mapped[float] = mapped_column(
+        Float, nullable=False, default=0.0
+    )
+    autres_revenus: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
     existing_deductions: Mapped[dict[str, float]] = mapped_column(
         JSON, nullable=False, default=dict
     )
@@ -50,5 +52,5 @@ class FreelanceProfileModel(Base):
         """String representation of the model."""
         return (
             f"<FreelanceProfile(id={self.id}, status={self.status}, "
-            f"revenue={self.annual_revenue})>"
+            f"revenue={self.chiffre_affaires})>"
         )

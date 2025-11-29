@@ -39,7 +39,9 @@ class TaxCalculationBase(BaseModel):
     revenu_fiscal_reference: float = Field(..., ge=0)
 
     # Social contributions
-    social_contributions: float = Field(..., ge=0)
+    cotisations_sociales: float = Field(
+        ..., ge=0, description="Cotisations sociales URSSAF en euros"
+    )
 
     # Total
     total_fiscal_burden: float = Field(..., ge=0)

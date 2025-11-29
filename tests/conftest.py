@@ -69,9 +69,9 @@ def sample_freelance_profile_data() -> dict:
         "status": "micro_bnc",
         "family_situation": "single",
         "nb_parts": 1.0,
-        "annual_revenue": 50000.0,
-        "annual_expenses": 0.0,
-        "social_contributions": 11100.0,
-        "other_income": 0.0,
+        "chiffre_affaires": 50000.0,
+        "charges_deductibles": 0.0,
+        "cotisations_sociales": 11100.0,
+        "autres_revenus": 0.0,
         "existing_deductions": {},
     }

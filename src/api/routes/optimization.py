@@ -15,9 +15,11 @@ class ProfileInput(BaseModel):
     """User profile for optimization."""
 
     status: str = Field(..., description="Tax status (micro_bnc, reel_bnc, etc.)")
-    annual_revenue: float = Field(..., description="Annual revenue in euros", ge=0)
-    annual_expenses: float = Field(
-        default=0, description="Annual expenses in euros", ge=0
+    chiffre_affaires: float = Field(
+        ..., description="Chiffre d'affaires annuel en euros", ge=0
+    )
+    charges_deductibles: float = Field(
+        default=0, description="Charges déductibles annuelles en euros", ge=0
     )
     nb_parts: float = Field(default=1.0, description="Number of tax parts", gt=0)
     activity_type: str = Field(default="BNC", description="Activity type (BNC/BIC)")

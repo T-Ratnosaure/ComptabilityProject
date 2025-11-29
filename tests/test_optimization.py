@@ -35,7 +35,7 @@ def test_regime_micro_to_reel_recommendation():
         }
     }
 
-    profile = {"status": "micro_bnc", "annual_revenue": 50000}
+    profile = {"status": "micro_bnc", "chiffre_affaires": 50000}
     context = {}
 
     recs = strategy.analyze(tax_result, profile, context)
@@ -62,7 +62,7 @@ def test_regime_reel_to_micro_recommendation():
         }
     }
 
-    profile = {"status": "reel_bnc", "annual_revenue": 30000}
+    profile = {"status": "reel_bnc", "chiffre_affaires": 30000}
     context = {}
 
     recs = strategy.analyze(tax_result, profile, context)
@@ -79,7 +79,7 @@ def test_regime_threshold_proximity_warning():
     tax_result = {"comparisons": {}}
 
     # Revenue at 90% of threshold
-    profile = {"status": "micro_bnc", "annual_revenue": 70000}
+    profile = {"status": "micro_bnc", "chiffre_affaires": 70000}
     context = {}
 
     recs = strategy.analyze(tax_result, profile, context)
@@ -103,7 +103,7 @@ def test_regime_no_recommendation_when_similar():
         }
     }
 
-    profile = {"status": "micro_bnc", "annual_revenue": 40000}
+    profile = {"status": "micro_bnc", "chiffre_affaires": 40000}
     context = {}
 
     recs = strategy.analyze(tax_result, profile, context)
@@ -116,7 +116,7 @@ def test_regime_no_warning_when_below_threshold():
     strategy = RegimeStrategy()
 
     tax_result = {"comparisons": {}}
-    profile = {"status": "micro_bnc", "annual_revenue": 40000}  # ~50% of threshold
+    profile = {"status": "micro_bnc", "chiffre_affaires": 40000}  # ~50% of threshold
     context = {}
 
     recs = strategy.analyze(tax_result, profile, context)
@@ -135,7 +135,7 @@ def test_regime_bic_services_threshold():
     tax_result = {"comparisons": {}}
     profile = {
         "status": "micro_bic_services",
-        "annual_revenue": 72000,  # Close to 77,700 threshold
+        "chiffre_affaires": 72000,  # Close to 77,700 threshold
     }
     context = {}
 
@@ -569,8 +569,8 @@ def test_sasu_recommendation_for_high_revenue():
     tax_result = {}
     profile = {
         "status": "micro_bnc",
-        "annual_revenue": 80000,
-        "annual_expenses": 25000,
+        "chiffre_affaires": 80000,
+        "charges_deductibles": 25000,
     }
     context = {}
 
@@ -591,8 +591,8 @@ def test_holding_recommendation():
     tax_result = {}
     profile = {
         "status": "micro_bnc",
-        "annual_revenue": 150000,
-        "annual_expenses": 50000,
+        "chiffre_affaires": 150000,
+        "charges_deductibles": 50000,
     }
     context = {"patrimony_strategy": True}
 
@@ -611,8 +611,8 @@ def test_no_structure_recommendation_for_low_revenue():
     tax_result = {}
     profile = {
         "status": "micro_bnc",
-        "annual_revenue": 30000,
-        "annual_expenses": 5000,
+        "chiffre_affaires": 30000,
+        "charges_deductibles": 5000,
     }
     context = {}
 
@@ -645,8 +645,8 @@ async def test_optimizer_basic_scenario():
 
     profile = {
         "status": "micro_bnc",
-        "annual_revenue": 30000,
-        "annual_expenses": 8000,
+        "chiffre_affaires": 30000,
+        "charges_deductibles": 8000,
         "nb_parts": 1.0,
     }
 
@@ -671,8 +671,8 @@ async def test_optimizer_high_income_scenario():
 
     profile = {
         "status": "reel_bnc",
-        "annual_revenue": 120000,
-        "annual_expenses": 30000,
+        "chiffre_affaires": 120000,
+        "charges_deductibles": 30000,
         "nb_parts": 1.0,
     }
 
@@ -699,7 +699,7 @@ async def test_optimizer_conservative_profile():
 
     profile = {
         "status": "micro_bnc",
-        "annual_revenue": 40000,
+        "chiffre_affaires": 40000,
         "nb_parts": 1.0,
     }
 
@@ -721,7 +721,7 @@ async def test_optimizer_family_scenario():
 
     profile = {
         "status": "micro_bnc",
-        "annual_revenue": 50000,
+        "chiffre_affaires": 50000,
         "nb_parts": 2.5,
     }
 
@@ -750,8 +750,8 @@ async def test_optimizer_sorting_by_impact():
 
     profile = {
         "status": "micro_bnc",
-        "annual_revenue": 100000,
-        "annual_expenses": 30000,
+        "chiffre_affaires": 100000,
+        "charges_deductibles": 30000,
         "nb_parts": 1.0,
     }
 
@@ -781,7 +781,7 @@ async def test_optimizer_metadata():
 
     profile = {
         "status": "micro_bnc",
-        "annual_revenue": 50000,
+        "chiffre_affaires": 50000,
         "nb_parts": 1.0,
     }
 
