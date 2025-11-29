@@ -1,0 +1,221 @@
+"""Company structure optimization strategy."""
+
+import json
+import uuid
+from pathlib import Path
+
+from src.models.optimization import (
+    ComplexityLevel,
+    Recommendation,
+    RecommendationCategory,
+    RiskLevel,
+)
+
+
+class StructureStrategy:
+    """Analyzes company structure optimization opportunities."""
+
+    def __init__(self) -> None:
+        """Initialize the structure strategy with rules."""
+        rules_path = Path(__file__).parent.parent / "rules" / "optimization_rules.json"
+        with open(rules_path, encoding="utf-8") as f:
+            self.rules = json.load(f)["structure_thresholds"]
+
+    def analyze(
+        self, tax_result: dict, profile: dict, context: dict
+    ) -> list[Recommendation]:
+        """
+        Analyze company structure optimization opportunities.
+
+        Args:
+            tax_result: Result from tax calculation engine
+            profile: User profile with revenue and expenses
+            context: Additional context
+
+        Returns:
+            List of structure recommendations
+        """
+        recommendations = []
+
+        # Extract data
+        annual_revenue = profile.get("annual_revenue", 0)
+        annual_expenses = profile.get("annual_expenses", 0)
+
+        # Calculate charges rate
+        if annual_revenue > 0:
+            charges_rate = annual_expenses / annual_revenue
+        else:
+            charges_rate = 0
+
+        current_status = profile.get("status", "").lower()
+
+        # Check if user is currently a micro-entrepreneur or individual
+        is_individual = any(
+            keyword in current_status for keyword in ["micro", "bnc", "bic", "auto"]
+        )
+
+        if not is_individual:
+            # Already has a company structure
+            return recommendations
+
+        # Check SASU/EURL threshold
+        sasu_threshold = self.rules["consider_sasu"]
+        if (
+            annual_revenue >= sasu_threshold["ca_min"]
+            and charges_rate >= sasu_threshold["charges_rate_min"]
+        ):
+            rec = self._create_sasu_eurl_recommendation(
+                annual_revenue, charges_rate, tax_result
+            )
+            recommendations.append(rec)
+
+        # Check holding threshold (more advanced)
+        holding_threshold = self.rules["consider_holding"]
+        if annual_revenue >= holding_threshold["ca_min"]:
+            holding_rec = self._create_holding_recommendation(annual_revenue, context)
+            if holding_rec:
+                recommendations.append(holding_rec)
+
+        return recommendations
+
+    def _create_sasu_eurl_recommendation(
+        self, annual_revenue: float, charges_rate: float, tax_result: dict
+    ) -> Recommendation:
+        """Create SASU/EURL recommendation."""
+        description = (
+            f"🏢 Structuration en société (SASU IS / EURL IS)\n\n"
+            f"Avec un chiffre d'affaires de {annual_revenue:.2f}€ et un taux de charges "
+            f"de {charges_rate * 100:.1f}%, la création d'une société soumise à l'IS "
+            f"(Impôt sur les Sociétés) pourrait optimiser votre fiscalité.\n\n"
+            f"**Avantages fiscaux :**\n"
+            f"- IS à 15% jusqu'à 42 500€ de bénéfice (puis 25%)\n"
+            f"- Arbitrage rémunération/dividendes optimisable\n"
+            f"- Déduction de nombreuses charges (véhicule, loyer bureau, etc.)\n"
+            f"- Possibilité de lisser les revenus dans le temps\n"
+            f"- Protection patrimoniale (séparation patrimoine pro/perso)\n\n"
+            f"**SASU (Société par Actions Simplifiée Unipersonnelle) :**\n"
+            f"- Président assimilé salarié (régime général)\n"
+            f"- Cotisations sociales ~65% du salaire net\n"
+            f"- Flexibilité des statuts\n"
+            f"- Cession facilitée\n\n"
+            f"**EURL (Entreprise Unipersonnelle à Responsabilité Limitée) :**\n"
+            f"- Gérant majoritaire = TNS (Travailleur Non Salarié)\n"
+            f"- Cotisations sociales ~45% du salaire net\n"
+            f"- Moins de charges sociales mais moins de protection\n\n"
+            f"**⚠️ Important :** Cette transformation nécessite une étude approfondie "
+            f"par un expert-comptable et un avocat fiscaliste."
+        )
+
+        action_steps = [
+            "Consulter un expert-comptable spécialisé",
+            "Faire une simulation complète (IS vs IR)",
+            "Évaluer l'impact sur les cotisations sociales",
+            "Comparer SASU vs EURL selon votre situation",
+            "Préparer le business plan et les statuts",
+            "Anticiper les coûts de création et de gestion",
+            "Planifier la transition (timing, fiscalité)",
+            "Ne pas décider uniquement pour la fiscalité",
+        ]
+
+        # Estimated savings are hard to calculate without full simulation
+        # Conservative estimate: 2-5% of revenue in tax optimization
+        estimated_savings = annual_revenue * 0.03
+
+        return Recommendation(
+            id=str(uuid.uuid4()),
+            title="Création SASU/EURL IS - Optimisation structure",
+            description=description,
+            impact_estimated=estimated_savings,
+            risk=RiskLevel.MEDIUM,
+            complexity=ComplexityLevel.COMPLEX,
+            confidence=0.60,  # Requires detailed analysis
+            category=RecommendationCategory.STRUCTURE,
+            sources=[
+                "https://www.service-public.fr/professionnels-entreprises/vosdroits/F23266",
+                "https://www.impots.gouv.fr/professionnel/limpot-sur-les-societes-is",
+            ],
+            action_steps=action_steps,
+            required_investment=3000,  # Approximate creation + first year costs
+            eligibility_criteria=[
+                f"CA >= {self.rules['consider_sasu']['ca_min']}€",
+                f"Taux de charges >= {self.rules['consider_sasu']['charges_rate_min'] * 100:.0f}%",
+                "Activité pérenne et récurrente",
+            ],
+            warnings=[
+                "Coûts de création (1 500 - 3 000€)",
+                "Coûts de gestion annuels (expert-comptable obligatoire)",
+                "Complexité administrative accrue",
+                "Obligations comptables et juridiques",
+                "Nécessite une étude approfondie avant décision",
+                "Consulter OBLIGATOIREMENT un expert-comptable ET un avocat fiscaliste",
+            ],
+            deadline=None,
+            roi_years=2.0,
+        )
+
+    def _create_holding_recommendation(
+        self, annual_revenue: float, context: dict
+    ) -> Recommendation | None:
+        """Create holding structure recommendation."""
+        # Only suggest if user has patrimony strategy
+        has_patrimony_strategy = context.get("patrimony_strategy", False)
+
+        if not has_patrimony_strategy:
+            return None
+
+        description = (
+            f"🏛️ Holding patrimoniale - Structuration avancée\n\n"
+            f"Avec un CA de {annual_revenue:.2f}€ et une stratégie patrimoniale, "
+            f"une structure de holding peut offrir des avantages significatifs.\n\n"
+            f"**Structure type :**\n"
+            f"- HOLDING (SASU ou EURL) détient 100% de l'EXPLOITATION\n"
+            f"- + éventuellement SCI pour l'immobilier professionnel\n\n"
+            f"**Avantages :**\n"
+            f"- Remontée de dividendes mère-fille en quasi-franchise d'impôt (1,67%)\n"
+            f"- Mutualisation de trésorerie entre filiales\n"
+            f"- Optimisation transmission (pacte Dutreil)\n"
+            f"- Protection patrimoniale renforcée\n"
+            f"- Investissements via la holding (LBO, participations)\n\n"
+            f"**⚠️ ATTENTION :** Montage complexe réservé aux situations avec :\n"
+            f"- CA > 100k€ stable\n"
+            f"- Stratégie patrimoniale long terme\n"
+            f"- Conseillé par expert-comptable ET avocat fiscaliste"
+        )
+
+        return Recommendation(
+            id=str(uuid.uuid4()),
+            title="Holding patrimoniale - Structure avancée",
+            description=description,
+            impact_estimated=annual_revenue * 0.02,  # Conservative estimate
+            risk=RiskLevel.MEDIUM,
+            complexity=ComplexityLevel.COMPLEX,
+            confidence=0.50,  # Highly situation-dependent
+            category=RecommendationCategory.STRUCTURE,
+            sources=[
+                "https://www.service-public.fr/professionnels-entreprises/vosdroits/F31963",
+                "https://bofip.impots.gouv.fr/bofip/4802-PGP.html",
+            ],
+            action_steps=[
+                "Définir votre stratégie patrimoniale à 10+ ans",
+                "Consulter un cabinet spécialisé en ingénierie patrimoniale",
+                "Faire une simulation complète des flux financiers",
+                "Évaluer les coûts de structure (création + gestion annuelle)",
+                "Anticiper les aspects juridiques et fiscaux",
+                "Ne jamais décider seul - expertise obligatoire",
+            ],
+            required_investment=10000,  # Structure costs
+            eligibility_criteria=[
+                f"CA >= {self.rules['consider_holding']['ca_min']}€",
+                "Stratégie patrimoniale long terme",
+                "Vision entrepreneuriale multi-activités",
+            ],
+            warnings=[
+                "Montage très complexe",
+                "Coûts de structure élevés (création + gestion)",
+                "Obligations comptables multiples",
+                "Expertise professionnelle INDISPENSABLE",
+                "Pas adapté à tous les profils",
+            ],
+            deadline=None,
+            roi_years=5.0,
+        )

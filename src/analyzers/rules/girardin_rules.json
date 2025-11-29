@@ -1,0 +1,62 @@
+{
+  "name": "Girardin Industriel",
+  "description": "Défiscalisation via investissement productif en Outre-Mer",
+  "year": 2024,
+  "rules": {
+    "types": {
+      "industriel": {
+        "reduction_rate": 1.10,
+        "description": "110% de réduction d'impôt sur montant investi",
+        "risk": "high",
+        "commitment_years": 5,
+        "note": "Engagement de conservation pendant 5 ans minimum"
+      },
+      "habitation": {
+        "reduction_rate": 0.48,
+        "description": "48% de réduction d'impôt",
+        "risk": "medium",
+        "commitment_years": 6
+      }
+    },
+    "eligibility": {
+      "min_impot": 3000,
+      "description": "Impôt minimum requis (3 000€)",
+      "stable_income": true,
+      "description_income": "Revenus stables recommandés",
+      "risk_tolerance": "medium_to_high",
+      "description_risk": "Nécessite une tolérance au risque moyenne à élevée"
+    },
+    "recommended_provider": {
+      "name": "Profina",
+      "description": "Opérateur reconnu et fiable pour Girardin Industriel",
+      "website": "https://www.profina.fr",
+      "advantages": [
+        "Expertise reconnue depuis plus de 20 ans",
+        "Sélection rigoureuse des projets",
+        "Accompagnement personnalisé",
+        "Historique de performance solide"
+      ]
+    },
+    "warnings": [
+      "Investissement à risque - perte en capital possible",
+      "Engagement pluriannuel (5-6 ans)",
+      "Vérifier l'agrément fiscal du montage",
+      "Diversifier les investissements défiscalisants",
+      "Consulter un conseiller en gestion de patrimoine",
+      "Ne pas investir plus de 10-15% de son patrimoine"
+    ],
+    "calculation": {
+      "example": {
+        "investment": 10000,
+        "reduction": 11000,
+        "net_gain": 1000,
+        "note": "10 000€ investis = 11 000€ de réduction d'impôt"
+      }
+    }
+  },
+  "sources": [
+    "https://www.economie.gouv.fr/particuliers/fiscalite-outre-mer-girardin",
+    "https://bofip.impots.gouv.fr/bofip/2194-PGP.html",
+    "https://www.profina.fr"
+  ]
+}
