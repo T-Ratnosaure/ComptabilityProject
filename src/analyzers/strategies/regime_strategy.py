@@ -10,6 +10,8 @@ from src.models.optimization import (
     RecommendationCategory,
     RiskLevel,
 )
+from src.tax_engine.rules import get_tax_rules
+from src.tax_engine.tax_utils import check_micro_threshold_proximity
 
 
 class RegimeStrategy:
@@ -20,6 +22,9 @@ class RegimeStrategy:
         rules_path = Path(__file__).parent.parent / "rules" / "optimization_rules.json"
         with open(rules_path, encoding="utf-8") as f:
             self.rules = json.load(f)
+
+        # Load tax rules for centralized utilities
+        self.tax_rules = get_tax_rules(2024)
 
     def analyze(
         self, tax_result: dict, profile: dict, context: dict
@@ -144,32 +149,35 @@ class RegimeStrategy:
         revenue = profile.get("annual_revenue", 0)
         status = profile.get("status", "").lower()
 
-        threshold = None
+        # Determine regime type for threshold check
+        regime_type = None
         threshold_name = ""
 
         if "bnc" in status:
-            threshold = self.rules["regime_thresholds"]["micro_bnc"]["threshold"]
+            regime_type = "bnc"
             threshold_name = "micro-BNC"
         elif "bic" in status and "service" in status:
-            threshold = self.rules["regime_thresholds"]["micro_bic_services"][
-                "threshold"
-            ]
+            regime_type = "bic_service"
             threshold_name = "micro-BIC prestations"
         elif "bic" in status:
-            threshold = self.rules["regime_thresholds"]["micro_bic_ventes"]["threshold"]
+            regime_type = "bic_vente"
             threshold_name = "micro-BIC ventes"
 
-        if not threshold:
+        if not regime_type:
             return None
 
         # Get proximity alert threshold from JSON
         regime_opt = self.rules.get("regime_optimization", {})
         proximity_alert = regime_opt.get("threshold_proximity_alert", 0.85)
 
-        # Check if approaching threshold
-        proximity_rate = revenue / threshold
-        if proximity_alert <= proximity_rate < 1.0:
-            remaining = threshold - revenue
+        # Use centralized function to check threshold proximity
+        proximity_check = check_micro_threshold_proximity(
+            revenue, regime_type, self.tax_rules, alert_threshold=proximity_alert
+        )
+
+        if proximity_check["approaching"]:
+            threshold = proximity_check["threshold"]
+            remaining = proximity_check["remaining"]
             description = (
                 f"⚠️ Attention : votre chiffre d'affaires ({revenue:.2f}€) approche "
                 f"le seuil du régime {threshold_name} ({threshold}€).\n\n"

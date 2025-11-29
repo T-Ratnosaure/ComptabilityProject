@@ -106,5 +106,34 @@
         "https://www.service-public.fr/particuliers/vosdroits/F8"
       ]
     }
+  },
+  "lmnp": {
+    "description": "LMNP (Location Meublée Non Professionnelle) - Optimisation fiscale locative",
+    "regimes": {
+      "micro_bic": {
+        "threshold": 77700,
+        "abattement": 0.50,
+        "description": "Micro-BIC: abattement forfaitaire de 50%"
+      },
+      "reel": {
+        "avg_amortissement_rate": 0.035,
+        "avg_charges_rate": 0.70,
+        "avg_total_deduction_rate": 0.85,
+        "description": "Régime réel: déduction charges + amortissement (~85% total)"
+      }
+    },
+    "market_estimates": {
+      "typical_yield": 0.04,
+      "description": "Rendement locatif moyen estimé (4%) - varie selon localisation et bien"
+    },
+    "eligibility": {
+      "min_tmi": 0.30,
+      "min_investment_capacity": 50000,
+      "description": "TMI minimale 30%, investissement min 50k€"
+    },
+    "sources": [
+      "https://www.service-public.fr/particuliers/vosdroits/F32744",
+      "https://bofip.impots.gouv.fr/bofip/5773-PGP.html"
+    ]
   }
 }

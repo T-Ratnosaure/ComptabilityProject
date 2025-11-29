@@ -7,6 +7,9 @@ from src.tax_engine.tax_utils import (
     calculate_per_plafond,
     calculate_tax_reduction,
     check_micro_threshold_proximity,
+    get_lmnp_deduction_rate,
+    get_lmnp_eligibility,
+    get_lmnp_yield,
     get_micro_abattement,
     get_micro_threshold,
     get_tax_reduction_plafond,
@@ -290,3 +293,72 @@ class TestIntegration:
 
         # Micro threshold should be 77700
         assert micro_threshold == 77700
+
+
+class TestLMNP:
+    """Test LMNP (Location Meublée Non Professionnelle) utilities."""
+
+    def test_get_lmnp_deduction_rate_micro(self):
+        """Test LMNP micro regime deduction rate (50%)."""
+        rules = get_tax_rules(2024)
+        rate = get_lmnp_deduction_rate("micro", rules)
+        assert rate == 0.50  # Micro-BIC abattement
+
+    def test_get_lmnp_deduction_rate_reel(self):
+        """Test LMNP réel regime deduction rate (~85%)."""
+        rules = get_tax_rules(2024)
+        rate = get_lmnp_deduction_rate("reel", rules)
+        assert rate == 0.85  # Average total deduction (charges + amortization)
+
+    def test_get_lmnp_deduction_rate_unknown(self):
+        """Test error for unknown LMNP regime."""
+        rules = get_tax_rules(2024)
+        with pytest.raises(ValueError, match="Unknown LMNP regime"):
+            get_lmnp_deduction_rate("unknown", rules)
+
+    def test_get_lmnp_yield(self):
+        """Test LMNP estimated yield (4%)."""
+        rules = get_tax_rules(2024)
+        yield_rate = get_lmnp_yield(rules)
+        assert yield_rate == 0.04  # 4% typical yield
+
+    def test_get_lmnp_eligibility(self):
+        """Test LMNP eligibility criteria."""
+        rules = get_tax_rules(2024)
+        eligibility = get_lmnp_eligibility(rules)
+
+        assert eligibility["min_tmi"] == 0.30  # Min TMI 30%
+        assert eligibility["min_investment_capacity"] == 50000  # Min 50k€
+
+    def test_lmnp_estimation_workflow(self):
+        """Test complete LMNP estimation workflow."""
+        rules = get_tax_rules(2024)
+
+        # Scenario: 100k€ investment, réel regime
+        investment = 100000
+        yield_rate = get_lmnp_yield(rules)
+        deduction_rate = get_lmnp_deduction_rate("reel", rules)
+
+        # Estimated annual rental income
+        annual_rental = investment * yield_rate
+        assert annual_rental == 4000.0  # 4% of 100k
+
+        # With TMI 41%, estimate tax savings
+        tmi = 0.41
+        estimated_savings = annual_rental * tmi * deduction_rate
+        assert estimated_savings == 1394.0  # 4000 * 0.41 * 0.85
+
+    def test_lmnp_micro_vs_reel_comparison(self):
+        """Test comparing micro vs réel LMNP regimes."""
+        rules = get_tax_rules(2024)
+
+        # Micro: 50% abattement
+        micro_rate = get_lmnp_deduction_rate("micro", rules)
+        assert micro_rate == 0.50
+
+        # Réel: 85% deduction (charges + amortization)
+        reel_rate = get_lmnp_deduction_rate("reel", rules)
+        assert reel_rate == 0.85
+
+        # Réel is more advantageous (higher deduction rate)
+        assert reel_rate > micro_rate
