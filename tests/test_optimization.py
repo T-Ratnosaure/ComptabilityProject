@@ -223,15 +223,18 @@ def test_per_plafond_calculation():
 
 
 def test_per_tmi_estimation():
-    """Test TMI estimation."""
-    strategy = PERStrategy()
+    """Test TMI estimation using centralized function."""
+    from src.tax_engine.core import calculate_tmi
+    from src.tax_engine.rules import get_tax_rules
+
+    rules = get_tax_rules(2024)
 
     # Test each bracket
-    assert strategy._estimate_tmi(10000, 1.0) == 0.0
-    assert strategy._estimate_tmi(20000, 1.0) == 0.11
-    assert strategy._estimate_tmi(40000, 1.0) == 0.30
-    assert strategy._estimate_tmi(100000, 1.0) == 0.41
-    assert strategy._estimate_tmi(200000, 1.0) == 0.45
+    assert calculate_tmi(10000, 1.0, rules) == 0.0
+    assert calculate_tmi(20000, 1.0, rules) == 0.11
+    assert calculate_tmi(40000, 1.0, rules) == 0.30
+    assert calculate_tmi(100000, 1.0, rules) == 0.41
+    assert calculate_tmi(200000, 1.0, rules) == 0.45
 
 
 def test_per_with_quotient_familial():

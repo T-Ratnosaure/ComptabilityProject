@@ -10,6 +10,8 @@ from src.models.optimization import (
     RecommendationCategory,
     RiskLevel,
 )
+from src.tax_engine.core import calculate_tmi
+from src.tax_engine.rules import get_tax_rules
 
 
 class PERStrategy:
@@ -20,6 +22,9 @@ class PERStrategy:
         rules_path = Path(__file__).parent.parent / "rules" / "per_rules.json"
         with open(rules_path, encoding="utf-8") as f:
             self.rules = json.load(f)["rules"]
+
+        # Load tax rules for TMI calculation
+        self.tax_rules = get_tax_rules(2024)
 
     def analyze(
         self, tax_result: dict, profile: dict, context: dict
@@ -41,8 +46,9 @@ class PERStrategy:
         revenu_imposable = tax_result.get("impot", {}).get("revenu_imposable", 0)
         per_contributed = context.get("per_contributed", 0)
 
-        # Get marginal tax rate (TMI)
-        tmi = self._estimate_tmi(revenu_imposable, profile.get("nb_parts", 1))
+        # Get marginal tax rate (TMI) using centralized function
+        nb_parts = profile.get("nb_parts", 1.0)
+        tmi = calculate_tmi(revenu_imposable, nb_parts, self.tax_rules)
 
         if tmi < 0.11:
             # Not worth it for non-taxable people
@@ -87,22 +93,6 @@ class PERStrategy:
         plafond = max(plafond, self.rules["plafond_calculation"]["min_plafond"])
         plafond = min(plafond, self.rules["plafond_calculation"]["max_plafond"])
         return plafond
-
-    def _estimate_tmi(self, revenu_imposable: float, nb_parts: float) -> float:
-        """Estimate marginal tax rate (TMI) based on taxable income."""
-        # Simplified TMI estimation based on quotient familial
-        revenu_par_part = revenu_imposable / nb_parts
-
-        if revenu_par_part <= 11294:
-            return 0.0
-        elif revenu_par_part <= 28797:
-            return 0.11
-        elif revenu_par_part <= 82341:
-            return 0.30
-        elif revenu_par_part <= 177106:
-            return 0.41
-        else:
-            return 0.45
 
     def _get_min_interest_for_tmi(self, tmi: float) -> float:
         """Get minimum interest threshold for a given TMI."""
