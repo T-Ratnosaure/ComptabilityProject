@@ -107,18 +107,34 @@ The project is implemented in 6 phases:
 - `src/api/routes/tax.py` - Tax calculation API endpoints
 - `docs/sources.md` - Official reference documentation
 
-### Phase 4: Optimization Detection
+### Phase 4: Tax Optimization Engine - COMPLETE ✅
 
-**Status:** Planned
+**Status:** Complete and merged
 **Goal:** Identify tax optimization opportunities
 
-**Tasks:**
-- Regime optimization strategies (micro vs reel)
-- PER contribution recommendations
-- LMNP opportunity detection
-- FCPI/FIP/Girardin analysis
-- Company structure recommendations
-- Recommendations API
+**Completed:**
+- 7 optimization strategies with personalized recommendations
+- Regime optimization (micro vs réel) with threshold warnings
+- PER contribution calculator (optimal/max recommendations)
+- LMNP investment analysis for high TMI profiles (≥30%)
+- Girardin Industriel 110% reduction via Profina (recommended operator)
+- FCPI/FIP innovation investments (18% reduction)
+- Simple deductions: Dons (66%), Services à la personne (50%), Garde (50%)
+- Company structure recommendations (SASU/EURL/Holding)
+- Main TaxOptimizer orchestrator with priority ranking
+- Type-safe Pydantic models for recommendations
+- JSON-based rule system with official sources
+- Optimization API endpoints (POST /api/v1/optimization/run)
+- Executive summary generation with total savings
+- Comprehensive test suite (46 tests, 90-100% coverage)
+
+**Key Files:**
+- `src/analyzers/optimizer.py` - Main orchestration
+- `src/analyzers/strategies/` - 7 optimization strategies
+- `src/analyzers/rules/` - JSON rule files (PER, LMNP, Girardin, FCPI, general)
+- `src/models/optimization.py` - Pydantic models
+- `src/api/routes/optimization.py` - API endpoints
+- `docs/phase4.md` - Complete architecture documentation
 
 ### Phase 5: LLM Integration (Claude)
 
@@ -296,24 +312,27 @@ See `CLAUDE.md` for complete development guidelines.
 
 ## Current Status
 
-**Phase 3 is complete!** The tax calculation engine is fully implemented with:
-- Complete French tax calculation system (IR + social contributions)
-- Progressive tax brackets with quotient familial (2024/2025 barèmes)
-- URSSAF contributions for auto-entrepreneurs (BNC & BIC)
-- Micro vs Réel regime comparison with automated recommendations
-- PER deduction support and PAS reconciliation
-- Warning system for thresholds and compliance issues
-- Tax calculation API with type-safe Pydantic models
-- 26 tests passing with 78% coverage
-- Official sources documented (impots.gouv.fr, URSSAF)
-- All 68 tests passing with CI/CD checks green
+**Phase 4 is complete!** The tax optimization engine is fully implemented with:
+- 7 comprehensive optimization strategies (Regime, PER, LMNP, Girardin, FCPI/FIP, Deductions, Structure)
+- Personalized recommendations ranked by impact and savings potential
+- Girardin Industriel via Profina (110% tax reduction)
+- PER calculator with TMI-based optimal/max recommendations
+- LMNP analysis for high-earners (TMI ≥30%)
+- Simple deductions: Dons (66%), Services (50%), Garde (50%)
+- Company structure recommendations (SASU/EURL/Holding)
+- Type-safe Pydantic models and JSON-based rule system
+- Optimization API endpoint with executive summary generation
+- 46 tests passing with 90-100% coverage on optimization modules
+- All 114 tests passing (68 previous + 46 new) with CI/CD checks green
+- Complete documentation with official sources
 
 **Previous milestones:**
 - ✅ Phase 1: Core infrastructure (FastAPI, SQLAlchemy, Alembic, repositories, tests, CI/CD)
 - ✅ Phase 2: Document extraction pipeline (PDF/OCR extraction, field parsers, upload API)
 - ✅ Phase 3: Tax calculation engine (IR, quotient familial, social contributions, regime comparison)
+- ✅ Phase 4: Tax optimization engine (7 strategies, personalized recommendations, Profina integration)
 
-**Next up: Phase 4** - Optimization detection to identify tax savings opportunities (regime changes, PER, LMNP, FCPI/FIP, Girardin, company structure).
+**Next up: Phase 5** - LLM Integration with Anthropic Claude for AI-powered conversational tax assistance.
 
 ## Contributing
 
