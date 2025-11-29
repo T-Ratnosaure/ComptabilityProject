@@ -40,8 +40,8 @@ class TaxCalculationModel(Base):
     # Reference fiscal
     revenu_fiscal_reference: Mapped[float] = mapped_column(Float, nullable=False)
 
-    # Social contributions
-    social_contributions: Mapped[float] = mapped_column(Float, nullable=False)
+    # Social contributions (cotisations sociales URSSAF)
+    cotisations_sociales: Mapped[float] = mapped_column(Float, nullable=False)
 
     # Total
     total_fiscal_burden: Mapped[float] = mapped_column(Float, nullable=False)

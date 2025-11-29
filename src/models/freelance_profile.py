@@ -28,22 +28,29 @@ class FamilySituation(str, Enum):
 
 
 class FreelanceProfileBase(BaseModel):
-    """Base freelance profile model."""
+    """Base freelance profile model with standardized French fiscal terminology."""
 
     status: FreelanceStatus
     family_situation: FamilySituation
     nb_parts: float = Field(..., gt=0, description="Nombre de parts fiscales")
-    annual_revenue: float = Field(..., ge=0, description="Chiffre d'affaires annuel")
-    annual_expenses: float = Field(
-        default=0.0, ge=0, description="Charges déductibles (réel)"
+    chiffre_affaires: float = Field(
+        ..., ge=0, description="Chiffre d'affaires annuel en euros"
     )
-    social_contributions: float = Field(
-        default=0.0, ge=0, description="Cotisations sociales"
+    charges_deductibles: float = Field(
+        default=0.0, ge=0, description="Charges déductibles (régime réel) en euros"
     )
-    other_income: float = Field(
-        default=0.0, ge=0, description="Autres revenus (salaires, etc.)"
+    cotisations_sociales: float = Field(
+        default=0.0, ge=0, description="Cotisations sociales URSSAF en euros"
     )
-    existing_deductions: dict[str, float] = Field(default_factory=dict)
+    autres_revenus: float = Field(
+        default=0.0,
+        ge=0,
+        description="Autres revenus (salaires, foncier, etc.) en euros",
+    )
+    existing_deductions: dict[str, float] = Field(
+        default_factory=dict,
+        description="Déductions existantes (nom: montant en euros)",
+    )
 
 
 class FreelanceProfileCreate(FreelanceProfileBase):
@@ -58,10 +65,10 @@ class FreelanceProfileUpdate(BaseModel):
     status: FreelanceStatus | None = None
     family_situation: FamilySituation | None = None
     nb_parts: float | None = None
-    annual_revenue: float | None = None
-    annual_expenses: float | None = None
-    social_contributions: float | None = None
-    other_income: float | None = None
+    chiffre_affaires: float | None = None
+    charges_deductibles: float | None = None
+    cotisations_sociales: float | None = None
+    autres_revenus: float | None = None
     existing_deductions: dict[str, float] | None = None
 
 

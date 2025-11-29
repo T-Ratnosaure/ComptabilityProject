@@ -37,9 +37,13 @@ class StructureStrategy:
         """
         recommendations = []
 
-        # Extract data
-        annual_revenue = profile.get("annual_revenue", 0)
-        annual_expenses = profile.get("annual_expenses", 0)
+        # Extract data with support for both standardized and legacy field names
+        annual_revenue = profile.get("chiffre_affaires") or profile.get(
+            "annual_revenue", 0
+        )
+        annual_expenses = profile.get("charges_deductibles") or profile.get(
+            "annual_expenses", 0
+        )
 
         # Calculate charges rate
         charges_rate = annual_expenses / annual_revenue if annual_revenue > 0 else 0

@@ -116,24 +116,25 @@ class LLMContextBuilder:
                     situation_familiale = doc.extracted_fields["situation_familiale"]
 
         # Map profile_data fields to FiscalProfile
-        # Handle various naming conventions (annual_revenue vs chiffre_affaires)
+        # Use standardized French fiscal terms (chiffre_affaires, etc.)
+        # with fallback to legacy English names for backward compatibility
         chiffre_affaires = (
-            profile_data.get("chiffre_affaires")
-            or profile_data.get("annual_revenue")
-            or profile_data.get("professional_gross")
+            profile_data.get("chiffre_affaires")  # Standard (French fiscal term)
+            or profile_data.get("annual_revenue")  # Legacy fallback
+            or profile_data.get("professional_gross")  # Legacy fallback
             or 0.0
         )
 
         charges_deductibles = (
-            profile_data.get("charges_deductibles")
-            or profile_data.get("annual_expenses")
-            or profile_data.get("deductible_expenses")
+            profile_data.get("charges_deductibles")  # Standard (French fiscal term)
+            or profile_data.get("annual_expenses")  # Legacy fallback
+            or profile_data.get("deductible_expenses")  # Legacy fallback
             or 0.0
         )
 
         cotisations_sociales = (
-            profile_data.get("cotisations_sociales")
-            or profile_data.get("social_contributions")
+            profile_data.get("cotisations_sociales")  # Standard (French fiscal term)
+            or profile_data.get("social_contributions")  # Legacy fallback
             or 0.0
         )
 

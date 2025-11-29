@@ -146,7 +146,8 @@ class RegimeStrategy:
 
     def _check_threshold_proximity(self, profile: dict) -> Recommendation | None:
         """Check if user is approaching micro regime thresholds."""
-        revenue = profile.get("annual_revenue", 0)
+        # Support both standardized and legacy field names
+        revenue = profile.get("chiffre_affaires") or profile.get("annual_revenue", 0)
         status = profile.get("status", "").lower()
 
         # Determine regime type for threshold check
