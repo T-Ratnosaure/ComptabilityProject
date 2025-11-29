@@ -252,3 +252,81 @@ def check_micro_threshold_proximity(
         "proximity_rate": round(proximity_rate, 4),
         "remaining": round(remaining, 2),
     }
+
+
+def get_lmnp_deduction_rate(regime: str, rules: TaxRules) -> float:
+    """Get LMNP total deduction rate for estimations.
+
+    Args:
+        regime: LMNP regime ("micro" or "reel")
+        rules: Tax rules
+
+    Returns:
+        Total deduction rate as decimal
+
+    Note:
+        - Micro: Fixed abattement (0.50 for micro_bic)
+        - Réel: Average total deduction from charges + amortization
+        This is for ESTIMATION only. Real deduction varies by property.
+
+    Example:
+        >>> rules = get_tax_rules(2024)
+        >>> get_lmnp_deduction_rate("reel", rules)
+        0.85  # Average 85% deduction (charges + amortization)
+    """
+    lmnp_config = rules.lmnp
+
+    if regime == "micro":
+        # Use micro-BIC abattement (50%)
+        return get_micro_abattement("micro_bic_service", rules)
+    elif regime == "reel":
+        # Get average total deduction rate from baremes
+        reel_config = lmnp_config.get("regimes", {}).get("reel", {})
+        return reel_config.get("avg_total_deduction_rate", 0.85)
+    else:
+        raise ValueError(f"Unknown LMNP regime: {regime}")
+
+
+def get_lmnp_yield(rules: TaxRules) -> float:
+    """Get estimated rental yield for LMNP.
+
+    Args:
+        rules: Tax rules
+
+    Returns:
+        Estimated annual yield as decimal (e.g., 0.04 for 4%)
+
+    Note:
+        This is a market estimate for calculations, not a guarantee.
+        Real yield varies by location and property type.
+
+    Example:
+        >>> rules = get_tax_rules(2024)
+        >>> get_lmnp_yield(rules)
+        0.04  # 4% typical yield
+    """
+    lmnp_config = rules.lmnp
+    market_estimates = lmnp_config.get("market_estimates", {})
+    return market_estimates.get("typical_yield", 0.04)
+
+
+def get_lmnp_eligibility(rules: TaxRules) -> dict[str, float]:
+    """Get LMNP eligibility criteria.
+
+    Args:
+        rules: Tax rules
+
+    Returns:
+        Dict with min_tmi and min_investment_capacity
+
+    Example:
+        >>> rules = get_tax_rules(2024)
+        >>> get_lmnp_eligibility(rules)
+        {"min_tmi": 0.30, "min_investment_capacity": 50000}
+    """
+    lmnp_config = rules.lmnp
+    eligibility = lmnp_config.get("eligibility", {})
+    return {
+        "min_tmi": eligibility.get("min_tmi", 0.30),
+        "min_investment_capacity": eligibility.get("min_investment_capacity", 50000),
+    }

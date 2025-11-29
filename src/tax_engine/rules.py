@@ -116,6 +116,15 @@ class TaxRules:
         return self.data.get("tax_reductions", {})
 
     @property
+    def lmnp(self) -> dict[str, Any]:
+        """Get LMNP (Location Meublée Non Professionnelle) configuration.
+
+        Returns:
+            Dict with regimes, market_estimates, eligibility criteria
+        """
+        return self.data.get("lmnp", {})
+
+    @property
     def source_url(self) -> str:
         """Get official source URL.
 

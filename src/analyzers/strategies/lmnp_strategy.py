@@ -12,6 +12,11 @@ from src.models.optimization import (
 )
 from src.tax_engine.core import calculate_tmi
 from src.tax_engine.rules import get_tax_rules
+from src.tax_engine.tax_utils import (
+    get_lmnp_deduction_rate,
+    get_lmnp_eligibility,
+    get_lmnp_yield,
+)
 
 
 class LMNPStrategy:
@@ -49,17 +54,17 @@ class LMNPStrategy:
         # Use centralized TMI calculation
         tmi = calculate_tmi(revenu_imposable, nb_parts, self.tax_rules)
 
-        # Check eligibility
+        # Check eligibility using centralized function
         investment_capacity = context.get("investment_capacity", 0)
         risk_tolerance = context.get("risk_tolerance", "low")
+        eligibility = get_lmnp_eligibility(self.tax_rules)
 
         # LMNP is interesting for TMI >= 30%
-        if tmi < self.rules["eligibility"]["min_tmi"]:
+        if tmi < eligibility["min_tmi"]:
             return recommendations
 
         # Check investment capacity
-        min_investment = self.rules["eligibility"]["min_investment_capacity"]
-        if investment_capacity < min_investment:
+        if investment_capacity < eligibility["min_investment_capacity"]:
             return recommendations
 
         # Generate LMNP recommendation
@@ -72,10 +77,10 @@ class LMNPStrategy:
         self, tmi: float, investment_capacity: float, risk_tolerance: str
     ) -> Recommendation:
         """Create LMNP investment recommendation."""
-        # Get LMNP réel parameters from rules
-        reel_rules = self.rules["regimes"]["reel"]
-        estimated_yield = reel_rules["estimated_yield"]
-        total_deduction_rate = reel_rules["avg_total_deduction_rate"]
+        # Use centralized functions for LMNP parameters
+        estimated_yield = get_lmnp_yield(self.tax_rules)
+        total_deduction_rate = get_lmnp_deduction_rate("reel", self.tax_rules)
+        eligibility = get_lmnp_eligibility(self.tax_rules)
 
         # Estimate annual rental income
         estimated_rental = investment_capacity * estimated_yield
@@ -143,9 +148,8 @@ class LMNPStrategy:
             action_steps=action_steps,
             required_investment=investment_capacity,
             eligibility_criteria=[
-                f"TMI >= {self.rules['eligibility']['min_tmi'] * 100:.0f}%",
-                f"Capacité investissement >= "
-                f"{self.rules['eligibility']['min_investment_capacity']}€",
+                f"TMI >= {eligibility['min_tmi'] * 100:.0f}%",
+                f"Capacité investissement >= {eligibility['min_investment_capacity']}€",
                 "Horizon d'investissement long terme (10+ ans)",
             ],
             warnings=warnings,
