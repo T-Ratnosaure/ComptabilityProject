@@ -51,9 +51,9 @@ app.add_middleware(
 )
 
 # Register API routers
-app.include_router(documents.router, prefix=settings.API_V1_PREFIX)
-app.include_router(tax.router, prefix=settings.API_V1_PREFIX)
-app.include_router(optimization.router, prefix=settings.API_V1_PREFIX)
+app.include_router(documents.router)
+app.include_router(tax.router)
+app.include_router(optimization.router)
 
 
 @app.get("/health", tags=["Health"])

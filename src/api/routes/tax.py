@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 from src.tax_engine.calculator import calculate_tax
 
-router = APIRouter(prefix="/tax", tags=["tax"])
+router = APIRouter(prefix="/api/v1/tax", tags=["tax"])
 
 
 class TaxRegime(str, Enum):

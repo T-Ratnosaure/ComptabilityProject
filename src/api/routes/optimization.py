@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from src.analyzers.optimizer import TaxOptimizer
 from src.models.optimization import OptimizationResult
 
-router = APIRouter(prefix="/optimization", tags=["optimization"])
+router = APIRouter(prefix="/api/v1/optimization", tags=["optimization"])
 
 
 class ProfileInput(BaseModel):

@@ -9,7 +9,7 @@ from src.api.dependencies import get_db_session, get_tax_document_repository
 from src.models.tax_document import DocumentType
 from src.services.document_service import DocumentProcessingService
 
-router = APIRouter(prefix="/documents", tags=["documents"])
+router = APIRouter(prefix="/api/v1/documents", tags=["documents"])
 
 
 @router.post("/upload", response_model=dict[str, int])
