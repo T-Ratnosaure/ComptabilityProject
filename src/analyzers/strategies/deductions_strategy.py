@@ -70,10 +70,12 @@ class DeductionsStrategy:
             suggested_don = min(500, (plafond - current_dons) * 0.3)
             reduction = suggested_don * dons_rules["reduction_rate"]
 
+            reduction_pct = dons_rules["reduction_rate"] * 100
+            plafond_pct = dons_rules["plafond_rate"] * 100
             description = (
                 f"🎁 Dons aux associations - Réduction d'impôt 66%\n\n"
                 f"Les dons aux associations ouvrent droit à une réduction d'impôt "
-                f"de {dons_rules['reduction_rate'] * 100:.0f}%, plafonné à {dons_rules['plafond_rate'] * 100:.0f}% "
+                f"de {reduction_pct:.0f}%, plafonné à {plafond_pct:.0f}% "
                 f"de votre revenu imposable.\n\n"
                 f"**Votre situation :**\n"
                 f"- Plafond disponible : {plafond:.2f}€\n"
@@ -106,7 +108,7 @@ class DeductionsStrategy:
                 required_investment=suggested_don,
                 eligibility_criteria=[
                     "Association reconnue d'intérêt général",
-                    f"Plafond : {dons_rules['plafond_rate'] * 100:.0f}% du revenu imposable",
+                    f"Plafond : {plafond_pct:.0f}% du revenu imposable",
                 ],
                 warnings=[
                     "Conserver les justificatifs pendant 3 ans",
@@ -136,11 +138,12 @@ class DeductionsStrategy:
             # Suggest using services
             suggested_expense = min(2000, plafond - current_services)
             credit = suggested_expense * services_rules["credit_rate"]
+            credit_pct = services_rules["credit_rate"] * 100
 
             description = (
                 f"🏡 Services à la personne - Crédit d'impôt 50%\n\n"
                 f"Les services à la personne ouvrent droit à un crédit d'impôt "
-                f"de {services_rules['credit_rate'] * 100:.0f}%, plafonné à {plafond:.2f}€/an.\n\n"
+                f"de {credit_pct:.0f}%, plafonné à {plafond:.2f}€/an.\n\n"
                 f"**Services éligibles :**\n"
             )
 
@@ -202,12 +205,15 @@ class DeductionsStrategy:
         if current_frais < plafond_total * 0.5:
             suggested_expense = min(3000, (plafond_total - current_frais) * 0.6)
             credit = suggested_expense * garde_rules["credit_rate"]
+            age_limit = garde_rules["age_limit"]
+            credit_pct = garde_rules["credit_rate"] * 100
+            plafond_per_child = garde_rules["plafond_per_child"]
 
             description = (
                 f"👶 Frais de garde d'enfants - Crédit 50%\n\n"
-                f"Les frais de garde d'enfants de moins de {garde_rules['age_limit']} ans "
-                f"ouvrent droit à un crédit d'impôt de {garde_rules['credit_rate'] * 100:.0f}%, "
-                f"plafonné à {garde_rules['plafond_per_child']}€ par enfant.\n\n"
+                f"Les frais de garde d'enfants de moins de {age_limit} ans "
+                f"ouvrent droit à un crédit d'impôt de {credit_pct:.0f}%, "
+                f"plafonné à {plafond_per_child}€ par enfant.\n\n"
                 f"**Votre situation :**\n"
                 f"- Nombre d'enfants < 6 ans : {children_under_6}\n"
                 f"- Plafond total : {plafond_total}€\n"
@@ -230,7 +236,7 @@ class DeductionsStrategy:
                     ["https://www.service-public.fr/particuliers/vosdroits/F8"],
                 ),
                 action_steps=[
-                    "Utiliser une crèche, assistante maternelle agréée, ou garde à domicile",
+                    "Crèche, assistante maternelle agréée, ou garde à domicile",
                     "Conserver les attestations",
                     "Déclarer en case 7GA/7GB/7GC de la 2042 RICI",
                 ],

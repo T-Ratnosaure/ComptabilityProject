@@ -80,29 +80,33 @@ class FCPIFIPStrategy:
 
         reduction = recommended_investment * reduction_rate
         effective_cost = recommended_investment - reduction
+        reduction_pct = reduction_rate * 100
+        commitment_years = fcpi_rules["commitment_years"]
 
         description = (
             f"💼 FCPI (Fonds Communs de Placement dans l'Innovation)\n\n"
-            f"Les FCPI permettent de bénéficier d'une réduction d'impôt de {reduction_rate * 100:.0f}% "
-            f"tout en soutenant l'innovation française.\n\n"
+            f"Les FCPI permettent de bénéficier d'une réduction d'impôt "
+            f"de {reduction_pct:.0f}% tout en soutenant l'innovation française.\n\n"
             f"**Pour votre situation :**\n"
             f"- Plafond disponible : {plafond:.2f}€\n"
             f"- Investissement recommandé : {recommended_investment:.2f}€\n"
             f"- Réduction d'impôt : {reduction:.2f}€\n"
             f"- Coût réel après réduction : {effective_cost:.2f}€\n\n"
             f"**Avantages :**\n"
-            f"- Réduction d'impôt immédiate de {reduction_rate * 100:.0f}%\n"
+            f"- Réduction d'impôt immédiate de {reduction_pct:.0f}%\n"
             f"- Soutien à l'innovation et aux PME françaises\n"
             f"- Diversification de votre patrimoine\n"
             f"- Potentiel de plus-value à long terme\n\n"
-            f"**Engagement :** Les fonds sont bloqués pendant {fcpi_rules['commitment_years']} ans minimum."
+            f"**Engagement :** Les fonds sont bloqués pendant "
+            f"{commitment_years} ans minimum."
         )
 
+        min_invest = recommended_investment * 0.8
         action_steps = [
             "Comparer les FCPI disponibles (performances historiques, frais)",
             "Vérifier que le fonds est éligible à la réduction d'impôt",
             "Souscrire avant le 31 décembre",
-            f"Investir entre {recommended_investment * 0.8:.2f}€ et {recommended_investment:.2f}€",
+            f"Investir entre {min_invest:.2f}€ et {recommended_investment:.2f}€",
             "Conserver les justificatifs de souscription",
             "Déclarer l'investissement sur votre déclaration 2042 C",
             "Ne pas dépasser le plafond annuel",
@@ -135,7 +139,7 @@ class FCPIFIPStrategy:
                 "warnings",
                 [
                     "Risque de perte en capital",
-                    f"Blocage des fonds pendant {fcpi_rules['commitment_years']} ans minimum",
+                    f"Blocage des fonds pendant {commitment_years} ans minimum",
                     "Frais de gestion annuels (2-3%)",
                     "Performance non garantie",
                 ],

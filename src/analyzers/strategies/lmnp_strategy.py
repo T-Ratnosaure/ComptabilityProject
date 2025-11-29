@@ -88,7 +88,8 @@ class LMNPStrategy:
         estimated_savings = estimated_rental * tmi * 0.85
 
         description = (
-            f"🏠 LMNP (Location Meublée Non Professionnelle) - Investissement locatif optimisé\n\n"
+            f"🏠 LMNP (Location Meublée Non Professionnelle)\n"
+            f"Investissement locatif optimisé\n\n"
             f"Avec votre TMI de {tmi * 100:.0f}% et une capacité d'investissement "
             f"de {investment_capacity:.2f}€, le LMNP en régime réel peut être "
             f"une excellente stratégie d'optimisation fiscale.\n\n"
@@ -147,7 +148,8 @@ class LMNPStrategy:
             required_investment=investment_capacity,
             eligibility_criteria=[
                 f"TMI >= {self.rules['eligibility']['min_tmi'] * 100:.0f}%",
-                f"Capacité d'investissement >= {self.rules['eligibility']['min_investment_capacity']}€",
+                f"Capacité investissement >= "
+                f"{self.rules['eligibility']['min_investment_capacity']}€",
                 "Horizon d'investissement long terme (10+ ans)",
             ],
             warnings=warnings,

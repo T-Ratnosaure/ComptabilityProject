@@ -160,12 +160,13 @@ class PERStrategy:
             complexity=ComplexityLevel.EASY,
             confidence=0.90,
             category=RecommendationCategory.INVESTMENT,
-            sources=self.rules["sources"]
-            if "sources" in self.rules
-            else [
-                "https://www.service-public.fr/particuliers/vosdroits/F34982",
-                "https://www.impots.gouv.fr/particulier/le-plan-depargne-retraite-individuel-peri",
-            ],
+            sources=self.rules.get(
+                "sources",
+                [
+                    "https://www.service-public.fr/particuliers/vosdroits/F34982",
+                    "https://www.impots.gouv.fr/particulier/le-plan-depargne-retraite-individuel-peri",
+                ],
+            ),
             action_steps=action_steps,
             required_investment=recommended_amount,
             eligibility_criteria=[

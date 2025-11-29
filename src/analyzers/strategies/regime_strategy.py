@@ -99,7 +99,7 @@ class RegimeStrategy:
             ]
         else:
             action_steps = [
-                "Simplifier votre comptabilité (pas besoin de tenir un livre de comptes)",
+                "Simplifier votre comptabilité (pas de livre de comptes)",
                 "Déclarer uniquement votre chiffre d'affaires",
                 "Bénéficier de l'abattement forfaitaire automatique",
                 "Option à exercer lors de la déclaration annuelle",
@@ -191,9 +191,7 @@ class RegimeStrategy:
                 ],
                 required_investment=0.0,
                 eligibility_criteria=[],
-                warnings=[
-                    "Le dépassement de seuil 2 années consécutives entraîne un basculement obligatoire"
-                ],
+                warnings=["Dépassement 2 ans consécutifs = basculement obligatoire"],
                 deadline="31 décembre de l'année en cours",
             )
 

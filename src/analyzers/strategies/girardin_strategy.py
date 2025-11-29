@@ -80,14 +80,18 @@ class GirardinStrategy:
         # Get Profina info
         profina = self.rules["recommended_provider"]
 
+        rendement_pct = (net_gain / optimal_investment) * 100
+        commitment_years = industriel_rules["commitment_years"]
+
         description = (
             f"🌴 Girardin Industriel - Défiscalisation Outre-Mer via Profina\n\n"
-            f"Le dispositif Girardin Industriel permet d'obtenir une réduction d'impôt "
-            f"de **110%** du montant investi dans des équipements productifs en Outre-Mer.\n\n"
+            f"Le dispositif Girardin Industriel permet d'obtenir une réduction "
+            f"d'impôt de **110%** du montant investi dans des équipements "
+            f"productifs en Outre-Mer.\n\n"
             f"**Pour votre situation (impôt de {impot_net:.2f}€) :**\n"
             f"- Investissement recommandé : {optimal_investment:.2f}€\n"
             f"- Réduction d'impôt : {target_reduction:.2f}€\n"
-            f"- Gain net : +{net_gain:.2f}€ (rendement {(net_gain / optimal_investment) * 100:.1f}%)\n\n"
+            f"- Gain net : +{net_gain:.2f}€ (rendement {rendement_pct:.1f}%)\n\n"
             f"**Opérateur recommandé : {profina['name']}**\n"
             f"{profina['description']}\n\n"
             f"**Pourquoi Profina ?**\n"
@@ -100,7 +104,7 @@ class GirardinStrategy:
             f"\n🌐 Site : {profina['website']}\n\n"
             f"**⚠️ Important :** Le Girardin est un investissement à risque. "
             f"La réduction est acquise immédiatement, mais l'engagement est de "
-            f"{industriel_rules['commitment_years']} ans. Profina sécurise les montages "
+            f"{commitment_years} ans. Profina sécurise les montages "
             f"mais le risque zéro n'existe pas."
         )
 
@@ -117,7 +121,7 @@ class GirardinStrategy:
         warnings_list = self.rules["warnings"].copy()
         warnings_list.insert(
             0,
-            "Recommandation Profina : opérateur de confiance mais toujours vérifier le projet",
+            "Profina recommandé : opérateur de confiance, vérifier le projet",
         )
 
         return Recommendation(

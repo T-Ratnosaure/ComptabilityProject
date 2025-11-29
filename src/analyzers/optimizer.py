@@ -130,7 +130,7 @@ class TaxOptimizer:
         # Calculate total potential savings
         total_savings = sum(rec.impact_estimated for rec in self.recommendations)
 
-        # Count high-priority recommendations (impact > 1000€ or low complexity + low risk)
+        # Count high-priority recommendations (impact > 1000€ or easy + low risk)
         high_priority = sum(
             1
             for rec in self.recommendations

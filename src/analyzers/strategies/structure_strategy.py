@@ -42,10 +42,7 @@ class StructureStrategy:
         annual_expenses = profile.get("annual_expenses", 0)
 
         # Calculate charges rate
-        if annual_revenue > 0:
-            charges_rate = annual_expenses / annual_revenue
-        else:
-            charges_rate = 0
+        charges_rate = annual_expenses / annual_revenue if annual_revenue > 0 else 0
 
         current_status = profile.get("status", "").lower()
 
@@ -82,10 +79,11 @@ class StructureStrategy:
         self, annual_revenue: float, charges_rate: float, tax_result: dict
     ) -> Recommendation:
         """Create SASU/EURL recommendation."""
+        charges_pct = charges_rate * 100
         description = (
             f"🏢 Structuration en société (SASU IS / EURL IS)\n\n"
-            f"Avec un chiffre d'affaires de {annual_revenue:.2f}€ et un taux de charges "
-            f"de {charges_rate * 100:.1f}%, la création d'une société soumise à l'IS "
+            f"Avec un CA de {annual_revenue:.2f}€ et un taux de charges "
+            f"de {charges_pct:.1f}%, la création d'une société soumise à l'IS "
             f"(Impôt sur les Sociétés) pourrait optimiser votre fiscalité.\n\n"
             f"**Avantages fiscaux :**\n"
             f"- IS à 15% jusqu'à 42 500€ de bénéfice (puis 25%)\n"
@@ -138,7 +136,8 @@ class StructureStrategy:
             required_investment=3000,  # Approximate creation + first year costs
             eligibility_criteria=[
                 f"CA >= {self.rules['consider_sasu']['ca_min']}€",
-                f"Taux de charges >= {self.rules['consider_sasu']['charges_rate_min'] * 100:.0f}%",
+                f"Taux charges >= "
+                f"{self.rules['consider_sasu']['charges_rate_min'] * 100:.0f}%",
                 "Activité pérenne et récurrente",
             ],
             warnings=[
