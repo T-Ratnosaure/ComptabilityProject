@@ -1,0 +1,54 @@
+{
+  "name": "PER (Plan Épargne Retraite)",
+  "description": "Règles d'optimisation pour le Plan Épargne Retraite",
+  "year": 2024,
+  "rules": {
+    "plafond_calculation": {
+      "rate": 0.10,
+      "description": "10% du revenu professionnel imposable",
+      "min_plafond": 4399,
+      "max_plafond": 35200,
+      "note": "Le plafond est au minimum 4 399€ et au maximum 35 200€"
+    },
+    "eligibility": {
+      "min_income": 1000,
+      "description": "Revenu professionnel minimum requis"
+    },
+    "tmi_thresholds": {
+      "0.11": {
+        "min_interest": 500,
+        "description": "Intérêt minimum pour TMI 11%"
+      },
+      "0.30": {
+        "min_interest": 300,
+        "description": "Fortement recommandé pour TMI 30%"
+      },
+      "0.41": {
+        "min_interest": 100,
+        "description": "Très fortement recommandé pour TMI 41%"
+      },
+      "0.45": {
+        "min_interest": 100,
+        "description": "Indispensable pour TMI 45%"
+      }
+    },
+    "recommendation_modes": {
+      "optimal": {
+        "description": "Optimise le ratio gain fiscal / capacité d'épargne",
+        "target_rate": 0.7
+      },
+      "safe": {
+        "description": "Approche prudente avec 50% du plafond",
+        "target_rate": 0.5
+      },
+      "max": {
+        "description": "Utilisation maximale du plafond",
+        "target_rate": 1.0
+      }
+    }
+  },
+  "sources": [
+    "https://www.service-public.fr/particuliers/vosdroits/F34982",
+    "https://www.impots.gouv.fr/particulier/le-plan-depargne-retraite-individuel-peri"
+  ]
+}

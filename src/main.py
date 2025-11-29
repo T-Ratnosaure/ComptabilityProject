@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.routes import documents, tax
+from src.api.routes import documents, optimization, tax
 from src.config import settings
 
 
@@ -53,6 +53,7 @@ app.add_middleware(
 # Register API routers
 app.include_router(documents.router, prefix=settings.API_V1_PREFIX)
 app.include_router(tax.router, prefix=settings.API_V1_PREFIX)
+app.include_router(optimization.router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/health", tags=["Health"])

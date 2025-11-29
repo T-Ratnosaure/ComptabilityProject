@@ -1,0 +1,49 @@
+{
+  "name": "LMNP (Location Meublée Non Professionnelle)",
+  "description": "Règles d'optimisation pour la Location Meublée Non Professionnelle",
+  "year": 2024,
+  "rules": {
+    "regimes": {
+      "micro_bic": {
+        "threshold": 77700,
+        "abattement": 0.50,
+        "description": "Micro-BIC avec abattement de 50%"
+      },
+      "reel": {
+        "description": "Régime réel avec amortissement",
+        "avg_amortissement_rate": 0.035,
+        "avg_charges_rate": 0.70,
+        "note": "Permet déduction charges réelles + amortissement du bien"
+      }
+    },
+    "eligibility": {
+      "min_tmi": 0.30,
+      "description": "TMI minimale recommandée pour LMNP réel",
+      "min_investment_capacity": 50000,
+      "description_investment": "Capacité d'investissement minimale recommandée"
+    },
+    "advantages": {
+      "fiscal": [
+        "Amortissement du bien immobilier",
+        "Déduction des charges (travaux, intérêts d'emprunt, assurances)",
+        "Imposition réduite voire nulle pendant l'amortissement",
+        "Impact limité sur le RFR (revenus fonciers réduits)"
+      ],
+      "patrimony": [
+        "Constitution d'un patrimoine immobilier",
+        "Revenus complémentaires à la retraite",
+        "Transmission patrimoniale"
+      ]
+    },
+    "warnings": [
+      "Engagement locatif long terme recommandé",
+      "Gestion locative à prévoir",
+      "Marché locatif à étudier",
+      "Consulter un expert-comptable avant investissement"
+    ]
+  },
+  "sources": [
+    "https://www.service-public.fr/particuliers/vosdroits/F32744",
+    "https://bofip.impots.gouv.fr/bofip/5773-PGP.html"
+  ]
+}

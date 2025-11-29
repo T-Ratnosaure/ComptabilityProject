@@ -7,6 +7,18 @@ from src.models.freelance_profile import (
     FreelanceProfileUpdate,
     FreelanceStatus,
 )
+from src.models.optimization import (
+    ComplexityLevel,
+    OptimizationProfile,
+    OptimizationResult,
+    RecommendationCategory,
+)
+from src.models.optimization import (
+    Recommendation as OptimizationRecommendation,
+)
+from src.models.optimization import (
+    RiskLevel as OptimizationRiskLevel,
+)
 from src.models.recommendation import (
     Recommendation,
     RecommendationCreate,
@@ -48,4 +60,11 @@ __all__ = [
     "RiskLevel",
     "Recommendation",
     "RecommendationCreate",
+    # Optimization
+    "ComplexityLevel",
+    "OptimizationProfile",
+    "OptimizationResult",
+    "OptimizationRecommendation",
+    "RecommendationCategory",
+    "OptimizationRiskLevel",
 ]

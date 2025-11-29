@@ -1,0 +1,67 @@
+{
+  "name": "FCPI / FIP",
+  "description": "Fonds Communs de Placement dans l'Innovation / Fonds d'Investissement de Proximité",
+  "year": 2024,
+  "rules": {
+    "fcpi": {
+      "name": "FCPI (Fonds Communs de Placement dans l'Innovation)",
+      "reduction_rate": 0.18,
+      "description": "18% de réduction d'impôt",
+      "plafond_individual": 12000,
+      "plafond_couple": 24000,
+      "commitment_years": 5,
+      "risk": "medium"
+    },
+    "fip": {
+      "name": "FIP (Fonds d'Investissement de Proximité)",
+      "reduction_rate": 0.18,
+      "description": "18% de réduction d'impôt (peut aller jusqu'à 25% selon région)",
+      "plafond_individual": 12000,
+      "plafond_couple": 24000,
+      "commitment_years": 5,
+      "risk": "medium",
+      "regional_bonus": {
+        "corse": 0.25,
+        "outre_mer": 0.25,
+        "description": "Taux bonifié pour certaines régions"
+      }
+    },
+    "eligibility": {
+      "min_impot": 1000,
+      "description": "Impôt minimum recommandé",
+      "risk_tolerance": "medium",
+      "description_risk": "Tolérance au risque moyenne requise"
+    },
+    "advantages": [
+      "Réduction d'impôt immédiate",
+      "Soutien à l'innovation et l'économie locale",
+      "Diversification du patrimoine",
+      "Potentiel de plus-value à long terme"
+    ],
+    "warnings": [
+      "Risque de perte en capital",
+      "Blocage des fonds pendant 5 ans minimum",
+      "Frais de gestion annuels (2-3%)",
+      "Performance non garantie",
+      "Bien choisir son fonds (historique, gérant)"
+    ],
+    "calculation": {
+      "example_fcpi": {
+        "investment": 5000,
+        "reduction": 900,
+        "effective_cost": 4100,
+        "note": "5 000€ investis = 900€ de réduction (18%)"
+      },
+      "example_fip_corse": {
+        "investment": 8000,
+        "reduction": 2000,
+        "effective_cost": 6000,
+        "note": "8 000€ en FIP Corse = 2 000€ de réduction (25%)"
+      }
+    }
+  },
+  "sources": [
+    "https://www.service-public.fr/particuliers/vosdroits/F34272",
+    "https://www.amf-france.org/fr/espace-epargnants/comprendre-les-produits-financiers/supports-dinvestissement-assurance-vie-compte-titres-pea/fcpi-et-fip"
+  ]
+}
