@@ -3,10 +3,17 @@
 from datetime import datetime
 from typing import Any
 
+from pydantic import BaseModel, ValidationError
 from sqlalchemy import JSON, Enum, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.database.base import Base
+from src.models.extracted_fields import (
+    AvisImpositionExtracted,
+    BNCBICExtracted,
+    Declaration2042Extracted,
+    URSSAFExtracted,
+)
 
 
 class TaxDocumentModel(Base):
@@ -54,3 +61,44 @@ class TaxDocumentModel(Base):
     def __repr__(self) -> str:
         """String representation of the model."""
         return f"<TaxDocument(id={self.id}, type={self.type}, year={self.year})>"
+
+    def get_validated_fields(self) -> BaseModel:
+        """
+        Get extracted_fields as validated Pydantic model.
+
+        This method re-validates the extracted_fields stored in the database
+        using the appropriate Pydantic model based on the document type.
+
+        Returns:
+            Validated Pydantic model (type depends on document type)
+
+        Raises:
+            ValueError: If document type is unknown or validation fails
+
+        Example:
+            >>> document = await repository.get(doc_id)
+            >>> validated = document.get_validated_fields()
+            >>> # validated is AvisImpositionExtracted, URSSAFExtracted, etc.
+        """
+        # Map document types to Pydantic models
+        type_to_model = {
+            "avis_imposition": AvisImpositionExtracted,
+            "urssaf": URSSAFExtracted,
+            "bnc": BNCBICExtracted,
+            "bic": BNCBICExtracted,
+            "declaration_2042": Declaration2042Extracted,
+        }
+
+        if self.type not in type_to_model:
+            raise ValueError(
+                f"Unknown or unsupported document type for validation: {self.type}"
+            )
+
+        model_class = type_to_model[self.type]
+
+        try:
+            return model_class(**self.extracted_fields)
+        except ValidationError as e:
+            raise ValueError(
+                f"Validation failed for {self.type} document (id={self.id}): {e}"
+            ) from e
