@@ -32,6 +32,13 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     LOG_FILE: str = "./logs/app.log"
 
+    # LLM Configuration
+    ANTHROPIC_API_KEY: str = ""
+    LLM_MODEL: str = "claude-3-5-sonnet-20241022"
+    LLM_TEMPERATURE: float = 0.7
+    LLM_MAX_TOKENS: int = 4096
+    LLM_TIMEOUT: int = 60
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
