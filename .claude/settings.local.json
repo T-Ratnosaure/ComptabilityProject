@@ -32,7 +32,10 @@
       "Bash(timeout 10 uv run python:*)",
       "Bash(timeout 15 uv run:*)",
       "Bash(powershell -Command \"Remove-Item ''data/database/comptability.db'' -Force; uv run alembic upgrade head\")",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(MSYS_NO_PATHCONV=1 API_V1_PREFIX=/api/v1 uv run pytest:*)",
+      "Bash(not allowed)",
+      "Bash(textplain\"\n\n2. **Git Bash path conversion** (tests/conftest.py)\n   - Added environment variable setup at module level\n   - Sets MSYS_NO_PATHCONV=1 to prevent Git Bash from converting /api/v1 to C:/Program Files/Git/api/v1\n   - Sets API_V1_PREFIX=/api/v1 explicitly for tests\n   - Must be set BEFORE importing src.main to take effect\n\nTest Results:\n✅ 300 tests passed\n⏭️ 2 tests skipped (expected - minimal PNG/JPEG not recognized by PIL)\n❌ 0 tests failed\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

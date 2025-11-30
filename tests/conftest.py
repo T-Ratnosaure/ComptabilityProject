@@ -1,5 +1,12 @@
 """Pytest configuration and fixtures."""
 
+import os
+
+# Set environment variables BEFORE importing app modules
+# Prevents Git Bash from converting paths like /api/v1 to C:/Program Files/Git/api/v1
+os.environ["MSYS_NO_PATHCONV"] = "1"
+os.environ["API_V1_PREFIX"] = "/api/v1"
+
 import asyncio
 from collections.abc import AsyncGenerator, Generator
 
