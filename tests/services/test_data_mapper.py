@@ -208,7 +208,7 @@ class TestTaxDataMapper:
                 "salaires_declarant2": 15000.0,
                 "revenus_fonciers": 5000.0,
                 "revenus_capitaux": 1000.0,
-                "charges_deductibles": 2000.0,
+                "autres_deductions": 2000.0,  # Tax deductions (not BNC expenses)
             },
         )
 

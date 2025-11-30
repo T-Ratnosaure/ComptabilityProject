@@ -86,6 +86,30 @@ def test_field_aliases():
     print("[OK] test_field_aliases PASSED")
 
 
+def test_charges_alias():
+    """Test that 'charges' field is correctly aliased."""
+    doc = TaxDocument(
+        id=1,
+        type=DocumentType.BNC,
+        year=2024,
+        status="processed",
+        file_path="/tmp/bnc.pdf",
+        original_filename="bnc.pdf",
+        created_at=datetime.now(),
+        extracted_fields={
+            "chiffre_affaires": 50000.0,
+            "charges": 10000.0,  # Should be aliased to charges_deductibles
+            "regime": "reel_bnc",
+        },
+    )
+
+    request = TaxDataMapper.map_to_tax_request([doc])
+
+    # charges should be mapped to deductible_expenses
+    assert request.income.deductible_expenses == 10000.0
+    print("[OK] test_charges_alias PASSED")
+
+
 def main():
     """Run quick tests."""
     print("\n>>> Running quick validation tests...\n")
@@ -94,6 +118,7 @@ def main():
         test_consolidate_single_document()
         test_map_to_tax_request_basic()
         test_field_aliases()
+        test_charges_alias()
 
         print("\n>>> All quick tests PASSED!\n")
         return 0

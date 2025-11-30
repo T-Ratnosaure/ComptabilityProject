@@ -26,6 +26,7 @@ class TaxDataMapper:
         "professional_gross": "chiffre_affaires",
         "annual_revenue": "chiffre_affaires",
         # Expense fields
+        "charges": "charges_deductibles",  # BNC/BIC charges
         "deductible_expenses": "charges_deductibles",
         "annual_expenses": "charges_deductibles",
         # Social contribution fields
