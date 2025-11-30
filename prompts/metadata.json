@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2024-11-30",
+  "description": "System prompts for French tax optimization LLM",
+  "prompts": {
+    "system_base": {
+      "file": "system/base.md",
+      "description": "Base system prompt defining role and behavior",
+      "version": "1.0.0",
+      "language": "fr"
+    },
+    "system_tax_expert": {
+      "file": "system/tax_expert.md",
+      "description": "Tax expertise and 2024 tax rules",
+      "version": "1.0.0",
+      "tax_year": 2024,
+      "language": "fr"
+    },
+    "system_safety": {
+      "file": "system/safety.md",
+      "description": "Safety guidelines and ethical constraints",
+      "version": "1.0.0",
+      "language": "fr"
+    },
+    "examples_per": {
+      "file": "examples/few_shot_per.md",
+      "description": "Few-shot examples for PER optimization",
+      "version": "1.0.0",
+      "language": "fr"
+    },
+    "examples_regime": {
+      "file": "examples/few_shot_regime.md",
+      "description": "Few-shot examples for micro vs reel comparison",
+      "version": "1.0.0",
+      "language": "fr"
+    },
+    "template_analysis": {
+      "file": "templates/analysis_request.jinja2",
+      "description": "Jinja2 template for analysis requests",
+      "version": "1.0.0",
+      "language": "fr"
+    }
+  },
+  "tax_rules": {
+    "tax_year": 2024,
+    "source": "impots.gouv.fr",
+    "last_verified": "2024-11-30",
+    "tmi_brackets": [0.0, 0.11, 0.30, 0.41, 0.45],
+    "per_plafond_min": 4399,
+    "per_plafond_max_salarie": 35194,
+    "micro_bnc_plafond": 77700,
+    "micro_bnc_abattement": 0.34
+  }
+}

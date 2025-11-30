@@ -163,17 +163,37 @@ The project is implemented in 6 phases:
 - `src/api/routes/optimization.py` - API endpoints
 - `docs/phase4.md` - Complete architecture documentation
 
-### Phase 5: LLM Integration (Claude)
+### Phase 5: LLM Integration (Claude) - COMPLETE ✅
 
-**Status:** Planned
-**Goal:** AI-powered conversational assistance
+**Status:** Complete and ready for review
+**Goal:** AI-powered conversational tax assistance
 
-**Tasks:**
-- Anthropic Claude API integration
-- Context building from user data
-- Conversation management
-- Chat API endpoint
-- System prompts for French tax domain
+**Completed:**
+- **Anthropic Claude 3.5 Sonnet integration** - Full async client with streaming support
+- **Abstract LLM interface** - Multi-provider support (Claude, GPT, Mistral ready)
+- **Conversation management** - Database storage with automatic cleanup (100 msg limit, 100k token limit, 30-day TTL)
+- **System prompts** - French tax expert persona with safety guidelines and few-shot examples
+- **Fiscal context builder** - LLMContext with complete tax calculation summary
+- **Prompt loader** - File-based prompts with Jinja2 templating and caching
+- **Token counting** - tiktoken integration for context management
+- **Security** - PII sanitization + prompt injection prevention (existing sanitizer)
+- **API endpoints** - `/api/v1/llm/analyze` (standard) + `/api/v1/llm/analyze/stream` (SSE streaming)
+- **Conversation API** - GET/DELETE conversation endpoints with message history
+- **Error handling** - Dedicated LLM exceptions (timeout, rate limit, API errors)
+- **Database models** - ConversationModel + MessageModel with relationships
+- **Complete test coverage** - All components tested and CI passing
+
+**Key Files:**
+- `src/llm/llm_client.py` - Abstract LLMClient + ClaudeClient implementation
+- `src/llm/llm_service.py` - High-level LLMAnalysisService orchestration
+- `src/llm/conversation_manager.py` - Conversation CRUD + automatic cleanup
+- `src/llm/prompt_loader.py` - File-based prompt management with caching
+- `src/llm/context_builder.py` - Fiscal context builder (existing, enhanced)
+- `src/llm/exceptions.py` - LLM-specific exceptions
+- `src/database/models/conversation.py` - ORM models for conversations + messages
+- `src/models/llm_message.py` - Pydantic models (LLMMessage, LLMConversation, AnalysisRequest/Response)
+- `src/api/routes/llm_analysis.py` - LLM analysis API endpoints
+- `prompts/` - System prompts, examples, templates
 
 ### Phase 6: Integration & Polish
 
@@ -339,39 +359,28 @@ See `CLAUDE.md` for complete development guidelines.
 
 ## Current Status
 
-**Phase 4 is complete!** The tax optimization engine is fully implemented with:
-- 7 comprehensive optimization strategies with ranked recommendations
-- Complete optimization orchestrator with impact-based ranking
-- Regime optimization (Micro vs Réel), PER, LMNP, Girardin (via Profina), FCPI/FIP, Deductions, Company structure
-- JSON-based rule system for maintainability and versioning
-- **BONUS: Quick simulation** - Viral 30-second micro vs réel simulation for landing pages
-- Complete API endpoints (/run, /strategies, /quick-simulation)
-- 58 optimization tests passing with 90-100% coverage on all modules
-- Official sources referenced (impots.gouv.fr, service-public.fr, Profina)
-- All 114 tests passing with CI/CD checks green
-- 7 comprehensive optimization strategies (Regime, PER, LMNP, Girardin, FCPI/FIP, Deductions, Structure)
-- Personalized recommendations ranked by impact and savings potential
-- Girardin Industriel via Profina (110% tax reduction)
-- PER calculator with TMI-based optimal/max recommendations
-- LMNP analysis for high-earners (TMI ≥30%)
-- Simple deductions: Dons (66%), Services (50%), Garde (50%)
-- Company structure recommendations (SASU/EURL/Holding)
-- Type-safe Pydantic models and JSON-based rule system
-- Optimization API endpoint with executive summary generation
-- 46 tests passing with 90-100% coverage on optimization modules
-- All 114 tests passing (68 previous + 46 new) with CI/CD checks green
-- Complete documentation with official sources
+**Phase 5 is complete!** The LLM integration with Anthropic Claude is fully implemented with:
+- Claude 3.5 Sonnet integration with async client
+- Multi-provider LLM interface (ready for GPT, Mistral)
+- Conversation management with database storage + automatic cleanup
+- French tax expert system prompts with few-shot examples
+- Complete fiscal context building from tax calculations
+- File-based prompt management with Jinja2 templating
+- Token counting and context window management (tiktoken)
+- Security: PII sanitization + prompt injection prevention
+- REST API endpoints: `/analyze` (standard) + `/analyze/stream` (SSE)
+- Conversation history API (GET/DELETE)
+- Error handling with LLM-specific exceptions (timeout, rate limit, API errors)
+- All CI/CD checks passing
 
 **Previous milestones:**
 - ✅ Phase 1: Core infrastructure (FastAPI, SQLAlchemy, Alembic, repositories, tests, CI/CD)
 - ✅ Phase 2: Document extraction pipeline (PDF/OCR extraction, field parsers, upload API)
 - ✅ Phase 3: Tax calculation engine (IR, quotient familial, social contributions, regime comparison)
-- ✅ Phase 4: Tax optimization engine (7 strategies, BONUS quick simulation, 90-100% coverage)
-
-**Next up: Phase 5** - LLM Integration with Anthropic Claude for AI-powered conversational assistance.
 - ✅ Phase 4: Tax optimization engine (7 strategies, personalized recommendations, Profina integration)
+- ✅ Phase 5: LLM Integration (Claude 3.5 Sonnet, conversation management, fiscal context, streaming)
 
-**Next up: Phase 5** - LLM Integration with Anthropic Claude for AI-powered conversational tax assistance.
+**Next up: Phase 6** - Integration & Polish for production readiness.
 
 ## Contributing
 

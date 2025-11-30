@@ -1,0 +1,128 @@
+# Analyse Fiscale Personnalisée
+
+## Contexte Fiscal
+
+**Année fiscale :** {{ annee_fiscale }}
+**Situation familiale :** {{ situation_familiale }}
+**Nombre de parts :** {{ nombre_parts }}
+
+{% if enfants_a_charge > 0 %}
+**Enfants à charge :** {{ enfants_a_charge }}
+{% if enfants_moins_6_ans > 0 %}(dont {{ enfants_moins_6_ans }} de moins de 6 ans){% endif %}
+{% endif %}
+
+## Revenus et Activité
+
+**Régime fiscal :** {{ regime_fiscal }}
+**Type d'activité :** {{ type_activite }}
+**Chiffre d'affaires :** {{ "{:,.0f}".format(chiffre_affaires) }} €
+{% if charges_deductibles > 0 %}**Charges déductibles :** {{ "{:,.0f}".format(charges_deductibles) }} €{% endif %}
+{% if benefice_net %}**Bénéfice net :** {{ "{:,.0f}".format(benefice_net) }} €{% endif %}
+
+{% if salaires > 0 %}**Salaires complémentaires :** {{ "{:,.0f}".format(salaires) }} €{% endif %}
+{% if revenus_fonciers > 0 %}**Revenus fonciers :** {{ "{:,.0f}".format(revenus_fonciers) }} €{% endif %}
+{% if revenus_capitaux > 0 %}**Revenus de capitaux :** {{ "{:,.0f}".format(revenus_capitaux) }} €{% endif %}
+
+## Calcul Fiscal (Estimation)
+
+**Revenu imposable :** {{ "{:,.0f}".format(revenu_imposable) }} €
+**Quotient familial :** {{ "{:,.0f}".format(quotient_familial) }} € par part
+**TMI (Tranche Marginale d'Imposition) :** {{ tmi * 100 }}%
+**Taux effectif :** {{ "{:.1f}".format(taux_effectif * 100) }}%
+
+**Impôt brut :** {{ "{:,.0f}".format(impot_brut) }} €
+{% if reductions_fiscales %}
+**Réductions fiscales appliquées :**
+{% for reduction_type, montant in reductions_fiscales.items() %}
+  - {{ reduction_type }} : {{ "{:,.0f}".format(montant) }} €
+{% endfor %}
+{% endif %}
+**Impôt net :** {{ "{:,.0f}".format(impot_net) }} €
+
+**Cotisations sociales :** {{ "{:,.0f}".format(cotisations_sociales) }} €
+**Charge fiscale totale :** {{ "{:,.0f}".format(charge_fiscale_totale) }} €
+
+{% if per_contributions > 0 %}
+## Épargne Retraite (PER)
+
+**Versements PER :** {{ "{:,.0f}".format(per_contributions) }} €
+{% if per_plafond_detail %}
+**Plafond PER disponible :** {{ "{:,.0f}".format(per_plafond_detail.plafond) }} €
+**PER utilisé :** {{ "{:,.0f}".format(per_plafond_detail.deductible) }} €
+{% if per_plafond_detail.excess > 0 %}**Excédent non déductible :** {{ "{:,.0f}".format(per_plafond_detail.excess) }} €{% endif %}
+{% endif %}
+{% endif %}
+
+{% if comparaison_micro_reel %}
+## Comparaison Micro vs Réel
+
+**Régime actuel ({{ comparaison_micro_reel.regime_actuel }}) :**
+- Charge totale : {{ "{:,.0f}".format(comparaison_micro_reel.charge_totale_micro if comparaison_micro_reel.regime_actuel == "micro" else comparaison_micro_reel.charge_totale_reel) }} €
+
+**Régime alternatif ({{ "réel" if comparaison_micro_reel.regime_actuel == "micro" else "micro" }}) :**
+- Charge totale : {{ "{:,.0f}".format(comparaison_micro_reel.charge_totale_reel if comparaison_micro_reel.regime_actuel == "micro" else comparaison_micro_reel.charge_totale_micro) }} €
+
+**Différence :** {{ "{:+,.0f}".format(comparaison_micro_reel.delta_total) }} €
+{% if comparaison_micro_reel.delta_total < -500 %}
+⚠️ **Opportunité** : Le régime {{ comparaison_micro_reel.regime_optimal }} pourrait vous faire économiser {{ "{:,.0f}".format(abs(comparaison_micro_reel.delta_total)) }} €
+{% elif comparaison_micro_reel.delta_total > 500 %}
+✅ **Confirmation** : Votre régime actuel est optimal
+{% endif %}
+{% endif %}
+
+{% if warnings %}
+## Avertissements
+
+{% for warning in warnings %}
+- ⚠️ {{ warning }}
+{% endfor %}
+{% endif %}
+
+{% if recommendations %}
+## Recommandations d'Optimisation
+
+{% for rec in recommendations %}
+### {{ rec.title }}
+**Impact fiscal :** {{ "{:+,.0f}".format(rec.tax_savings) }} € d'économie potentielle
+**Priorité :** {{ rec.priority }}
+
+{{ rec.description }}
+
+{% if rec.action_steps %}
+**Actions concrètes :**
+{% for step in rec.action_steps %}
+{{ loop.index }}. {{ step }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+---
+
+{% if user_question %}
+## Question de l'utilisateur
+
+{{ user_question }}
+
+**Répondre en tenant compte :**
+1. Du contexte fiscal ci-dessus
+2. Des barèmes 2024 en vigueur
+3. Des recommandations d'optimisation identifiées
+4. Des limites et avertissements
+{% else %}
+## Tâche
+
+Analyser la situation fiscale ci-dessus et fournir :
+1. Un résumé exécutif de la situation
+2. Les points d'attention fiscaux
+3. Les opportunités d'optimisation prioritaires (top 3-5)
+4. Les actions concrètes à mettre en place
+{% endif %}
+
+**Format de réponse attendu :**
+- Résumé exécutif (2-3 phrases)
+- Analyse détaillée avec calculs
+- Recommandations prioritaires numérotées
+- Sources et références
+- Avertissement final sur les limites

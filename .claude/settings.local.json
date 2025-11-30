@@ -11,7 +11,17 @@
       "Bash(uv run pytest:*)",
       "Bash(uv run python:*)",
       "Bash(python -c:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(git commit:*)",
+      "Bash(git pull:*)",
+      "Bash(git branch:*)",
+      "Bash(powershell -Command \"Get-Content ''C:\\Users\\larai\\ComptabilityProject\\REVUE_TECHNIQUE_LLM_PHASE5.md'' | Measure-Object -Line\")",
+      "Bash(powershell -Command \"Get-Content ''C:\\Users\\larai\\ComptabilityProject\\REVUE_TECHNIQUE_LLM_PHASE5.md'' -Tail 50\")",
+      "Bash(alembic revision:*)",
+      "Bash(alembic upgrade:*)",
+      "Bash(alembic downgrade:*)"
     ],
     "deny": [],
     "ask": []
