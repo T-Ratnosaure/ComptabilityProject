@@ -193,14 +193,14 @@ class TaxDataMapper:
         consolidated = TaxDataMapper.consolidate_extracted_fields(documents)
 
         # Map to profile format (used by optimization engine)
+        regime = str(consolidated.get("regime", "micro_bnc"))
+
         return {
-            "status": consolidated.get("regime", "micro_bnc"),
+            "status": regime,
             "chiffre_affaires": consolidated.get("chiffre_affaires", 0.0),
             "charges_deductibles": consolidated.get("charges_deductibles", 0.0),
             "nb_parts": consolidated.get("nombre_parts", 1.0),
-            "activity_type": TaxDataMapper._infer_activity_type(
-                consolidated.get("regime", "micro_bnc")
-            ),
+            "activity_type": TaxDataMapper._infer_activity_type(regime),
             "cotisations_sociales": consolidated.get("cotisations_sociales", 0.0),
             "situation_familiale": consolidated.get(
                 "situation_familiale", "celibataire"
