@@ -11,6 +11,7 @@ from src.models.llm_context import LLMContext, TaxCalculationSummary
 from src.models.optimization import OptimizationResult
 from src.models.tax_document import TaxDocument
 from src.security.llm_sanitizer import sanitize_for_llm
+from src.services.validation import validate_fiscal_profile_coherence
 
 
 class LLMContextBuilder:
@@ -57,6 +58,12 @@ class LLMContextBuilder:
 
         # Build tax calculation summary
         calcul_fiscal = self._build_tax_summary(tax_result)
+
+        # Validate fiscal profile coherence and add warnings
+        validation_warnings = validate_fiscal_profile_coherence(profil.model_dump())
+        if validation_warnings:
+            # Add validation warnings to existing warnings
+            calcul_fiscal.warnings.extend(validation_warnings)
 
         # Extract recommendations
         recommendations = []
@@ -138,6 +145,13 @@ class LLMContextBuilder:
             or 0.0
         )
 
+        # Calculate benefice_net if not provided
+        # benefice_net = chiffre_affaires - charges_deductibles
+        benefice_net = profile_data.get("benefice_net")
+        if benefice_net is None:
+            # Auto-calculate from revenue and expenses
+            benefice_net = chiffre_affaires - charges_deductibles
+
         # Build FiscalProfile
         return FiscalProfile(
             annee_fiscale=profile_data.get("tax_year", datetime.now().year),
@@ -149,7 +163,7 @@ class LLMContextBuilder:
             type_activite=profile_data.get("activity_type", "BNC"),
             chiffre_affaires=chiffre_affaires,
             charges_deductibles=charges_deductibles,
-            benefice_net=profile_data.get("benefice_net"),
+            benefice_net=benefice_net,
             cotisations_sociales=cotisations_sociales,
             salaires=profile_data.get("salary", 0.0),
             revenus_fonciers=profile_data.get("rental_income", 0.0),
@@ -182,9 +196,9 @@ class LLMContextBuilder:
         return TaxCalculationSummary(
             impot_brut=impot.get("impot_brut", 0.0),
             impot_net=impot.get("impot_net", 0.0),
-            cotisations_sociales=socials.get("expected", 0.0),
+            cotisations_sociales=socials.get("urssaf_expected", 0.0),
             charge_fiscale_totale=impot.get("impot_net", 0.0)
-            + socials.get("expected", 0.0),
+            + socials.get("urssaf_expected", 0.0),
             tmi=impot.get("tmi", 0.0),
             taux_effectif=impot.get("taux_effectif", 0.0),
             revenu_imposable=impot.get("revenu_imposable", 0.0),
