@@ -31,7 +31,8 @@
       "Bash(curl:*)",
       "Bash(timeout 10 uv run python:*)",
       "Bash(timeout 15 uv run:*)",
-      "Bash(powershell -Command \"Remove-Item ''data/database/comptability.db'' -Force; uv run alembic upgrade head\")"
+      "Bash(powershell -Command \"Remove-Item ''data/database/comptability.db'' -Force; uv run alembic upgrade head\")",
+      "Bash(gh pr create:*)"
     ],
     "deny": [],
     "ask": []

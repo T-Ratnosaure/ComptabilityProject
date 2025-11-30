@@ -49,24 +49,9 @@ class FileValidator:
 
         Raises:
             ValueError: If MIME type doesn't match or file invalid
-            ImportError: If python-magic not installed
         """
-        if not MAGIC_AVAILABLE:
-            # Fallback to basic magic byte checking
-            return FileValidator._validate_mime_fallback(file_content, expected_mime)
-
-        # Use python-magic to detect MIME from content
-        mime = magic.from_buffer(file_content, mime=True)
-
-        if mime not in FileValidator.ALLOWED_MIMES:
-            raise ValueError(f"File type not allowed: {mime}")
-
-        if expected_mime and mime != expected_mime:
-            raise ValueError(
-                f"MIME type mismatch: expected {expected_mime}, got {mime}"
-            )
-
-        return True
+        # Always use fallback on Windows (python-magic hangs on DLL load)
+        return FileValidator._validate_mime_fallback(file_content, expected_mime)
 
     @staticmethod
     def _validate_mime_fallback(file_content: bytes, expected_mime: str) -> bool:
@@ -166,17 +151,13 @@ class FileValidator:
         Raises:
             ValueError: If file is not a valid image
         """
-        # Check MIME using fallback if magic not available
-        if MAGIC_AVAILABLE:
-            mime = magic.from_buffer(file_content, mime=True)
+        # Check MIME using magic bytes (python-magic disabled on Windows)
+        if file_content.startswith(b"\x89PNG"):
+            mime = "image/png"
+        elif file_content.startswith(b"\xff\xd8\xff"):
+            mime = "image/jpeg"
         else:
-            # Fallback detection
-            if file_content.startswith(b"\x89PNG"):
-                mime = "image/png"
-            elif file_content.startswith(b"\xff\xd8\xff"):
-                mime = "image/jpeg"
-            else:
-                raise ValueError("Unknown image format")
+            raise ValueError("Unknown image format")
 
         if mime not in ["image/png", "image/jpeg"]:
             raise ValueError(f"Image type not allowed: {mime}")

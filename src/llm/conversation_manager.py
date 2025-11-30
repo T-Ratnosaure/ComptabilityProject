@@ -109,7 +109,6 @@ class ConversationManager:
         # Sanitize content if requested
         was_sanitized = False
         if sanitize:
-            original_content = content
             sanitized_result = sanitize_for_llm(content)
             content = sanitized_result["sanitized_text"]
             was_sanitized = sanitized_result["redacted_count"] > 0
