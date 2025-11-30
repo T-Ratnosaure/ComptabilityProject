@@ -138,6 +138,13 @@ class LLMContextBuilder:
             or 0.0
         )
 
+        # Calculate benefice_net if not provided
+        # benefice_net = chiffre_affaires - charges_deductibles
+        benefice_net = profile_data.get("benefice_net")
+        if benefice_net is None:
+            # Auto-calculate from revenue and expenses
+            benefice_net = chiffre_affaires - charges_deductibles
+
         # Build FiscalProfile
         return FiscalProfile(
             annee_fiscale=profile_data.get("tax_year", datetime.now().year),
@@ -149,7 +156,7 @@ class LLMContextBuilder:
             type_activite=profile_data.get("activity_type", "BNC"),
             chiffre_affaires=chiffre_affaires,
             charges_deductibles=charges_deductibles,
-            benefice_net=profile_data.get("benefice_net"),
+            benefice_net=benefice_net,
             cotisations_sociales=cotisations_sociales,
             salaires=profile_data.get("salary", 0.0),
             revenus_fonciers=profile_data.get("rental_income", 0.0),
