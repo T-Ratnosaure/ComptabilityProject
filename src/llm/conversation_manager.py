@@ -110,8 +110,9 @@ class ConversationManager:
         was_sanitized = False
         if sanitize:
             original_content = content
-            content = sanitize_for_llm(content)
-            was_sanitized = content != original_content
+            sanitized_result = sanitize_for_llm(content)
+            content = sanitized_result["sanitized_text"]
+            was_sanitized = sanitized_result["redacted_count"] > 0
 
         # Count tokens
         token_count = await self.llm_client.count_tokens(content, model="")

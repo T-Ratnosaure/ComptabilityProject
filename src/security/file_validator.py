@@ -3,26 +3,25 @@
 from io import BytesIO
 from typing import Any
 
-try:
-    import magic
-
-    MAGIC_AVAILABLE = True
-except ImportError:
-    MAGIC_AVAILABLE = False
+# Deferred imports to avoid loading python-magic at module level (hangs on Windows)
+# Import magic only when actually needed in validate_mime_type()
+MAGIC_AVAILABLE = False
+PYPDF_AVAILABLE = False
+PIL_AVAILABLE = False
 
 try:
     from pypdf import PdfReader
 
     PYPDF_AVAILABLE = True
 except ImportError:
-    PYPDF_AVAILABLE = False
+    pass
 
 try:
     from PIL import Image
 
     PIL_AVAILABLE = True
 except ImportError:
-    PIL_AVAILABLE = False
+    pass
 
 
 class FileValidator:

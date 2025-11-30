@@ -249,8 +249,8 @@ class LLMAnalysisService:
             # Render context template
             user_message = self.prompt_loader.render_template(
                 "analysis_request.jinja2",
-                **llm_context.get("profil", {}),
-                **llm_context.get("calcul_fiscal", {}),
+                profil=llm_context.get("profil", {}),
+                calcul_fiscal=llm_context.get("calcul_fiscal", {}),
                 recommendations=llm_context.get("recommendations", []),
                 warnings=llm_context.get("calcul_fiscal", {}).get("warnings", []),
                 user_question=request.user_question,

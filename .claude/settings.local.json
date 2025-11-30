@@ -21,7 +21,17 @@
       "Bash(powershell -Command \"Get-Content ''C:\\Users\\larai\\ComptabilityProject\\REVUE_TECHNIQUE_LLM_PHASE5.md'' -Tail 50\")",
       "Bash(alembic revision:*)",
       "Bash(alembic upgrade:*)",
-      "Bash(alembic downgrade:*)"
+      "Bash(alembic downgrade:*)",
+      "Bash(test:*)",
+      "Bash(echo $ANTHROPIC_API_KEY)",
+      "Bash(powershell -Command \"echo $env:ANTHROPIC_API_KEY\")",
+      "Bash(powershell -Command \"[Environment]::GetEnvironmentVariable(''ANTHROPIC_API_KEY'', ''User'')\")",
+      "Bash(powershell -Command \"[Environment]::GetEnvironmentVariable(''ANTHROPIC_API_KEY'', ''Machine'')\")",
+      "Bash(uv run:*)",
+      "Bash(curl:*)",
+      "Bash(timeout 10 uv run python:*)",
+      "Bash(timeout 15 uv run:*)",
+      "Bash(powershell -Command \"Remove-Item ''data/database/comptability.db'' -Force; uv run alembic upgrade head\")"
     ],
     "deny": [],
     "ask": []

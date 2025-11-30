@@ -46,6 +46,7 @@ def upgrade() -> None:
         sa.Column("token_count", sa.Integer(), nullable=True),
         sa.Column("was_sanitized", sa.Boolean(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["conversation_id"],
             ["conversations.id"],
