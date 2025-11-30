@@ -95,10 +95,10 @@ class TaxCalculator:
         )
 
         # Check if réel would be significantly better
-        if comparison["delta"] < -500:
+        if comparison["delta_total"] < -500:
             warnings.append(
                 f"Opportunité réel: économie potentielle de "
-                f"{abs(comparison['delta']):.2f}€ en passant au régime réel"
+                f"{abs(comparison['delta_total']):.2f}€ en passant au régime réel"
             )
 
         # Check micro thresholds
