@@ -75,7 +75,7 @@ class FileValidator:
         else:
             # Provide helpful error message about what file types are allowed
             raise ValueError(
-                f"File type not allowed. Only PDF, PNG, and JPEG files are supported."
+                "File type not allowed. Only PDF, PNG, and JPEG files are supported."
             )
 
         if expected_mime and detected_mime != expected_mime:
