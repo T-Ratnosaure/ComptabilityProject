@@ -26,7 +26,12 @@ class Settings(BaseSettings):
 
     # API Configuration
     API_V1_PREFIX: str = "/api/v1"
-    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+    ]
 
     # Logging
     LOG_LEVEL: str = "INFO"
