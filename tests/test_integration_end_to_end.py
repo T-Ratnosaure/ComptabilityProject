@@ -139,6 +139,12 @@ class TestEndToEndWorkflow:
         self, client: TestClient, sample_freelance_profile: dict
     ):
         """Test Phase 3 → Phase 4 → Phase 5: Complete workflow to LLM."""
+        # Check if API key is configured
+        import os
+
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            pytest.skip("ANTHROPIC_API_KEY not configured in environment")
+
         # Step 1: Calculate taxes
         tax_response = client.post(
             "/api/v1/tax/calculate", json=sample_freelance_profile
@@ -298,6 +304,12 @@ class TestEndToEndWorkflow:
         self, client: TestClient, sample_freelance_profile: dict
     ):
         """Test that conversations maintain context across multiple queries."""
+        # Check if API key is configured
+        import os
+
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            pytest.skip("ANTHROPIC_API_KEY not configured in environment")
+
         # Calculate taxes and optimize
         tax_response = client.post(
             "/api/v1/tax/calculate", json=sample_freelance_profile
@@ -418,6 +430,12 @@ class TestDataFlowIntegration:
 
     def test_optimization_used_in_llm_context(self, client: TestClient):
         """Verify optimization results are passed to LLM context."""
+        # Check if API key is configured
+        import os
+
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            pytest.skip("ANTHROPIC_API_KEY not configured in environment")
+
         profile = {
             "tax_year": 2024,
             "person": {
