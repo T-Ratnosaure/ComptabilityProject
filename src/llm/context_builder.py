@@ -250,13 +250,20 @@ class LLMContextBuilder:
             )
             taux_effectif = charge_totale / impot["revenu_imposable"]
 
+        # Convert TMI and taux_effectif to decimal format (0-1) if stored as percentage
+        tmi = impot.get("tmi", 0.0)
+        if tmi > 1:
+            tmi = tmi / 100
+        if taux_effectif > 1:
+            taux_effectif = taux_effectif / 100
+
         return TaxCalculationSummary(
             impot_brut=impot.get("impot_brut", 0.0),
             impot_net=impot.get("impot_net", 0.0),
             cotisations_sociales=socials.get("urssaf_expected", 0.0),
             charge_fiscale_totale=impot.get("impot_net", 0.0)
             + socials.get("urssaf_expected", 0.0),
-            tmi=impot.get("tmi", 0.0),
+            tmi=tmi,
             taux_effectif=taux_effectif,
             revenu_imposable=impot.get("revenu_imposable", 0.0),
             quotient_familial=impot.get("part_income", 0.0),
