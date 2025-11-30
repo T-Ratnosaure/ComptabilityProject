@@ -28,7 +28,7 @@ def test_regime_micro_to_reel_recommendation():
             "micro_vs_reel": {
                 "impot_micro": 2000,
                 "impot_reel": 1200,
-                "delta": 800,  # 800€ savings with réel
+                "delta_total": 800,  # 800€ savings with réel
                 "recommendation": "reel",
                 "recommendation_reason": "Frais réels > abattement",
             }
@@ -55,7 +55,7 @@ def test_regime_reel_to_micro_recommendation():
             "micro_vs_reel": {
                 "impot_micro": 1000,
                 "impot_reel": 1600,
-                "delta": 600,
+                "delta_total": 600,
                 "recommendation": "micro",
                 "recommendation_reason": "Micro recommandé (simplicité)",
             }
@@ -97,7 +97,7 @@ def test_regime_no_recommendation_when_similar():
             "micro_vs_reel": {
                 "impot_micro": 1500,
                 "impot_reel": 1450,
-                "delta": 50,  # Only 50€ difference - not significant
+                "delta_total": 50,  # Only 50€ difference - not significant
                 "recommendation": "reel",
             }
         }
@@ -637,7 +637,7 @@ async def test_optimizer_basic_scenario():
             "micro_vs_reel": {
                 "impot_micro": 1500,
                 "impot_reel": 1200,
-                "delta": 300,
+                "delta_total": 300,
                 "recommendation": "reel",
             }
         },
