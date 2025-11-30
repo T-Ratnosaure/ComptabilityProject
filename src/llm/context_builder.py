@@ -6,6 +6,7 @@ from application models and data structures.
 
 from datetime import datetime
 
+from src.models.comparison import ComparisonMicroReel
 from src.models.fiscal_profile import FiscalProfile
 from src.models.llm_context import LLMContext, TaxCalculationSummary
 from src.models.optimization import OptimizationResult
@@ -152,6 +153,37 @@ class LLMContextBuilder:
             # Auto-calculate from revenue and expenses
             benefice_net = chiffre_affaires - charges_deductibles
 
+        # Extract additional fields from documents
+        taux_prelevement = None
+        for doc in documents:
+            if (
+                doc.type.value == "avis_imposition"
+                and doc.extracted_fields
+                and "taux_prelevement" in doc.extracted_fields
+            ):
+                taux_prelevement = doc.extracted_fields["taux_prelevement"]
+
+        # Build charges_detail if available
+        charges_detail = None
+        if profile_data.get("charges_detail"):
+            charges_detail = profile_data["charges_detail"]
+        # Can also extract from BNC/BIC documents
+        for doc in documents:
+            if doc.type.value in ["bnc", "bic"] and doc.extracted_fields:
+                if charges_detail is None:
+                    charges_detail = {}
+                # Build from extracted BNC/BIC fields
+                if "amortissements" in doc.extracted_fields:
+                    charges_detail["amortissements"] = doc.extracted_fields[
+                        "amortissements"
+                    ]
+                if "loyer" in doc.extracted_fields:
+                    charges_detail["loyer"] = doc.extracted_fields["loyer"]
+                if "honoraires" in doc.extracted_fields:
+                    charges_detail["honoraires"] = doc.extracted_fields["honoraires"]
+                if "autres_charges" in doc.extracted_fields:
+                    charges_detail["autres"] = doc.extracted_fields["autres_charges"]
+
         # Build FiscalProfile
         return FiscalProfile(
             annee_fiscale=profile_data.get("tax_year", datetime.now().year),
@@ -164,10 +196,12 @@ class LLMContextBuilder:
             chiffre_affaires=chiffre_affaires,
             charges_deductibles=charges_deductibles,
             benefice_net=benefice_net,
+            charges_detail=charges_detail,
             cotisations_sociales=cotisations_sociales,
             salaires=profile_data.get("salary", 0.0),
             revenus_fonciers=profile_data.get("rental_income", 0.0),
             revenus_capitaux=profile_data.get("capital_income", 0.0),
+            plus_values=profile_data.get("plus_values", 0.0),
             per_contributions=profile_data.get("per_contributed", 0.0),
             dons_declares=profile_data.get("dons_declared", 0.0),
             services_personne=profile_data.get("services_personne_declared", 0.0),
@@ -175,6 +209,7 @@ class LLMContextBuilder:
             pension_alimentaire=profile_data.get("alimony", 0.0),
             revenu_fiscal_reference=rfr,
             impot_annee_precedente=impot_precedent,
+            taux_prelevement_source=taux_prelevement,
             revenus_stables=profile_data.get("stable_income", False),
             strategie_patrimoniale=profile_data.get("patrimony_strategy", False),
             capacite_investissement=profile_data.get("investment_capacity", 0.0),
@@ -193,6 +228,28 @@ class LLMContextBuilder:
         impot = tax_result.get("impot", {})
         socials = tax_result.get("socials", {})
 
+        # Extract structured comparison (if available)
+        comparaison_micro_reel = None
+        comparisons_data = tax_result.get("comparisons", {})
+        if comparisons_data and "micro_vs_reel" in comparisons_data:
+            comparison_dict = comparisons_data["micro_vs_reel"]
+            # Validate and convert to ComparisonMicroReel model
+            try:
+                comparaison_micro_reel = ComparisonMicroReel(**comparison_dict)
+            except Exception:
+                # If validation fails, leave as None
+                # (backward compatibility with old dict format)
+                comparaison_micro_reel = None
+
+        # Calculate taux_effectif if not provided
+        taux_effectif = impot.get("taux_effectif", 0.0)
+        if taux_effectif == 0.0 and impot.get("revenu_imposable", 0.0) > 0:
+            # Calculate: (impot_net + cotisations) / revenu_imposable
+            charge_totale = impot.get("impot_net", 0.0) + socials.get(
+                "urssaf_expected", 0.0
+            )
+            taux_effectif = charge_totale / impot["revenu_imposable"]
+
         return TaxCalculationSummary(
             impot_brut=impot.get("impot_brut", 0.0),
             impot_net=impot.get("impot_net", 0.0),
@@ -200,11 +257,14 @@ class LLMContextBuilder:
             charge_fiscale_totale=impot.get("impot_net", 0.0)
             + socials.get("urssaf_expected", 0.0),
             tmi=impot.get("tmi", 0.0),
-            taux_effectif=impot.get("taux_effectif", 0.0),
+            taux_effectif=taux_effectif,
             revenu_imposable=impot.get("revenu_imposable", 0.0),
-            quotient_familial=impot.get("quotient_familial", 0.0),
-            reductions_fiscales=impot.get("reductions", {}),
-            comparaison_micro_reel=tax_result.get("comparisons"),
+            quotient_familial=impot.get("part_income", 0.0),
+            reductions_fiscales=impot.get("tax_reductions", {}),
+            per_plafond_detail=impot.get("per_plafond_detail"),
+            tranches_detail=impot.get("tranches_detail"),
+            cotisations_detail=None,  # TODO: Add when detailed breakdown available
+            comparaison_micro_reel=comparaison_micro_reel,
             warnings=tax_result.get("warnings", []),
         )
 

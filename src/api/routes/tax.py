@@ -61,7 +61,9 @@ class SocialData(BaseModel):
 class TaxCalculationRequest(BaseModel):
     """Tax calculation request."""
 
-    tax_year: int = Field(ge=2024, le=2025, description="Tax year")
+    tax_year: int = Field(
+        ge=2000, le=2030, description="Tax year (2000-2030 for historical/future)"
+    )
     person: PersonData
     income: IncomeData
     deductions: DeductionsData = Field(default_factory=DeductionsData)

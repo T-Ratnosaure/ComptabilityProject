@@ -89,8 +89,10 @@ class TaxCalculator:
                 f"déclaré: {socials['urssaf_paid']:.2f}€)"
             )
 
-        # Compare micro vs réel
-        comparison = compare_micro_vs_reel(person, income, deductions, self.rules)
+        # Compare micro vs réel (pass current socials for accurate comparison)
+        comparison = compare_micro_vs_reel(
+            person, income, deductions, self.rules, socials_micro=socials
+        )
 
         # Check if réel would be significantly better
         if comparison["delta"] < -500:
@@ -123,10 +125,18 @@ class TaxCalculator:
                     f"({professional_gross:.2f}€ > {plafonds.get('bic_vente')}€)"
                 )
 
+        # Rename 'brackets' to 'tranches_detail' for consistency with Pydantic models
+        ir_result_mapped = {**ir_result}
+        if "brackets" in ir_result_mapped:
+            ir_result_mapped["tranches_detail"] = ir_result_mapped.pop("brackets")
+
+        # TODO: Add cotisations_detail breakdown when detailed URSSAF rates available
+        # For now, cotisations_detail remains None (optional in TaxCalculationSummary)
+
         return {
             "tax_year": self.tax_year,
             "impot": {
-                **ir_result,
+                **ir_result_mapped,
                 **pas_result,
             },
             "socials": socials,

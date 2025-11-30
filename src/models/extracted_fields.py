@@ -123,8 +123,10 @@ class Declaration2042Extracted(BaseModel):
     plus_values: float | None = Field(
         default=None, ge=0, description="Plus-values (case 3VG) en euros"
     )
-    charges_deductibles: float | None = Field(
-        default=None, ge=0, description="Charges déductibles (case 6DD) en euros"
+    autres_deductions: float | None = Field(
+        default=None,
+        ge=0,
+        description="Autres charges déductibles fiscales (case 6DD) en euros",
     )
     year: int | None = Field(
         default=None, ge=2000, le=2100, description="Année fiscale"

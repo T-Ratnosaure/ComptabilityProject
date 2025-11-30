@@ -162,7 +162,7 @@ def apply_per_deduction_with_limit(
     per_contribution: float,
     professional_income: float,
     rules: TaxRules,
-) -> tuple[float, float]:
+) -> tuple[float, float, float]:
     """Apply PER deduction with plafond limit.
 
     Args:
@@ -171,7 +171,7 @@ def apply_per_deduction_with_limit(
         rules: Tax rules with PER plafonds
 
     Returns:
-        Tuple of (deductible_amount, excess_amount)
+        Tuple of (deductible_amount, excess_amount, plafond_calculated)
     """
     # Get PER plafond rules from baremes
     per_plafonds = rules.per_plafonds
@@ -186,9 +186,9 @@ def apply_per_deduction_with_limit(
 
     # Determine deductible and excess
     if per_contribution <= plafond:
-        return per_contribution, 0.0
+        return per_contribution, 0.0, plafond
     else:
-        return plafond, per_contribution - plafond
+        return plafond, per_contribution - plafond, plafond
 
 
 def apply_tax_reductions(
@@ -274,6 +274,7 @@ def compute_ir(
             - brackets: List of bracket details
             - per_deduction_applied: PER amount actually deducted
             - per_deduction_excess: PER amount exceeding plafond
+            - per_plafond_detail: Dict with {applied, excess, plafond_max}
     """
     # Compute taxable professional income
     taxable_prof = compute_taxable_professional_income(
@@ -293,7 +294,7 @@ def compute_ir(
 
     # Apply PER deduction with plafond limit
     per_contribution = deductions.get("per_contributions", 0.0)
-    per_deduction, per_excess = apply_per_deduction_with_limit(
+    per_deduction, per_excess, per_plafond = apply_per_deduction_with_limit(
         per_contribution=per_contribution,
         professional_income=taxable_prof,
         rules=rules,
@@ -331,6 +332,15 @@ def compute_ir(
         rules=rules,
     )
 
+    # Build PER plafond detail for LLM context
+    per_plafond_detail = None
+    if per_contribution > 0 or per_deduction > 0:
+        per_plafond_detail = {
+            "applied": round(per_deduction, 2),
+            "excess": round(per_excess, 2),
+            "plafond_max": round(per_plafond, 2),
+        }
+
     return {
         "revenu_imposable": round(revenu_imposable, 2),
         "part_income": round(part_income, 2),
@@ -341,6 +351,7 @@ def compute_ir(
         "brackets": brackets_detail,
         "per_deduction_applied": round(per_deduction, 2),
         "per_deduction_excess": round(per_excess, 2),
+        "per_plafond_detail": per_plafond_detail,
     }
 
 
@@ -399,6 +410,8 @@ def compare_micro_vs_reel(
     income: dict[str, float],
     deductions: dict[str, float],
     rules: TaxRules,
+    socials_micro: dict | None = None,
+    socials_reel: dict | None = None,
 ) -> dict[str, Any]:
     """Compare micro vs réel regime tax impact.
 
@@ -407,23 +420,40 @@ def compare_micro_vs_reel(
         income: Income data with professional_gross and deductible_expenses
         deductions: Deductions
         rules: Tax rules
+        socials_micro: Pre-calculated social contributions for micro (optional)
+        socials_reel: Pre-calculated social contributions for réel (optional)
 
     Returns:
-        Dict with:
-            - impot_micro: Tax with micro regime
-            - impot_reel: Tax with réel regime
-            - delta: Difference (negative = réel is better)
-            - recommendation: Which regime is recommended
+        Dict with complete comparison data compatible with ComparisonMicroReel:
+            - regime_actuel: Current regime
+            - regime_compare: Compared regime
+            - impot_actuel/compare: Tax amounts
+            - cotisations_actuelles/comparees: Social contributions
+            - delta_impot/cotisations/total: Differences
+            - economie_potentielle: Absolute savings
+            - pourcentage_economie: Savings percentage
+            - recommendation: Regime recommendation
+            - justification: Detailed explanation
+            - chiffre_affaires: Revenue used
+            - charges_reelles: Real expenses
+            - taux_abattement_micro: Micro abattement rate
     """
     # Detect current regime type (BNC or BIC)
     current_regime = person.get("status", "micro_bnc").lower()
     if "bnc" in current_regime:
         micro_regime = "micro_bnc"
         reel_regime = "reel_bnc"
+        abattement_rate = rules.get_abattement("micro_bnc")
     else:
         # Default to service for BIC
         micro_regime = "micro_bic_service"
         reel_regime = "reel_bic"
+        abattement_rate = rules.get_abattement("micro_bic_service")
+
+    # Determine actual vs compared regime
+    is_currently_micro = "micro" in current_regime
+    regime_actuel = micro_regime if is_currently_micro else reel_regime
+    regime_compare = reel_regime if is_currently_micro else micro_regime
 
     # Compute IR with micro regime
     person_micro = {**person, "status": micro_regime}
@@ -433,21 +463,74 @@ def compare_micro_vs_reel(
     person_reel = {**person, "status": reel_regime}
     ir_reel = compute_ir(person_reel, income, deductions, rules)
 
-    delta = ir_reel["impot_net"] - ir_micro["impot_net"]
+    # Get social contributions (same for both regimes normally)
+    cotis_micro = socials_micro.get("urssaf_expected", 0.0) if socials_micro else 0.0
+    cotis_reel = socials_reel.get("urssaf_expected", 0.0) if socials_reel else 0.0
 
-    recommendation = "reel" if delta < -100 else "micro"
-    recommendation_reason = (
-        "Réel recommandé (économie fiscale significative)"
-        if delta < -100
-        else "Micro recommandé (simplicité et avantage fiscal)"
+    # Calculate deltas
+    delta_impot = ir_reel["impot_net"] - ir_micro["impot_net"]
+    delta_cotis = cotis_reel - cotis_micro
+    delta_total = delta_impot + delta_cotis
+
+    # Total charges
+    charge_micro = ir_micro["impot_net"] + cotis_micro
+    charge_reel = ir_reel["impot_net"] + cotis_reel
+
+    # Determine recommendation
+    economie_potentielle = abs(delta_total)
+    pourcentage_economie = (
+        (economie_potentielle / max(charge_micro, 1)) * 100 if charge_micro > 0 else 0.0
     )
 
+    if delta_total < -100:
+        recommendation = "Passer au réel"
+        justification = (
+            f"Économie de {economie_potentielle:.0f}€ ({pourcentage_economie:.1f}%) "
+            f"en passant au régime réel."
+        )
+    elif delta_total > 100:
+        recommendation = "Rester en micro"
+        justification = (
+            f"Économie de {economie_potentielle:.0f}€ ({pourcentage_economie:.1f}%) "
+            f"en restant en micro."
+        )
+    else:
+        recommendation = "Rester en micro"
+        justification = (
+            "Différence négligeable. Le micro est recommandé pour sa simplicité."
+        )
+
+    # Extract context
+    chiffre_affaires = income.get("professional_gross", 0.0)
+    charges_reelles = income.get("deductible_expenses", 0.0)
+
     return {
-        "impot_micro": ir_micro["impot_net"],
-        "impot_reel": ir_reel["impot_net"],
-        "delta": round(delta, 2),
+        "regime_actuel": regime_actuel,
+        "regime_compare": regime_compare,
+        "impot_actuel": (
+            ir_micro["impot_net"] if is_currently_micro else ir_reel["impot_net"]
+        ),
+        "impot_compare": (
+            ir_reel["impot_net"] if is_currently_micro else ir_micro["impot_net"]
+        ),
+        "delta_impot": round(delta_impot, 2),
+        "cotisations_actuelles": cotis_micro if is_currently_micro else cotis_reel,
+        "cotisations_comparees": cotis_reel if is_currently_micro else cotis_micro,
+        "delta_cotisations": round(delta_cotis, 2),
+        "charge_totale_actuelle": (
+            round(charge_micro, 2) if is_currently_micro else round(charge_reel, 2)
+        ),
+        "charge_totale_comparee": (
+            round(charge_reel, 2) if is_currently_micro else round(charge_micro, 2)
+        ),
+        "delta_total": round(delta_total, 2),
+        "economie_potentielle": round(economie_potentielle, 2),
+        "pourcentage_economie": round(pourcentage_economie, 2),
         "recommendation": recommendation,
-        "recommendation_reason": recommendation_reason,
+        "justification": justification,
+        "chiffre_affaires": chiffre_affaires,
+        "charges_reelles": charges_reelles,
+        "taux_abattement_micro": abattement_rate,
     }
 
 

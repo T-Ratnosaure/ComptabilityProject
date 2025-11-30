@@ -1,5 +1,6 @@
 """Pydantic domain models."""
 
+from src.models.comparison import ComparisonMicroReel
 from src.models.extracted_fields import (
     AvisImpositionExtracted,
     BNCBICExtracted,
@@ -69,4 +70,6 @@ __all__ = [
     "FiscalProfile",
     "TaxCalculationSummary",
     "LLMContext",
+    # Comparisons
+    "ComparisonMicroReel",
 ]
