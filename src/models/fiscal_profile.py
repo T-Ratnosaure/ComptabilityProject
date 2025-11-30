@@ -57,6 +57,13 @@ class FiscalProfile(BaseModel):
     benefice_net: float | None = Field(
         default=None, description="Bénéfice net en euros (après charges)"
     )
+    charges_detail: dict[str, float] | None = Field(
+        default=None,
+        description=(
+            "Détail des charges professionnelles (réel uniquement): "
+            "{amortissements, loyer, honoraires, autres}"
+        ),
+    )
 
     # Cotisations et charges sociales
     cotisations_sociales: float = Field(
@@ -74,6 +81,11 @@ class FiscalProfile(BaseModel):
     )
     revenus_capitaux: float = Field(
         default=0.0, ge=0, description="Revenus de capitaux mobiliers en euros"
+    )
+    plus_values: float = Field(
+        default=0.0,
+        ge=0,
+        description="Plus-values (immobilières, mobilières) en euros",
     )
 
     # Déductions existantes
@@ -101,6 +113,12 @@ class FiscalProfile(BaseModel):
     )
     impot_annee_precedente: float | None = Field(
         default=None, ge=0, description="Impôt payé l'année précédente en euros"
+    )
+    taux_prelevement_source: float | None = Field(
+        default=None,
+        ge=0,
+        le=100,
+        description="Taux de prélèvement à la source actuel en % (0-100)",
     )
 
     # Métadonnées pour optimisation (non fiscales, utiles pour le LLM)

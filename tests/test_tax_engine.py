@@ -269,7 +269,7 @@ class TestFullCalculation:
         # Micro: 50000 * 0.66 = 33000 taxable
         # Réel: 50000 - 20000 = 30000 taxable
         # Réel should be better (lower tax)
-        assert comparison["delta"] < 0  # Negative = réel better
+        assert comparison["delta_total"] < 0  # Negative = réel better
 
     @pytest.mark.anyio
     async def test_mixed_income(self):

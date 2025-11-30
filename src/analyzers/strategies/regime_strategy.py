@@ -51,7 +51,7 @@ class RegimeStrategy:
             comparison = tax_result["comparisons"]["micro_vs_reel"]
 
             # If delta is significant, recommend a switch
-            if abs(comparison["delta"]) > min_delta:
+            if abs(comparison["delta_total"]) > min_delta:
                 rec = self._create_regime_recommendation(comparison, profile, context)
                 if rec:
                     recommendations.append(rec)
@@ -69,7 +69,7 @@ class RegimeStrategy:
         """Create recommendation based on regime comparison."""
         current_regime = profile.get("status", "unknown")
         recommended = comparison.get("recommendation", "")
-        delta = comparison.get("delta", 0)
+        delta = comparison.get("delta_total", 0)
 
         # Only recommend if there's a clear winner different from current
         if not recommended or delta == 0:

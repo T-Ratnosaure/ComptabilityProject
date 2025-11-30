@@ -6,6 +6,7 @@ excluding all technical fields, system paths, and sensitive data.
 
 from pydantic import BaseModel, Field
 
+from src.models.comparison import ComparisonMicroReel
 from src.models.fiscal_profile import FiscalProfile
 from src.models.optimization import Recommendation
 
@@ -51,9 +52,36 @@ class TaxCalculationSummary(BaseModel):
         description="Réductions fiscales appliquées (nom: montant en euros)",
     )
 
+    # Détails PER (déduction retraite)
+    per_plafond_detail: dict[str, float] | None = Field(
+        default=None,
+        description=(
+            "Détail plafond PER: {applied: montant déductible, "
+            "excess: montant excédant plafond, plafond_max: plafond calculé}"
+        ),
+    )
+
+    # Détails tranches fiscales
+    tranches_detail: list[dict[str, float]] | None = Field(
+        default=None,
+        description=(
+            "Détail calcul par tranche: [{rate: taux, "
+            "income_in_bracket: revenu dans tranche, tax_in_bracket: impôt tranche}]"
+        ),
+    )
+
+    # Détails cotisations sociales
+    cotisations_detail: dict[str, float] | None = Field(
+        default=None,
+        description=(
+            "Détail cotisations URSSAF: {maladie, retraite, "
+            "allocations, csg_crds, formation}"
+        ),
+    )
+
     # Comparaisons (optionnel)
-    comparaison_micro_reel: dict | None = Field(
-        default=None, description="Comparaison micro vs réel si applicable"
+    comparaison_micro_reel: ComparisonMicroReel | None = Field(
+        default=None, description="Comparaison structurée micro vs réel si applicable"
     )
 
     # Avertissements
