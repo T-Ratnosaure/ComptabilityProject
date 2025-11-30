@@ -1,5 +1,7 @@
 """Tests for TaxDataMapper - centralized field mapping."""
 
+from datetime import datetime
+
 from src.api.routes.tax import TaxRegime
 from src.models.tax_document import DocumentType, TaxDocument
 from src.services.data_mapper import TaxDataMapper
@@ -17,6 +19,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/test.pdf",
             original_filename="test.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "nombre_parts": 1.0,
                 "revenu_fiscal_reference": 45000.0,
@@ -39,6 +42,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/avis.pdf",
             original_filename="avis.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "nombre_parts": 1.0,
                 "revenu_fiscal_reference": 45000.0,
@@ -51,6 +55,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/urssaf.pdf",
             original_filename="urssaf.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "chiffre_affaires": 50000.0,
                 "cotisations_sociales": 10900.0,
@@ -74,6 +79,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/test.pdf",
             original_filename="test.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "recettes": 50000.0,  # Alias for chiffre_affaires
                 "nb_parts": 1.0,  # Alias for nombre_parts
@@ -95,6 +101,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/urssaf.pdf",
             original_filename="urssaf.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "chiffre_affaires": 50000.0,
                 "cotisations_sociales": 10900.0,
@@ -121,6 +128,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/avis.pdf",
             original_filename="avis.pdf",
+            created_at=datetime.now(),
             extracted_fields={"nombre_parts": 1.0},
         )
         urssaf = TaxDocument(
@@ -130,6 +138,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/urssaf.pdf",
             original_filename="urssaf.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "chiffre_affaires": 50000.0,
                 "cotisations_sociales": 10900.0,
@@ -142,6 +151,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/bnc.pdf",
             original_filename="bnc.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "charges": 10000.0,
                 "regime": "reel_bnc",
@@ -165,6 +175,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/test.pdf",
             original_filename="test.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "chiffre_affaires": 50000.0,
                 "nombre_parts": 1.0,
@@ -191,6 +202,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/2042.pdf",
             original_filename="2042.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "salaires_declarant1": 20000.0,
                 "salaires_declarant2": 15000.0,
@@ -217,6 +229,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/2042.pdf",
             original_filename="2042.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "salaires_declarant1": 10000.0,
                 "pensions_declarant1": 5000.0,
@@ -239,6 +252,7 @@ class TestTaxDataMapper:
                 status="processed",
                 file_path="/tmp/urssaf.pdf",
                 original_filename="urssaf.pdf",
+                created_at=datetime.now(),
                 extracted_fields={
                     "chiffre_affaires": 50000.0,
                     "cotisations_sociales": 10900.0,
@@ -253,6 +267,7 @@ class TestTaxDataMapper:
                 status="processed",
                 file_path="/tmp/avis.pdf",
                 original_filename="avis.pdf",
+                created_at=datetime.now(),
                 extracted_fields={
                     "revenu_fiscal_reference": 45000.0,
                     "situation_familiale": "celibataire",
@@ -294,6 +309,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/test.pdf",
             original_filename="test.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "chiffre_affaires": 50000.0,
                 "nombre_parts": 1.0,
@@ -314,6 +330,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/test.pdf",
             original_filename="test.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "chiffre_affaires": 50000.0,
                 # Missing: nombre_parts, cotisations_sociales
@@ -336,6 +353,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/test.pdf",
             original_filename="test.pdf",
+            created_at=datetime.now(),
             extracted_fields={},
         )
 
@@ -357,6 +375,7 @@ class TestTaxDataMapper:
             status="processed",
             file_path="/tmp/test.pdf",
             original_filename="test.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "regime": "invalid_regime",  # Invalid
             },
@@ -380,6 +399,7 @@ class TestDataMapperIntegration:
             status="processed",
             file_path="/tmp/avis.pdf",
             original_filename="avis.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "revenu_fiscal_reference": 40000.0,
                 "impot_revenu": 2800.0,
@@ -395,6 +415,7 @@ class TestDataMapperIntegration:
             status="processed",
             file_path="/tmp/urssaf.pdf",
             original_filename="urssaf.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "chiffre_affaires": 55000.0,
                 "cotisations_sociales": 12000.0,
@@ -408,6 +429,7 @@ class TestDataMapperIntegration:
             status="processed",
             file_path="/tmp/bnc.pdf",
             original_filename="bnc.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "recettes": 55000.0,
                 "charges": 8000.0,
@@ -446,6 +468,7 @@ class TestDataMapperIntegration:
             status="processed",
             file_path="/tmp/test.pdf",
             original_filename="test.pdf",
+            created_at=datetime.now(),
             extracted_fields={
                 "year": 2025,  # Explicit year in extracted fields
             },
