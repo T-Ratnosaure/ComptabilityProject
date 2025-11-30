@@ -359,7 +359,17 @@ See `CLAUDE.md` for complete development guidelines.
 
 ## Current Status
 
-**Phase 5 is complete!** The LLM integration with Anthropic Claude is fully implemented with:
+**Phase 6 is in progress!** Integration & Polish for production readiness.
+
+### Current Focus
+- ✨ End-to-end workflow testing (Document → Tax → Optimization → LLM)
+- 🧪 Integration test suite development
+- 📝 Demo script creation
+- 🔍 Production readiness assessment
+
+### Completed Phases
+
+**✅ Phase 5: LLM Integration** (Merged 2025-11-30)
 - Claude 3.5 Sonnet integration with async client
 - Multi-provider LLM interface (ready for GPT, Mistral)
 - Conversation management with database storage + automatic cleanup
@@ -371,16 +381,13 @@ See `CLAUDE.md` for complete development guidelines.
 - REST API endpoints: `/analyze` (standard) + `/analyze/stream` (SSE)
 - Conversation history API (GET/DELETE)
 - Error handling with LLM-specific exceptions (timeout, rate limit, API errors)
-- All CI/CD checks passing
+- All CI/CD checks passing ✅
 
 **Previous milestones:**
 - ✅ Phase 1: Core infrastructure (FastAPI, SQLAlchemy, Alembic, repositories, tests, CI/CD)
 - ✅ Phase 2: Document extraction pipeline (PDF/OCR extraction, field parsers, upload API)
 - ✅ Phase 3: Tax calculation engine (IR, quotient familial, social contributions, regime comparison)
 - ✅ Phase 4: Tax optimization engine (7 strategies, personalized recommendations, Profina integration)
-- ✅ Phase 5: LLM Integration (Claude 3.5 Sonnet, conversation management, fiscal context, streaming)
-
-**Next up: Phase 6** - Integration & Polish for production readiness.
 
 ## Contributing
 

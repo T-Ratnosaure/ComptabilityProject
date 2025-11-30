@@ -2,70 +2,70 @@
 
 ## Contexte Fiscal
 
-**Année fiscale :** {{ profil.annee_fiscale }}
-**Situation familiale :** {{ profil.situation_familiale }}
-**Nombre de parts :** {{ profil.nombre_parts }}
+**Année fiscale :** {{ profil.annee_fiscale|default('2024') }}
+**Situation familiale :** {{ profil.situation_familiale|default('célibataire') }}
+**Nombre de parts :** {{ profil.nombre_parts|default(1.0) }}
 
-{% if profil.enfants_a_charge > 0 %}
+{% if profil.enfants_a_charge and profil.enfants_a_charge > 0 %}
 **Enfants à charge :** {{ profil.enfants_a_charge }}
-{% if profil.enfants_moins_6_ans > 0 %}(dont {{ profil.enfants_moins_6_ans }} de moins de 6 ans){% endif %}
+{% if profil.enfants_moins_6_ans and profil.enfants_moins_6_ans > 0 %}(dont {{ profil.enfants_moins_6_ans }} de moins de 6 ans){% endif %}
 {% endif %}
 
 ## Revenus et Activité
 
-**Régime fiscal :** {{ profil.regime_fiscal }}
-**Type d'activité :** {{ profil.type_activite }}
-**Chiffre d'affaires :** {{ "{:,.0f}".format(profil.chiffre_affaires) }} €
-{% if profil.charges_deductibles > 0 %}**Charges déductibles :** {{ "{:,.0f}".format(profil.charges_deductibles) }} €{% endif %}
-{% if profil.benefice_net %}**Bénéfice net :** {{ "{:,.0f}".format(profil.benefice_net) }} €{% endif %}
+**Régime fiscal :** {{ profil.regime_fiscal|default('micro_bnc') }}
+**Type d'activité :** {{ profil.type_activite|default('BNC') }}
+**Chiffre d'affaires :** {{ "{:,.0f}".format(profil.chiffre_affaires|default(0)) }} €
+{% if profil.charges_deductibles and profil.charges_deductibles > 0 %}**Charges déductibles :** {{ "{:,.0f}".format(profil.charges_deductibles) }} €{% endif %}
+{% if profil.benefice_net and profil.benefice_net != 0 %}**Bénéfice net :** {{ "{:,.0f}".format(profil.benefice_net) }} €{% endif %}
 
-{% if profil.salaires > 0 %}**Salaires complémentaires :** {{ "{:,.0f}".format(profil.salaires) }} €{% endif %}
-{% if profil.revenus_fonciers > 0 %}**Revenus fonciers :** {{ "{:,.0f}".format(profil.revenus_fonciers) }} €{% endif %}
-{% if profil.revenus_capitaux > 0 %}**Revenus de capitaux :** {{ "{:,.0f}".format(profil.revenus_capitaux) }} €{% endif %}
+{% if profil.salaires and profil.salaires > 0 %}**Salaires complémentaires :** {{ "{:,.0f}".format(profil.salaires) }} €{% endif %}
+{% if profil.revenus_fonciers and profil.revenus_fonciers > 0 %}**Revenus fonciers :** {{ "{:,.0f}".format(profil.revenus_fonciers) }} €{% endif %}
+{% if profil.revenus_capitaux and profil.revenus_capitaux > 0 %}**Revenus de capitaux :** {{ "{:,.0f}".format(profil.revenus_capitaux) }} €{% endif %}
 
 ## Calcul Fiscal (Estimation)
 
-**Revenu imposable :** {{ "{:,.0f}".format(calcul_fiscal.revenu_imposable) }} €
-**Quotient familial :** {{ "{:,.0f}".format(calcul_fiscal.quotient_familial) }} € par part
-**TMI (Tranche Marginale d'Imposition) :** {{ calcul_fiscal.tmi * 100 }}%
-**Taux effectif :** {{ "{:.1f}".format(calcul_fiscal.taux_effectif * 100) }}%
+**Revenu imposable :** {{ "{:,.0f}".format(calcul_fiscal.revenu_imposable|default(0)) }} €
+**Quotient familial :** {{ "{:,.0f}".format(calcul_fiscal.quotient_familial|default(0)) }} € par part
+**TMI (Tranche Marginale d'Imposition) :** {{ ((calcul_fiscal.tmi|default(0)) * 100)|round(1) }}%
+**Taux effectif :** {{ "{:.1f}".format((calcul_fiscal.taux_effectif|default(0)) * 100) }}%
 
-**Impôt brut :** {{ "{:,.0f}".format(calcul_fiscal.impot_brut) }} €
-{% if calcul_fiscal.reductions_fiscales %}
+**Impôt brut :** {{ "{:,.0f}".format(calcul_fiscal.impot_brut|default(0)) }} €
+{% if calcul_fiscal.reductions_fiscales and calcul_fiscal.reductions_fiscales|length > 0 %}
 **Réductions fiscales appliquées :**
 {% for reduction_type, montant in calcul_fiscal.reductions_fiscales.items() %}
-  - {{ reduction_type }} : {{ "{:,.0f}".format(montant) }} €
+  - {{ reduction_type }} : {{ "{:,.0f}".format(montant|default(0)) }} €
 {% endfor %}
 {% endif %}
-**Impôt net :** {{ "{:,.0f}".format(calcul_fiscal.impot_net) }} €
+**Impôt net :** {{ "{:,.0f}".format(calcul_fiscal.impot_net|default(0)) }} €
 
-**Cotisations sociales :** {{ "{:,.0f}".format(calcul_fiscal.cotisations_sociales) }} €
-**Charge fiscale totale :** {{ "{:,.0f}".format(calcul_fiscal.charge_fiscale_totale) }} €
+**Cotisations sociales :** {{ "{:,.0f}".format(calcul_fiscal.cotisations_sociales|default(0)) }} €
+**Charge fiscale totale :** {{ "{:,.0f}".format(calcul_fiscal.charge_fiscale_totale|default(0)) }} €
 
-{% if profil.per_contributions > 0 %}
+{% if profil.per_contributions and profil.per_contributions > 0 %}
 ## Épargne Retraite (PER)
 
 **Versements PER :** {{ "{:,.0f}".format(profil.per_contributions) }} €
-{% if profil.per_plafond_detail %}
-**Plafond PER disponible :** {{ "{:,.0f}".format(profil.per_plafond_detail.plafond) }} €
-**PER utilisé :** {{ "{:,.0f}".format(profil.per_plafond_detail.deductible) }} €
-{% if profil.per_plafond_detail.excess > 0 %}**Excédent non déductible :** {{ "{:,.0f}".format(profil.per_plafond_detail.excess) }} €{% endif %}
+{% if calcul_fiscal.per_plafond_detail %}
+**Plafond PER disponible :** {{ "{:,.0f}".format(calcul_fiscal.per_plafond_detail.plafond_max|default(0)) }} €
+**PER utilisé :** {{ "{:,.0f}".format(calcul_fiscal.per_plafond_detail.applied|default(0)) }} €
+{% if calcul_fiscal.per_plafond_detail.excess and calcul_fiscal.per_plafond_detail.excess > 0 %}**Excédent non déductible :** {{ "{:,.0f}".format(calcul_fiscal.per_plafond_detail.excess) }} €{% endif %}
 {% endif %}
 {% endif %}
 
 {% if calcul_fiscal.comparaison_micro_reel %}
 ## Comparaison Micro vs Réel
 
-**Régime actuel ({{ calcul_fiscal.comparaison_micro_reel.regime_actuel }}) :**
-- Charge totale : {{ "{:,.0f}".format(calcul_fiscal.comparaison_micro_reel.charge_totale_micro if calcul_fiscal.comparaison_micro_reel.regime_actuel == "micro" else calcul_fiscal.comparaison_micro_reel.charge_totale_reel) }} €
+**Régime actuel ({{ calcul_fiscal.comparaison_micro_reel.regime_actuel|default('micro') }}) :**
+- Charge totale : {{ "{:,.0f}".format((calcul_fiscal.comparaison_micro_reel.charge_totale_micro if calcul_fiscal.comparaison_micro_reel.regime_actuel == "micro" else calcul_fiscal.comparaison_micro_reel.charge_totale_reel)|default(0)) }} €
 
 **Régime alternatif ({{ "réel" if calcul_fiscal.comparaison_micro_reel.regime_actuel == "micro" else "micro" }}) :**
-- Charge totale : {{ "{:,.0f}".format(calcul_fiscal.comparaison_micro_reel.charge_totale_reel if calcul_fiscal.comparaison_micro_reel.regime_actuel == "micro" else calcul_fiscal.comparaison_micro_reel.charge_totale_micro) }} €
+- Charge totale : {{ "{:,.0f}".format((calcul_fiscal.comparaison_micro_reel.charge_totale_reel if calcul_fiscal.comparaison_micro_reel.regime_actuel == "micro" else calcul_fiscal.comparaison_micro_reel.charge_totale_micro)|default(0)) }} €
 
-**Différence :** {{ "{:+,.0f}".format(calcul_fiscal.comparaison_micro_reel.delta_total) }} €
-{% if calcul_fiscal.comparaison_micro_reel.delta_total < -500 %}
-⚠️ **Opportunité** : Le régime {{ calcul_fiscal.comparaison_micro_reel.regime_optimal }} pourrait vous faire économiser {{ "{:,.0f}".format(abs(calcul_fiscal.comparaison_micro_reel.delta_total)) }} €
-{% elif calcul_fiscal.comparaison_micro_reel.delta_total > 500 %}
+**Différence :** {{ "{:+,.0f}".format(calcul_fiscal.comparaison_micro_reel.delta_total|default(0)) }} €
+{% if calcul_fiscal.comparaison_micro_reel.delta_total and calcul_fiscal.comparaison_micro_reel.delta_total < -500 %}
+⚠️ **Opportunité** : Le régime {{ calcul_fiscal.comparaison_micro_reel.regime_optimal|default('réel') }} pourrait vous faire économiser {{ "{:,.0f}".format(calcul_fiscal.comparaison_micro_reel.delta_total|abs) }} €
+{% elif calcul_fiscal.comparaison_micro_reel.delta_total and calcul_fiscal.comparaison_micro_reel.delta_total > 500 %}
 ✅ **Confirmation** : Votre régime actuel est optimal
 {% endif %}
 {% endif %}
@@ -83,8 +83,9 @@
 
 {% for rec in recommendations %}
 ### {{ rec.title }}
-**Impact fiscal :** {{ "{:+,.0f}".format(rec.tax_savings) }} € d'économie potentielle
-**Priorité :** {{ rec.priority }}
+**Impact fiscal :** {{ "{:+,.0f}".format(rec.impact_estimated) }} € d'économie potentielle
+**Risque :** {{ rec.risk }} | **Complexité :** {{ rec.complexity }}
+**Catégorie :** {{ rec.category }}
 
 {{ rec.description }}
 
@@ -92,6 +93,13 @@
 **Actions concrètes :**
 {% for step in rec.action_steps %}
 {{ loop.index }}. {{ step }}
+{% endfor %}
+{% endif %}
+
+{% if rec.warnings %}
+**⚠️ Avertissements :**
+{% for warning in rec.warnings %}
+- {{ warning }}
 {% endfor %}
 {% endif %}
 
