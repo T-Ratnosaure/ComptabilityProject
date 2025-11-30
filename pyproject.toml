@@ -69,10 +69,12 @@ addopts = [
     "-ra",
     "--strict-markers",
     "--strict-config",
-    "--cov=.",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-    "--cov-report=xml",
+    # Coverage disabled for local dev (too slow on Windows + uv)
+    # Re-enable in CI/CD or use: pytest --cov=. --cov-report=term-missing
+    # "--cov=.",
+    # "--cov-report=term-missing",
+    # "--cov-report=html",
+    # "--cov-report=xml",
 ]
 markers = [
     "slow: marks tests as slow",
