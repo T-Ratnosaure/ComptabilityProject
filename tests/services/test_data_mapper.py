@@ -1,6 +1,5 @@
 """Tests for TaxDataMapper - centralized field mapping."""
 
-
 from src.api.routes.tax import TaxRegime
 from src.models.tax_document import DocumentType, TaxDocument
 from src.services.data_mapper import TaxDataMapper

@@ -1,6 +1,5 @@
 """Tests for automatic benefice_net calculation in LLMContextBuilder."""
 
-
 from src.llm.context_builder import LLMContextBuilder
 
 
