@@ -136,16 +136,14 @@ class TaxOptimizationDemo:
         print(
             f"   Quotient familial: {result.get('quotient_familial', 0):,.0f} € / part"
         )
-        print(f"   TMI: {impot.get('tmi', 0)*100:.0f}%")
+        print(f"   TMI: {impot.get('tmi', 0) * 100:.0f}%")
         print(f"   Impôt net: {impot.get('impot_net', 0):,.0f} €")
         print(f"   Cotisations sociales: {socials.get('urssaf_expected', 0):,.0f} €")
         print(f"   Charge fiscale totale: {result.get('charge_totale', 0):,.0f} €")
 
         return result
 
-    async def run_optimization(
-        self, profile_data: dict, tax_result: dict
-    ) -> dict:
+    async def run_optimization(self, profile_data: dict, tax_result: dict) -> dict:
         """Run tax optimization analysis.
 
         Args:
@@ -161,9 +159,13 @@ class TaxOptimizationDemo:
         flat_profile = {
             "status": profile_data["person"]["status"],
             "chiffre_affaires": profile_data["income"]["professional_gross"],
-            "charges_deductibles": profile_data["income"].get("deductible_expenses", 0.0),
+            "charges_deductibles": profile_data["income"].get(
+                "deductible_expenses", 0.0
+            ),
             "nb_parts": profile_data["person"]["nb_parts"],
-            "activity_type": "BNC" if "bnc" in profile_data["person"]["status"].lower() else "BIC",
+            "activity_type": "BNC"
+            if "bnc" in profile_data["person"]["status"].lower()
+            else "BIC",
         }
 
         request_data = {"profile": flat_profile, "tax_result": tax_result}
@@ -177,15 +179,23 @@ class TaxOptimizationDemo:
         recommendations = result.get("recommendations", [])
 
         print(f"[OK] Found {len(recommendations)} optimization opportunities:")
-        print(f"   Total potential savings: {result.get('potential_savings_total', 0):,.0f} €")
+        print(
+            f"   Total potential savings: {result.get('potential_savings_total', 0):,.0f} €"
+        )
 
         # Show top 3 recommendations
         for i, rec in enumerate(recommendations[:3], 1):
-            print(f"\n   {i}. {rec['title']} (Risk: {rec['risk']}, Complexity: {rec['complexity']})")
+            print(
+                f"\n   {i}. {rec['title']} (Risk: {rec['risk']}, Complexity: {rec['complexity']})"
+            )
             print(f"      [CALC] Savings: {rec['impact_estimated']:+,.0f} €")
             try:
                 # Try to print description, skip if encoding fails
-                desc = rec['description'][:100].encode('ascii', errors='ignore').decode('ascii')
+                desc = (
+                    rec["description"][:100]
+                    .encode("ascii", errors="ignore")
+                    .decode("ascii")
+                )
                 if desc:
                     print(f"      [NOTE] {desc}...")
             except Exception:
@@ -235,15 +245,21 @@ class TaxOptimizationDemo:
         print(f"[OK] Claude analysis complete:")
         print(f"   Conversation ID: {result['conversation_id']}")
         print(f"   Message ID: {result['message_id']}")
-        print(f"   Tokens used: {result['usage']['input_tokens']} input + {result['usage']['output_tokens']} output")
+        print(
+            f"   Tokens used: {result['usage']['input_tokens']} input + {result['usage']['output_tokens']} output"
+        )
         print(f"\n[NOTE] Claude's Response:")
         print("-" * 80)
         try:
             # Handle emojis by encoding to ASCII and ignoring non-ASCII chars
-            clean_content = result["content"].encode('ascii', errors='ignore').decode('ascii')
+            clean_content = (
+                result["content"].encode("ascii", errors="ignore").decode("ascii")
+            )
             print(clean_content)
         except Exception:
-            print("[Note: Response contains special characters that cannot be displayed]")
+            print(
+                "[Note: Response contains special characters that cannot be displayed]"
+            )
             print(f"Response length: {len(result['content'])} characters")
         print("-" * 80)
 

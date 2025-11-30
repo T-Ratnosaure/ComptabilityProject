@@ -25,7 +25,9 @@ def convert_profile_for_optimization(nested_profile: dict) -> dict:
         "chiffre_affaires": nested_profile["income"]["professional_gross"],
         "charges_deductibles": nested_profile["income"].get("deductible_expenses", 0.0),
         "nb_parts": nested_profile["person"]["nb_parts"],
-        "activity_type": "BNC" if "bnc" in nested_profile["person"]["status"].lower() else "BIC",
+        "activity_type": "BNC"
+        if "bnc" in nested_profile["person"]["status"].lower()
+        else "BIC",
     }
 
 
@@ -61,7 +63,9 @@ class TestEndToEndWorkflow:
             "pas_withheld": 0.0,
         }
 
-    def test_tax_calculation_workflow(self, client: TestClient, sample_freelance_profile: dict):
+    def test_tax_calculation_workflow(
+        self, client: TestClient, sample_freelance_profile: dict
+    ):
         """Test Phase 3: Tax calculation with valid profile."""
         response = client.post("/api/v1/tax/calculate", json=sample_freelance_profile)
 
@@ -88,10 +92,14 @@ class TestEndToEndWorkflow:
         assert impot["impot_net"] >= 0
         assert result["socials"]["urssaf_expected"] > 0
 
-    def test_optimization_workflow(self, client: TestClient, sample_freelance_profile: dict):
+    def test_optimization_workflow(
+        self, client: TestClient, sample_freelance_profile: dict
+    ):
         """Test Phase 3 → Phase 4: Tax calculation then optimization."""
         # Step 1: Calculate taxes
-        tax_response = client.post("/api/v1/tax/calculate", json=sample_freelance_profile)
+        tax_response = client.post(
+            "/api/v1/tax/calculate", json=sample_freelance_profile
+        )
         assert tax_response.status_code == 200
         tax_result = tax_response.json()
 
@@ -101,7 +109,9 @@ class TestEndToEndWorkflow:
             "tax_result": tax_result,
         }
 
-        opt_response = client.post("/api/v1/optimization/run", json=optimization_request)
+        opt_response = client.post(
+            "/api/v1/optimization/run", json=optimization_request
+        )
         assert opt_response.status_code == 200
         opt_result = opt_response.json()
 
@@ -125,10 +135,14 @@ class TestEndToEndWorkflow:
         assert "complexity" in first_rec  # Complexity level
         assert "category" in first_rec
 
-    def test_llm_analysis_workflow(self, client: TestClient, sample_freelance_profile: dict):
+    def test_llm_analysis_workflow(
+        self, client: TestClient, sample_freelance_profile: dict
+    ):
         """Test Phase 3 → Phase 4 → Phase 5: Complete workflow to LLM."""
         # Step 1: Calculate taxes
-        tax_response = client.post("/api/v1/tax/calculate", json=sample_freelance_profile)
+        tax_response = client.post(
+            "/api/v1/tax/calculate", json=sample_freelance_profile
+        )
         assert tax_response.status_code == 200
         tax_result = tax_response.json()
 
@@ -137,7 +151,9 @@ class TestEndToEndWorkflow:
             "profile": convert_profile_for_optimization(sample_freelance_profile),
             "tax_result": tax_result,
         }
-        opt_response = client.post("/api/v1/optimization/run", json=optimization_request)
+        opt_response = client.post(
+            "/api/v1/optimization/run", json=optimization_request
+        )
         assert opt_response.status_code == 200
         opt_result = opt_response.json()
 
@@ -159,9 +175,20 @@ class TestEndToEndWorkflow:
         if llm_response.status_code in [500, 502]:
             # Expected when no API credits or API key not configured
             error_detail = str(llm_response.json().get("detail", ""))
-            skip_keywords = ["credit", "api_key", "anthropic", "llm", "authentication", "template", "jinja2", "undefined"]
+            skip_keywords = [
+                "credit",
+                "api_key",
+                "anthropic",
+                "llm",
+                "authentication",
+                "template",
+                "jinja2",
+                "undefined",
+            ]
             if any(keyword in error_detail.lower() for keyword in skip_keywords):
-                pytest.skip(f"LLM service not fully configured (API key or template issue): {error_detail[:150]}")
+                pytest.skip(
+                    f"LLM service not fully configured (API key or template issue): {error_detail[:150]}"
+                )
             # If it's a different 500/502 error, let it fail
             raise AssertionError(f"Unexpected LLM error: {error_detail}")
 
@@ -220,7 +247,9 @@ class TestEndToEndWorkflow:
             "profile": convert_profile_for_optimization(high_income_profile),
             "tax_result": tax_result,
         }
-        opt_response = client.post("/api/v1/optimization/run", json=optimization_request)
+        opt_response = client.post(
+            "/api/v1/optimization/run", json=optimization_request
+        )
         assert opt_response.status_code == 200
         opt_result = opt_response.json()
 
@@ -233,10 +262,14 @@ class TestEndToEndWorkflow:
         assert per_rec is not None
         assert per_rec["impact_estimated"] > 0
 
-    def test_optimization_priority_ordering(self, client: TestClient, sample_freelance_profile: dict):
+    def test_optimization_priority_ordering(
+        self, client: TestClient, sample_freelance_profile: dict
+    ):
         """Test that optimization recommendations are properly ordered by impact."""
         # Calculate taxes
-        tax_response = client.post("/api/v1/tax/calculate", json=sample_freelance_profile)
+        tax_response = client.post(
+            "/api/v1/tax/calculate", json=sample_freelance_profile
+        )
         assert tax_response.status_code == 200
         tax_result = tax_response.json()
 
@@ -245,7 +278,9 @@ class TestEndToEndWorkflow:
             "profile": convert_profile_for_optimization(sample_freelance_profile),
             "tax_result": tax_result,
         }
-        opt_response = client.post("/api/v1/optimization/run", json=optimization_request)
+        opt_response = client.post(
+            "/api/v1/optimization/run", json=optimization_request
+        )
         assert opt_response.status_code == 200
         opt_result = opt_response.json()
 
@@ -260,13 +295,20 @@ class TestEndToEndWorkflow:
                 # Current should have >= impact than next (descending order)
                 assert current_impact >= next_impact
 
-    def test_conversation_continuity(self, client: TestClient, sample_freelance_profile: dict):
+    def test_conversation_continuity(
+        self, client: TestClient, sample_freelance_profile: dict
+    ):
         """Test that conversations maintain context across multiple queries."""
         # Calculate taxes and optimize
-        tax_response = client.post("/api/v1/tax/calculate", json=sample_freelance_profile)
+        tax_response = client.post(
+            "/api/v1/tax/calculate", json=sample_freelance_profile
+        )
         tax_result = tax_response.json()
 
-        opt_request = {"profile": convert_profile_for_optimization(sample_freelance_profile), "tax_result": tax_result}
+        opt_request = {
+            "profile": convert_profile_for_optimization(sample_freelance_profile),
+            "tax_result": tax_result,
+        }
         opt_response = client.post("/api/v1/optimization/run", json=opt_request)
         opt_result = opt_response.json()
 
@@ -283,7 +325,16 @@ class TestEndToEndWorkflow:
 
         if llm_response_1.status_code in [500, 502]:
             error_detail = str(llm_response_1.json().get("detail", ""))
-            skip_keywords = ["credit", "api_key", "anthropic", "llm", "authentication", "template", "jinja2", "undefined"]
+            skip_keywords = [
+                "credit",
+                "api_key",
+                "anthropic",
+                "llm",
+                "authentication",
+                "template",
+                "jinja2",
+                "undefined",
+            ]
             if any(keyword in error_detail.lower() for keyword in skip_keywords):
                 pytest.skip(f"LLM service not fully configured: {error_detail[:150]}")
             raise AssertionError(f"Unexpected LLM error: {error_detail}")
@@ -349,12 +400,17 @@ class TestDataFlowIntegration:
         original_tmi = tax_result["impot"]["tmi"]
 
         # Run optimization (convert profile to flat format)
-        opt_request = {"profile": convert_profile_for_optimization(profile), "tax_result": tax_result}
+        opt_request = {
+            "profile": convert_profile_for_optimization(profile),
+            "tax_result": tax_result,
+        }
         opt_response = client.post("/api/v1/optimization/run", json=opt_request)
         opt_result = opt_response.json()
 
         # PER recommendation should reference the TMI
-        per_rec = next((r for r in opt_result["recommendations"] if "PER" in r["title"]), None)
+        per_rec = next(
+            (r for r in opt_result["recommendations"] if "PER" in r["title"]), None
+        )
 
         if per_rec:
             # PER savings should be calculated based on TMI
@@ -394,7 +450,10 @@ class TestDataFlowIntegration:
         tax_response = client.post("/api/v1/tax/calculate", json=profile)
         tax_result = tax_response.json()
 
-        opt_request = {"profile": convert_profile_for_optimization(profile), "tax_result": tax_result}
+        opt_request = {
+            "profile": convert_profile_for_optimization(profile),
+            "tax_result": tax_result,
+        }
         opt_response = client.post("/api/v1/optimization/run", json=opt_request)
         opt_result = opt_response.json()
 
@@ -412,7 +471,16 @@ class TestDataFlowIntegration:
 
         if llm_response.status_code in [500, 502]:
             error_detail = str(llm_response.json().get("detail", ""))
-            skip_keywords = ["credit", "api_key", "anthropic", "llm", "authentication", "template", "jinja2", "undefined"]
+            skip_keywords = [
+                "credit",
+                "api_key",
+                "anthropic",
+                "llm",
+                "authentication",
+                "template",
+                "jinja2",
+                "undefined",
+            ]
             if any(keyword in error_detail.lower() for keyword in skip_keywords):
                 pytest.skip(f"LLM service not fully configured: {error_detail[:150]}")
             raise AssertionError(f"Unexpected LLM error: {error_detail}")
@@ -464,7 +532,10 @@ class TestPerformanceIntegration:
 
         # Optimization (convert profile to flat format)
         opt_start = time.time()
-        opt_request = {"profile": convert_profile_for_optimization(profile), "tax_result": tax_response.json()}
+        opt_request = {
+            "profile": convert_profile_for_optimization(profile),
+            "tax_result": tax_response.json(),
+        }
         opt_response = client.post("/api/v1/optimization/run", json=opt_request)
         assert opt_response.status_code == 200
         opt_time = time.time() - opt_start
