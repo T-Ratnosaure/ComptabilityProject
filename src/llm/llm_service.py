@@ -36,7 +36,7 @@ class LLMAnalysisService:
     async def analyze_fiscal_situation(
         self,
         request: AnalysisRequest,
-        model: str = "claude-3-5-sonnet-20241022",
+        model: str = "claude-3-haiku-20240307",
         temperature: float = 0.7,
     ) -> AnalysisResponse:
         """Analyze fiscal situation and provide recommendations.
@@ -108,7 +108,7 @@ class LLMAnalysisService:
     async def analyze_fiscal_situation_stream(
         self,
         request: AnalysisRequest,
-        model: str = "claude-3-5-sonnet-20241022",
+        model: str = "claude-3-haiku-20240307",
         temperature: float = 0.7,
     ) -> AsyncIterator[str]:
         """Analyze fiscal situation with streaming response.

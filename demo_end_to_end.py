@@ -39,11 +39,11 @@ class TaxOptimizationDemo:
         Returns:
             Health check response
         """
-        print("🔍 Checking API health...")
+        print("[INFO] Checking API health...")
         response = await self.client.get(f"{self.base_url}/health")
         response.raise_for_status()
         data = response.json()
-        print(f"✅ API Status: {data['status']} (v{data['version']})")
+        print(f"[OK] API Status: {data['status']} (v{data['version']})")
         return data
 
     async def upload_document(
@@ -60,7 +60,7 @@ class TaxOptimizationDemo:
         Returns:
             Upload response with document_id
         """
-        print(f"\n📄 Uploading {document_type} for year {year}...")
+        print(f"\n[DOC] Uploading {document_type} for year {year}...")
 
         # Read file
         pdf_path = Path(file_path)
@@ -82,7 +82,7 @@ class TaxOptimizationDemo:
             response.raise_for_status()
 
         result = response.json()
-        print(f"✅ Document uploaded successfully (ID: {result['document_id']})")
+        print(f"[OK] Document uploaded successfully (ID: {result['document_id']})")
         return result
 
     async def get_document(self, document_id: int) -> dict:
@@ -94,14 +94,14 @@ class TaxOptimizationDemo:
         Returns:
             Document details with extracted fields
         """
-        print(f"\n📋 Retrieving document {document_id}...")
+        print(f"\n[INFO] Retrieving document {document_id}...")
         response = await self.client.get(
             f"{self.base_url}/api/v1/documents/{document_id}"
         )
         response.raise_for_status()
 
         doc = response.json()
-        print(f"✅ Document type: {doc['type']}")
+        print(f"[OK] Document type: {doc['type']}")
         print(f"   Status: {doc['status']}")
 
         if doc["extracted_fields"]:
@@ -121,7 +121,7 @@ class TaxOptimizationDemo:
         Returns:
             Tax calculation results
         """
-        print("\n💰 Calculating taxes...")
+        print("\n[CALC] Calculating taxes...")
         response = await self.client.post(
             f"{self.base_url}/api/v1/tax/calculate", json=profile_data
         )
@@ -131,7 +131,7 @@ class TaxOptimizationDemo:
         impot = result.get("impot", {})
         socials = result.get("socials", {})
 
-        print(f"✅ Tax calculation complete:")
+        print(f"[OK] Tax calculation complete:")
         print(f"   Revenu imposable: {result.get('revenu_imposable', 0):,.0f} €")
         print(
             f"   Quotient familial: {result.get('quotient_familial', 0):,.0f} € / part"
@@ -155,7 +155,7 @@ class TaxOptimizationDemo:
         Returns:
             Optimization recommendations
         """
-        print("\n🎯 Running optimization analysis...")
+        print("\n[OPT] Running optimization analysis...")
 
         # Convert nested profile to flat format for optimization endpoint
         flat_profile = {
@@ -176,14 +176,20 @@ class TaxOptimizationDemo:
         result = response.json()
         recommendations = result.get("recommendations", [])
 
-        print(f"✅ Found {len(recommendations)} optimization opportunities:")
+        print(f"[OK] Found {len(recommendations)} optimization opportunities:")
         print(f"   Total potential savings: {result.get('potential_savings_total', 0):,.0f} €")
 
         # Show top 3 recommendations
         for i, rec in enumerate(recommendations[:3], 1):
-            print(f"\n   {i}. {rec['title']} (Priority: {rec['priority']})")
-            print(f"      💰 Savings: {rec['tax_savings']:+,.0f} €")
-            print(f"      📝 {rec['description'][:100]}...")
+            print(f"\n   {i}. {rec['title']} (Risk: {rec['risk']}, Complexity: {rec['complexity']})")
+            print(f"      [CALC] Savings: {rec['impact_estimated']:+,.0f} €")
+            try:
+                # Try to print description, skip if encoding fails
+                desc = rec['description'][:100].encode('ascii', errors='ignore').decode('ascii')
+                if desc:
+                    print(f"      [NOTE] {desc}...")
+            except Exception:
+                pass  # Skip description if encoding fails
 
         return result
 
@@ -207,7 +213,7 @@ class TaxOptimizationDemo:
         Returns:
             LLM analysis response
         """
-        print("\n🤖 Getting AI analysis from Claude...")
+        print("\n[AI] Getting AI analysis from Claude...")
 
         request_data = {
             "user_id": user_id,
@@ -226,13 +232,19 @@ class TaxOptimizationDemo:
 
         result = response.json()
 
-        print(f"✅ Claude analysis complete:")
+        print(f"[OK] Claude analysis complete:")
         print(f"   Conversation ID: {result['conversation_id']}")
         print(f"   Message ID: {result['message_id']}")
         print(f"   Tokens used: {result['usage']['input_tokens']} input + {result['usage']['output_tokens']} output")
-        print(f"\n📝 Claude's Response:")
+        print(f"\n[NOTE] Claude's Response:")
         print("-" * 80)
-        print(result["content"])
+        try:
+            # Handle emojis by encoding to ASCII and ignoring non-ASCII chars
+            clean_content = result["content"].encode('ascii', errors='ignore').decode('ascii')
+            print(clean_content)
+        except Exception:
+            print("[Note: Response contains special characters that cannot be displayed]")
+            print(f"Response length: {len(result['content'])} characters")
         print("-" * 80)
 
         return result
@@ -248,7 +260,7 @@ async def run_complete_demo():
 
         # Step 2: Define a sample freelance profile
         print("\n" + "=" * 80)
-        print("📊 SAMPLE FREELANCE PROFILE")
+        print("[DATA] SAMPLE FREELANCE PROFILE")
         print("=" * 80)
 
         profile_data = {
@@ -295,14 +307,14 @@ async def run_complete_demo():
         )
 
         print("\n" + "=" * 80)
-        print("✅ END-TO-END DEMO COMPLETED SUCCESSFULLY!")
+        print("[OK] END-TO-END DEMO COMPLETED SUCCESSFULLY!")
         print("=" * 80)
 
     except httpx.HTTPStatusError as e:
-        print(f"\n❌ HTTP Error: {e.response.status_code}")
+        print(f"\n[ERROR] HTTP Error: {e.response.status_code}")
         print(f"Response: {e.response.text}")
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n[ERROR] Error: {e}")
     finally:
         await demo.close()
 
@@ -339,14 +351,14 @@ async def run_document_upload_demo():
                 # Add other fields...
             }
 
-            print("\n📊 Using extracted fields for tax calculation...")
+            print("\n[DATA] Using extracted fields for tax calculation...")
             # Continue with tax calculation, optimization, and LLM analysis
 
     except FileNotFoundError as e:
-        print(f"\n⚠️  {e}")
+        print(f"\n[WARN]  {e}")
         print("   Update the pdf_path variable with a real PDF file path.")
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n[ERROR] Error: {e}")
     finally:
         await demo.close()
 
@@ -354,7 +366,7 @@ async def run_document_upload_demo():
 def main():
     """Main entry point."""
     print("=" * 80)
-    print("🇫🇷 FRENCH TAX OPTIMIZATION SYSTEM - END-TO-END DEMO")
+    print("[FR] FRENCH TAX OPTIMIZATION SYSTEM - END-TO-END DEMO")
     print("=" * 80)
     print("\nStarting API server check and demo workflow...\n")
 
@@ -362,7 +374,7 @@ def main():
     asyncio.run(run_complete_demo())
 
     print("\n" + "=" * 80)
-    print("📚 NEXT STEPS:")
+    print("[INFO] NEXT STEPS:")
     print("=" * 80)
     print("1. Add Anthropic credits to your API key")
     print("2. Run with a real PDF: modify run_document_upload_demo()")
