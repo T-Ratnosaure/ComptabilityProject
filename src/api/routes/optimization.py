@@ -304,7 +304,7 @@ async def quick_simulation(input_data: QuickSimulationInput) -> QuickSimulationR
     )
 
     # Calculate PER plafond
-    per_plafond, _ = apply_per_deduction_with_limit(
+    _, _, per_plafond = apply_per_deduction_with_limit(
         per_contribution=999999,  # Large number to get full plafond
         professional_income=taxable_prof,
         rules=rules,

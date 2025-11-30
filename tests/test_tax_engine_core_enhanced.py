@@ -90,7 +90,7 @@ class TestApplyPERDeductionWithLimit:
         """Test PER contribution under plafond limit."""
         # Professional income of 50k → plafond = 5k
         # Contribution of 3k → should be fully deductible
-        deductible, excess = apply_per_deduction_with_limit(
+        deductible, excess, _ = apply_per_deduction_with_limit(
             per_contribution=3000,
             professional_income=50000,
             rules=rules,
@@ -103,7 +103,7 @@ class TestApplyPERDeductionWithLimit:
         """Test PER contribution over plafond limit."""
         # Professional income of 50k → plafond = 5k
         # Contribution of 7k → only 5k deductible
-        deductible, excess = apply_per_deduction_with_limit(
+        deductible, excess, _ = apply_per_deduction_with_limit(
             per_contribution=7000,
             professional_income=50000,
             rules=rules,
@@ -115,7 +115,7 @@ class TestApplyPERDeductionWithLimit:
     def test_per_minimum_plafond(self, rules):
         """Test PER minimum plafond (4399€)."""
         # Very low income (20k) → 10% = 2k, but min is 4399€
-        deductible, excess = apply_per_deduction_with_limit(
+        deductible, excess, _ = apply_per_deduction_with_limit(
             per_contribution=4000,
             professional_income=20000,
             rules=rules,
@@ -127,7 +127,7 @@ class TestApplyPERDeductionWithLimit:
     def test_per_maximum_plafond(self, rules):
         """Test PER maximum plafond (35200€ for salaried)."""
         # Very high income (500k) → 10% = 50k, but max is 35200€
-        deductible, excess = apply_per_deduction_with_limit(
+        deductible, excess, _ = apply_per_deduction_with_limit(
             per_contribution=40000,
             professional_income=500000,
             rules=rules,
@@ -140,7 +140,7 @@ class TestApplyPERDeductionWithLimit:
     def test_per_at_exact_plafond(self, rules):
         """Test PER contribution at exact plafond."""
         # Professional income of 50k → plafond = 5k
-        deductible, excess = apply_per_deduction_with_limit(
+        deductible, excess, _ = apply_per_deduction_with_limit(
             per_contribution=5000,
             professional_income=50000,
             rules=rules,

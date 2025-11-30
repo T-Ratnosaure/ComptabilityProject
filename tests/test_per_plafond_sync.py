@@ -54,7 +54,7 @@ class TestPERPlafondSync:
         per_contribution = 40000
         professional_income = 500000  # High income
 
-        deductible, excess = apply_per_deduction_with_limit(
+        deductible, excess, _ = apply_per_deduction_with_limit(
             per_contribution, professional_income, rules
         )
 
@@ -79,7 +79,7 @@ class TestPERPlafondSync:
         per_contribution = 5000
         professional_income = 10000  # 10% = 1000, but min is 4399
 
-        deductible, excess = apply_per_deduction_with_limit(
+        deductible, excess, _ = apply_per_deduction_with_limit(
             per_contribution, professional_income, rules
         )
 
@@ -94,7 +94,7 @@ class TestPERPlafondSync:
         professional_income = 50000
         per_contribution = 5000  # Exactly 10%
 
-        deductible, excess = apply_per_deduction_with_limit(
+        deductible, excess, _ = apply_per_deduction_with_limit(
             per_contribution, professional_income, rules
         )
 
