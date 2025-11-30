@@ -122,7 +122,7 @@ class TestEndToEndWorkflow:
         assert "risk_profile" in opt_result
         assert "high_priority_count" in opt_result
 
-        # Should have recommendations (micro BNC at 65k should trigger regime/PER suggestions)
+        # Should have recommendations (micro BNC at 65k triggers regime/PER)
         recommendations = opt_result["recommendations"]
         assert len(recommendations) > 0
 
@@ -186,9 +186,8 @@ class TestEndToEndWorkflow:
                 "undefined",
             ]
             if any(keyword in error_detail.lower() for keyword in skip_keywords):
-                pytest.skip(
-                    f"LLM service not fully configured (API key or template issue): {error_detail[:150]}"
-                )
+                msg = f"LLM not configured (API/template issue): {error_detail[:100]}"
+                pytest.skip(msg)
             # If it's a different 500/502 error, let it fail
             raise AssertionError(f"Unexpected LLM error: {error_detail}")
 
@@ -207,7 +206,7 @@ class TestEndToEndWorkflow:
         assert len(llm_result["content"]) > 0
 
     def test_optimization_with_high_income(self, client: TestClient):
-        """Test optimization for high-income profile (should trigger more strategies)."""
+        """Test optimization for high-income profile (triggers more strategies)."""
         high_income_profile = {
             "tax_year": 2024,
             "person": {
@@ -397,7 +396,6 @@ class TestDataFlowIntegration:
         # Calculate taxes
         tax_response = client.post("/api/v1/tax/calculate", json=profile)
         tax_result = tax_response.json()
-        original_tmi = tax_result["impot"]["tmi"]
 
         # Run optimization (convert profile to flat format)
         opt_request = {

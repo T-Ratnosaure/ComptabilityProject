@@ -131,7 +131,7 @@ class TaxOptimizationDemo:
         impot = result.get("impot", {})
         socials = result.get("socials", {})
 
-        print(f"[OK] Tax calculation complete:")
+        print("[OK] Tax calculation complete:")
         print(f"   Revenu imposable: {result.get('revenu_imposable', 0):,.0f} €")
         print(
             f"   Quotient familial: {result.get('quotient_familial', 0):,.0f} € / part"
@@ -179,15 +179,14 @@ class TaxOptimizationDemo:
         recommendations = result.get("recommendations", [])
 
         print(f"[OK] Found {len(recommendations)} optimization opportunities:")
-        print(
-            f"   Total potential savings: {result.get('potential_savings_total', 0):,.0f} €"
-        )
+        total_savings = result.get("potential_savings_total", 0)
+        print(f"   Total potential savings: {total_savings:,.0f} €")
 
         # Show top 3 recommendations
         for i, rec in enumerate(recommendations[:3], 1):
-            print(
-                f"\n   {i}. {rec['title']} (Risk: {rec['risk']}, Complexity: {rec['complexity']})"
-            )
+            risk = rec["risk"]
+            complexity = rec["complexity"]
+            print(f"\n   {i}. {rec['title']} (Risk: {risk}, Complexity: {complexity})")
             print(f"      [CALC] Savings: {rec['impact_estimated']:+,.0f} €")
             try:
                 # Try to print description, skip if encoding fails
@@ -242,13 +241,13 @@ class TaxOptimizationDemo:
 
         result = response.json()
 
-        print(f"[OK] Claude analysis complete:")
+        print("[OK] Claude analysis complete:")
         print(f"   Conversation ID: {result['conversation_id']}")
         print(f"   Message ID: {result['message_id']}")
-        print(
-            f"   Tokens used: {result['usage']['input_tokens']} input + {result['usage']['output_tokens']} output"
-        )
-        print(f"\n[NOTE] Claude's Response:")
+        input_tokens = result["usage"]["input_tokens"]
+        output_tokens = result["usage"]["output_tokens"]
+        print(f"   Tokens used: {input_tokens} input + {output_tokens} output")
+        print("\n[NOTE] Claude's Response:")
         print("-" * 80)
         try:
             # Handle emojis by encoding to ASCII and ignoring non-ASCII chars
@@ -314,12 +313,13 @@ async def run_complete_demo():
         optimization_result = await demo.run_optimization(profile_data, tax_result)
 
         # Step 5: Get LLM analysis
+        question = "Quelles sont mes meilleures opportunités d'optimisation fiscale ?"
         await demo.get_llm_analysis(
             user_id="demo_user",
             profile_data=profile_data,
             tax_result=tax_result,
             optimization_result=optimization_result,
-            user_question="Quelles sont mes meilleures opportunités d'optimisation fiscale ?",
+            user_question=question,
         )
 
         print("\n" + "=" * 80)
@@ -358,17 +358,9 @@ async def run_document_upload_demo():
 
         # Use extracted fields for tax calculation
         if doc["extracted_fields"]:
-            # Map extracted fields to profile
-            profile_data = {
-                "tax_year": doc["year"],
-                "revenu_fiscal_reference": doc["extracted_fields"].get(
-                    "revenu_fiscal_reference"
-                ),
-                # Add other fields...
-            }
-
             print("\n[DATA] Using extracted fields for tax calculation...")
-            # Continue with tax calculation, optimization, and LLM analysis
+            print("   (Feature not fully implemented in demo)")
+            # TODO: Map extracted fields to profile and run full workflow
 
     except FileNotFoundError as e:
         print(f"\n[WARN]  {e}")
