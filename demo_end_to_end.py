@@ -208,7 +208,7 @@ class TaxOptimizationDemo:
         profile_data: dict,
         tax_result: dict,
         optimization_result: dict,
-        user_question: str = None,
+        user_question: str | None = None,
     ) -> dict:
         """Get AI-powered fiscal analysis from Claude.
 
