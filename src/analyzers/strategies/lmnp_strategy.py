@@ -66,6 +66,9 @@ class LMNPStrategy:
         # Check investment capacity
         if investment_capacity < eligibility["min_investment_capacity"]:
             return recommendations
+        # LMNP requires at least moderate risk tolerance (medium-risk investment)
+        if risk_tolerance not in ["medium", "moderate", "high", "aggressive"]:
+            return recommendations
 
         # Generate LMNP recommendation
         rec = self._create_lmnp_recommendation(tmi, investment_capacity, risk_tolerance)
@@ -89,23 +92,16 @@ class LMNPStrategy:
         estimated_savings = estimated_rental * tmi * total_deduction_rate
 
         description = (
-            f"🏠 LMNP (Location Meublée Non Professionnelle)\n"
-            f"Investissement locatif optimisé\n\n"
-            f"Avec votre TMI de {tmi * 100:.0f}% et une capacité d'investissement "
-            f"de {investment_capacity:.2f}€, le LMNP en régime réel peut être "
-            f"une excellente stratégie d'optimisation fiscale.\n\n"
-            f"**Avantages fiscaux :**\n"
-            f"- Amortissement du bien (3-4% par an)\n"
-            f"- Déduction des charges réelles (travaux, intérêts, assurances)\n"
-            f"- Imposition réduite voire nulle pendant la période d'amortissement\n"
-            f"- Impact limité sur le RFR (revenus fonciers réduits)\n\n"
-            f"**Estimation :** Pour un investissement de {investment_capacity:.2f}€ "
-            f"générant ~{estimated_rental:.2f}€/an de loyers, vous pourriez "
-            f"économiser environ {estimated_savings:.2f}€ d'impôt par an.\n\n"
-            f"**Stratégie patrimoniale :**\n"
-            f"- Constitution d'un patrimoine immobilier\n"
-            f"- Revenus complémentaires à la retraite\n"
-            f"- Transmission patrimoniale optimisée"
+            f"🏠 Investissement locatif LMNP\n\n"
+            f"📊 **Résumé**\n"
+            f"• Investissement : **{investment_capacity:.0f} €**\n"
+            f"• Économie d'impôt/an : **~{estimated_savings:.0f} €**\n"
+            f"• Loyers estimés : {estimated_rental:.0f} €/an\n"
+            f"• Votre TMI : {tmi * 100:.0f}%\n\n"
+            f"✅ **Avantages du régime réel**\n"
+            f"• Amortissement du bien (3-4% par an)\n"
+            f"• Charges déductibles (travaux, intérêts)\n"
+            f"• Imposition quasi-nulle pendant plusieurs années"
         )
 
         action_steps = [

@@ -93,17 +93,14 @@ class DeductionsStrategy:
             reduction_pct = tax_red_config["rate"] * 100
             plafond_pct = tax_red_config["plafond_rate"] * 100
             description = (
-                f"🎁 Dons aux associations - Réduction d'impôt 66%\n\n"
-                f"Les dons aux associations ouvrent droit à une réduction d'impôt "
-                f"de {reduction_pct:.0f}%, plafonné à {plafond_pct:.0f}% "
-                f"de votre revenu imposable.\n\n"
-                f"**Votre situation :**\n"
-                f"- Plafond disponible : {plafond:.2f}€\n"
-                f"- Dons déjà déclarés : {current_dons:.2f}€\n"
-                f"- Marge restante : {plafond - current_dons:.2f}€\n\n"
-                f"**Exemple :** Un don de {suggested_don:.2f}€ vous coûterait "
-                f"réellement {suggested_don - reduction:.2f}€ après réduction d'impôt "
-                f"({reduction:.2f}€ de réduction)."
+                f"🎁 Faites un don à une association\n\n"
+                f"📊 **Résumé**\n"
+                f"• Don suggéré : **{suggested_don:.0f} €**\n"
+                f"• Réduction d'impôt : **{reduction:.0f} €** ({reduction_pct:.0f}%)\n"
+                f"• Coût réel : {suggested_don - reduction:.0f} €\n"
+                f"• Plafond restant : {plafond - current_dons:.0f} €\n\n"
+                f"💡 Un don de {suggested_don:.0f} € ne vous coûte "
+                f"que {suggested_don - reduction:.0f} € !"
             )
 
             return Recommendation(
@@ -164,19 +161,17 @@ class DeductionsStrategy:
             credit_pct = services_rules["credit_rate"] * 100
 
             description = (
-                f"🏡 Services à la personne - Crédit d'impôt 50%\n\n"
-                f"Les services à la personne ouvrent droit à un crédit d'impôt "
-                f"de {credit_pct:.0f}%, plafonné à {plafond:.2f}€/an.\n\n"
-                f"**Services éligibles :**\n"
-            )
-
-            for service in services_rules["examples"]:
-                description += f"- {service}\n"
-
-            description += (
-                f"\n**Exemple :** Des dépenses de {suggested_expense:.2f}€ "
-                f"vous donneraient un crédit d'impôt de {credit:.2f}€.\n"
-                f"Coût réel : {suggested_expense - credit:.2f}€"
+                f"🏠 Services à la personne\n\n"
+                f"📊 **Résumé**\n"
+                f"• Dépenses suggérées : **{suggested_expense:.0f} €**\n"
+                f"• Crédit d'impôt : **{credit:.0f} €** ({credit_pct:.0f}%)\n"
+                f"• Coût réel : {suggested_expense - credit:.0f} €\n"
+                f"• Plafond annuel : {plafond:.0f} €\n\n"
+                f"✅ **Services éligibles**\n"
+                f"• Ménage, repassage\n"
+                f"• Jardinage, bricolage\n"
+                f"• Garde d'enfants\n"
+                f"• Aide aux personnes âgées"
             )
 
             return Recommendation(
@@ -228,21 +223,18 @@ class DeductionsStrategy:
         if current_frais < plafond_total * 0.5:
             suggested_expense = min(3000, (plafond_total - current_frais) * 0.6)
             credit = suggested_expense * garde_rules["credit_rate"]
-            age_limit = garde_rules["age_limit"]
             credit_pct = garde_rules["credit_rate"] * 100
             plafond_per_child = garde_rules["plafond_per_child"]
 
             description = (
-                f"👶 Frais de garde d'enfants - Crédit 50%\n\n"
-                f"Les frais de garde d'enfants de moins de {age_limit} ans "
-                f"ouvrent droit à un crédit d'impôt de {credit_pct:.0f}%, "
-                f"plafonné à {plafond_per_child}€ par enfant.\n\n"
-                f"**Votre situation :**\n"
-                f"- Nombre d'enfants < 6 ans : {children_under_6}\n"
-                f"- Plafond total : {plafond_total}€\n"
-                f"- Frais déclarés : {current_frais:.2f}€\n\n"
-                f"**Exemple :** {suggested_expense:.2f}€ de frais de garde "
-                f"= {credit:.2f}€ de crédit d'impôt."
+                f"👶 Frais de garde d'enfants\n\n"
+                f"📊 **Résumé**\n"
+                f"• Frais déclarables : **{suggested_expense:.0f} €**\n"
+                f"• Crédit d'impôt : **{credit:.0f} €** ({credit_pct:.0f}%)\n"
+                f"• Plafond : {plafond_per_child} € par enfant\n\n"
+                f"👨‍👩‍👧 **Votre situation**\n"
+                f"• {children_under_6} enfant(s) de moins de 6 ans\n"
+                f"• Plafond total : {plafond_total:.0f} €"
             )
 
             return Recommendation(

@@ -16,28 +16,91 @@ export default function OptimizationsPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [profileData, setProfileData] = useState({
-    status: "micro-entrepreneur",
-    chiffre_affaires: 0,
+    status: "micro_bnc",
+    chiffre_affaires: 50000,
     charges_deductibles: 0,
     nb_parts: 1,
-    activity_type: "services",
+    activity_type: "BNC",
   })
 
-  // Mock tax result for now - in production this would come from the simulator
+  const [contextData, setContextData] = useState({
+    investment_capacity: 50000,
+    risk_tolerance: "moderate",
+    stable_income: true,
+  })
+
+  // Calculate realistic tax values based on French tax brackets (2024)
+  // Abattement varies by status
+  const getAbattement = (status: string): number => {
+    switch (status) {
+      case "micro_bnc":
+        return 0.34 // 34% abattement
+      case "micro_bic_service":
+        return 0.50 // 50% abattement
+      case "micro_bic_vente":
+        return 0.71 // 71% abattement
+      case "reel_bnc":
+      case "reel_bic":
+        return 0 // No abattement, use actual charges
+      default:
+        return 0.34
+    }
+  }
+
+  const abattement = getAbattement(profileData.status)
+  const revenuImposable = profileData.status.startsWith("reel")
+    ? profileData.chiffre_affaires - profileData.charges_deductibles
+    : profileData.chiffre_affaires * (1 - abattement)
+  const partIncome = revenuImposable / profileData.nb_parts
+
+  // Simplified French tax calculation (2024 brackets)
+  const calculateImpot = (income: number): { impot: number; tmi: number } => {
+    const brackets = [
+      { limit: 11294, rate: 0 },
+      { limit: 28797, rate: 0.11 },
+      { limit: 82341, rate: 0.30 },
+      { limit: 177106, rate: 0.41 },
+      { limit: Infinity, rate: 0.45 },
+    ]
+    let impot = 0
+    let previousLimit = 0
+    let tmi = 0
+    for (const bracket of brackets) {
+      if (income > previousLimit) {
+        const taxableInBracket = Math.min(income, bracket.limit) - previousLimit
+        impot += taxableInBracket * bracket.rate
+        if (income > previousLimit) tmi = bracket.rate
+      }
+      previousLimit = bracket.limit
+    }
+    return { impot, tmi }
+  }
+
+  const taxCalc = calculateImpot(partIncome)
+  const impotBrut = taxCalc.impot * profileData.nb_parts
+
   const mockTaxResult = {
-    revenu_imposable: 0,
-    quotient_familial: 0,
+    tax_year: 2024,
     impot: {
-      impot_brut: 0,
-      impot_net: 0,
-      tmi: 0,
-      taux_effectif: 0,
+      revenu_imposable: revenuImposable,
+      part_income: partIncome,
+      impot_brut: impotBrut,
+      impot_net: impotBrut,
+      tmi: taxCalc.tmi,
+      tax_reductions: {},
+      per_deduction_applied: 0,
+      per_deduction_excess: 0,
+      per_plafond_detail: null,
+      tranches_detail: [],
+      pas_withheld: 0,
+      due_now: impotBrut,
     },
     socials: {
-      urssaf_expected: 0,
-      difference: 0,
+      urssaf_expected: profileData.chiffre_affaires * 0.218,
+      urssaf_paid: 0,
+      delta: 0,
+      rate_used: 0.218,
     },
-    charge_totale: 0,
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +112,7 @@ export default function OptimizationsPage() {
       const request: OptimizationRequest = {
         profile: profileData,
         tax_result: mockTaxResult,
+        context: contextData,
       }
       const response = await apiClient.runOptimization(request)
       setResult(response)
@@ -66,16 +130,15 @@ export default function OptimizationsPage() {
     }).format(value)
   }
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      "regime": "bg-blue-100 text-blue-700",
-      "deductions": "bg-green-100 text-green-700",
-      "timing": "bg-purple-100 text-purple-700",
-      "investment": "bg-orange-100 text-orange-700",
-      "structure": "bg-indigo-100 text-indigo-700",
-      "default": "bg-slate-100 text-slate-700",
+  const getCategoryInfo = (category: string): { label: string; color: string } => {
+    const categories: Record<string, { label: string; color: string }> = {
+      "regime": { label: "Régime fiscal", color: "bg-blue-100 text-blue-700" },
+      "deduction": { label: "Déduction", color: "bg-green-100 text-green-700" },
+      "investment": { label: "Investissement", color: "bg-orange-100 text-orange-700" },
+      "structure": { label: "Structure", color: "bg-indigo-100 text-indigo-700" },
+      "family": { label: "Famille", color: "bg-pink-100 text-pink-700" },
     }
-    return colors[category.toLowerCase()] || colors.default
+    return categories[category.toLowerCase()] || { label: category, color: "bg-slate-100 text-slate-700" }
   }
 
   const getRiskColor = (risk: string) => {
@@ -90,11 +153,31 @@ export default function OptimizationsPage() {
     return colors[risk.toLowerCase()] || "text-slate-600"
   }
 
-  const getComplexityIcon = (complexity: string) => {
+  const getComplexityInfo = (complexity: string): { stars: string; label: string; color: string } => {
     const level = complexity.toLowerCase()
-    if (level.includes("faible") || level.includes("low")) return "⭐"
-    if (level.includes("moyen") || level.includes("medium")) return "⭐⭐"
-    return "⭐⭐⭐"
+    if (level.includes("easy") || level.includes("facile") || level.includes("simple")) {
+      return { stars: "⭐", label: "Facile", color: "bg-green-100 text-green-700" }
+    }
+    if (level.includes("moderate") || level.includes("modéré") || level.includes("moyen")) {
+      return { stars: "⭐⭐", label: "Modéré", color: "bg-yellow-100 text-yellow-700" }
+    }
+    // complex, complexe, difficile
+    return { stars: "⭐⭐⭐", label: "Complexe", color: "bg-red-100 text-red-700" }
+  }
+
+  // Format description: handle newlines and basic markdown
+  const formatDescription = (text: string) => {
+    return text.split('\n').map((line, i) => {
+      // Convert **text** to bold
+      const formattedLine = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      return (
+        <span key={i} dangerouslySetInnerHTML={{ __html: formattedLine }} />
+      )
+    }).reduce((acc: React.ReactNode[], curr, i, arr) => {
+      acc.push(curr)
+      if (i < arr.length - 1) acc.push(<br key={`br-${i}`} />)
+      return acc
+    }, [])
   }
 
   return (
@@ -149,10 +232,11 @@ export default function OptimizationsPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="micro-entrepreneur">Micro-entrepreneur</SelectItem>
-                          <SelectItem value="indépendant">Indépendant (BNC/BIC réel)</SelectItem>
-                          <SelectItem value="salarié">Salarié</SelectItem>
-                          <SelectItem value="mixte">Mixte</SelectItem>
+                          <SelectItem value="micro_bnc">Micro-BNC (Professions libérales)</SelectItem>
+                          <SelectItem value="micro_bic_service">Micro-BIC Services</SelectItem>
+                          <SelectItem value="micro_bic_vente">Micro-BIC Ventes</SelectItem>
+                          <SelectItem value="reel_bnc">Réel BNC</SelectItem>
+                          <SelectItem value="reel_bic">Réel BIC</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -167,10 +251,8 @@ export default function OptimizationsPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="services">Prestations de services</SelectItem>
-                          <SelectItem value="commerce">Commerce</SelectItem>
-                          <SelectItem value="artisanat">Artisanat</SelectItem>
-                          <SelectItem value="profession_liberale">Profession libérale</SelectItem>
+                          <SelectItem value="BNC">BNC (Bénéfices Non Commerciaux)</SelectItem>
+                          <SelectItem value="BIC">BIC (Bénéfices Industriels et Commerciaux)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -215,6 +297,56 @@ export default function OptimizationsPage() {
                   </CardContent>
                 </Card>
 
+                {/* Investment Context Card */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Capacité d'investissement</CardTitle>
+                    <CardDescription>Pour débloquer LMNP, Girardin et autres stratégies avancées</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="investment_capacity">Capacité d'investissement (€)</Label>
+                      <Input
+                        id="investment_capacity"
+                        type="number"
+                        step="10000"
+                        min="0"
+                        value={contextData.investment_capacity}
+                        onChange={(e) => setContextData(prev => ({ ...prev, investment_capacity: parseFloat(e.target.value) || 0 }))}
+                        placeholder="50000"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="risk_tolerance">Tolérance au risque</Label>
+                      <Select
+                        value={contextData.risk_tolerance}
+                        onValueChange={(value) => setContextData(prev => ({ ...prev, risk_tolerance: value }))}
+                      >
+                        <SelectTrigger id="risk_tolerance">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="conservative">Faible (prudent)</SelectItem>
+                          <SelectItem value="moderate">Moyen (équilibré)</SelectItem>
+                          <SelectItem value="aggressive">Élevé (dynamique)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="stable_income"
+                        checked={contextData.stable_income}
+                        onChange={(e) => setContextData(prev => ({ ...prev, stable_income: e.target.checked }))}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <Label htmlFor="stable_income">Revenus stables (CDI, activité pérenne)</Label>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Button type="submit" size="lg" className="w-full" disabled={loading}>
                   <Sparkles className="mr-2 h-5 w-5" />
                   {loading ? "Analyse en cours..." : "Générer les optimisations"}
@@ -249,12 +381,21 @@ export default function OptimizationsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-4">
-                        <p className="text-slate-600 mb-2">Économies totales estimées</p>
-                        <p className="text-5xl font-bold text-violet-600">
-                          {formatCurrency(result.potential_savings_total)}
-                        </p>
-                        <p className="text-slate-500 mt-2">par an</p>
+                      <div className="flex justify-around py-4">
+                        <div className="text-center">
+                          <p className="text-slate-600 mb-2">Impôt actuel</p>
+                          <p className="text-3xl font-bold text-slate-700">
+                            {formatCurrency(impotBrut)}
+                          </p>
+                          <p className="text-slate-500 mt-1">avant optimisation</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-slate-600 mb-2">Économies possibles</p>
+                          <p className="text-5xl font-bold text-green-600">
+                            -{formatCurrency(result.potential_savings_total)}
+                          </p>
+                          <p className="text-slate-500 mt-1">par an</p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -272,12 +413,22 @@ export default function OptimizationsPage() {
                             <div className="flex-1">
                               <CardTitle className="text-xl mb-2">{rec.title}</CardTitle>
                               <div className="flex gap-2 flex-wrap">
-                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(rec.category)}`}>
-                                  {rec.category}
-                                </span>
-                                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
-                                  {getComplexityIcon(rec.complexity)} {rec.complexity}
-                                </span>
+                                {(() => {
+                                  const categoryInfo = getCategoryInfo(rec.category)
+                                  return (
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${categoryInfo.color}`}>
+                                      {categoryInfo.label}
+                                    </span>
+                                  )
+                                })()}
+                                {(() => {
+                                  const complexityInfo = getComplexityInfo(rec.complexity)
+                                  return (
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${complexityInfo.color}`}>
+                                      {complexityInfo.stars} {complexityInfo.label}
+                                    </span>
+                                  )
+                                })()}
                                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRiskColor(rec.risk)}`}>
                                   Risque: {rec.risk}
                                 </span>
@@ -288,11 +439,27 @@ export default function OptimizationsPage() {
                               <p className="text-2xl font-bold text-green-600">
                                 {formatCurrency(rec.impact_estimated)}
                               </p>
+                              {rec.required_investment && rec.required_investment > 0 && (
+                                <>
+                                  <div className="mt-2">
+                                    <p className="text-sm text-slate-600">Investissement</p>
+                                    <p className="text-lg font-bold text-orange-600">
+                                      {formatCurrency(rec.required_investment)}
+                                    </p>
+                                  </div>
+                                  <div className="mt-2">
+                                    <p className="text-sm text-slate-600">Rendement</p>
+                                    <p className="text-lg font-bold text-violet-600">
+                                      {((rec.impact_estimated / rec.required_investment) * 100).toFixed(0)}%
+                                    </p>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <p className="text-slate-700 leading-relaxed">{rec.description}</p>
+                          <div className="text-slate-700 leading-relaxed">{formatDescription(rec.description)}</div>
                         </CardContent>
                       </Card>
                     ))}

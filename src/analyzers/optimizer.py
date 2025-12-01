@@ -7,6 +7,7 @@ from src.analyzers.strategies.lmnp_strategy import LMNPStrategy
 from src.analyzers.strategies.per_strategy import PERStrategy
 from src.analyzers.strategies.regime_strategy import RegimeStrategy
 from src.analyzers.strategies.structure_strategy import StructureStrategy
+from src.config import settings
 from src.models.optimization import (
     OptimizationProfile,
     OptimizationResult,
@@ -57,6 +58,10 @@ class TaxOptimizer:
         """
         if context is None:
             context = {}
+
+        # Inject config settings into context
+        if "show_partner_suggestions" not in context:
+            context["show_partner_suggestions"] = settings.SHOW_PARTNER_SUGGESTIONS
 
         # Reset recommendations
         self.recommendations = []

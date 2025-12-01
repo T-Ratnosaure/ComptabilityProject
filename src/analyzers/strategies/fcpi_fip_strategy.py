@@ -98,21 +98,14 @@ class FCPIFIPStrategy:
         risk = risk_level_map.get(fcpi_rules["risk"], RiskLevel.MEDIUM)
 
         description = (
-            f"💼 FCPI (Fonds Communs de Placement dans l'Innovation)\n\n"
-            f"Les FCPI permettent de bénéficier d'une réduction d'impôt "
-            f"de {reduction_pct:.0f}% tout en soutenant l'innovation française.\n\n"
-            f"**Pour votre situation :**\n"
-            f"- Plafond disponible : {plafond:.2f}€\n"
-            f"- Investissement recommandé : {recommended_investment:.2f}€\n"
-            f"- Réduction d'impôt : {reduction:.2f}€\n"
-            f"- Coût réel après réduction : {effective_cost:.2f}€\n\n"
-            f"**Avantages :**\n"
-            f"- Réduction d'impôt immédiate de {reduction_pct:.0f}%\n"
-            f"- Soutien à l'innovation et aux PME françaises\n"
-            f"- Diversification de votre patrimoine\n"
-            f"- Potentiel de plus-value à long terme\n\n"
-            f"**Engagement :** Les fonds sont bloqués pendant "
-            f"{commitment_years} ans minimum."
+            f"💼 Investissement FCPI (Innovation)\n\n"
+            f"📊 **Résumé**\n"
+            f"• Investissement : **{recommended_investment:.0f} €**\n"
+            f"• Réduction d'impôt : **{reduction:.0f} €** ({reduction_pct:.0f}%)\n"
+            f"• Coût réel : {effective_cost:.0f} €\n"
+            f"• Plafond annuel : {plafond:.0f} €\n\n"
+            f"⏳ **Durée de blocage** : {commitment_years} ans\n\n"
+            f"🇫🇷 Soutenez l'innovation française avec un potentiel de plus-value"
         )
 
         min_invest = recommended_investment * 0.8
