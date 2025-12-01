@@ -31,21 +31,53 @@ export interface TaxCalculationRequest {
 }
 
 export interface TaxCalculationResponse {
-  revenu_imposable: number;
-  quotient_familial: number;
+  tax_year: number;
   impot: {
+    revenu_imposable: number;
+    part_income: number;
     impot_brut: number;
     impot_net: number;
     tmi: number;
-    taux_effectif: number;
+    tax_reductions: Record<string, number>;
+    per_deduction_applied: number;
+    per_deduction_excess: number;
+    per_plafond_detail: any;
+    tranches_detail: Array<{
+      rate: number;
+      income_in_bracket: number;
+      tax_in_bracket: number;
+    }>;
+    pas_withheld: number;
+    due_now: number;
   };
   socials: {
     urssaf_expected: number;
-    difference: number;
+    urssaf_paid: number;
+    delta: number;
+    rate_used: number;
   };
-  charge_totale: number;
-  pas_result?: any;
-  comparisons?: any;
+  comparisons?: {
+    micro_vs_reel?: {
+      regime_actuel: string;
+      regime_compare: string;
+      impot_actuel: number;
+      impot_compare: number;
+      charge_totale_actuelle: number;
+      charge_totale_comparee: number;
+      economie_potentielle: number;
+      pourcentage_economie: number;
+      recommendation: string;
+      justification: string;
+    };
+  };
+  warnings?: string[];
+  metadata?: any;
+}
+
+export interface OptimizationContext {
+  investment_capacity: number;
+  risk_tolerance: string;
+  stable_income: boolean;
 }
 
 export interface OptimizationRequest {
@@ -57,6 +89,7 @@ export interface OptimizationRequest {
     activity_type: string;
   };
   tax_result: TaxCalculationResponse;
+  context?: OptimizationContext;
 }
 
 export interface Recommendation {
@@ -66,6 +99,7 @@ export interface Recommendation {
   risk: string;
   complexity: string;
   category: string;
+  required_investment?: number;
 }
 
 export interface OptimizationResponse {

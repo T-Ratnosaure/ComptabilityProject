@@ -121,18 +121,14 @@ class PERStrategy:
         estimated_gain = recommended_amount * tmi
 
         description = (
-            f"🎯 Optimisation PER (Plan Épargne Retraite)\n\n"
-            f"Votre plafond PER pour cette année est de {plafond:.2f}€. "
-            f"Vous avez déjà versé {per_contributed:.2f}€, "
-            f"il vous reste donc {remaining_room:.2f}€ disponibles.\n\n"
-            f"**Recommandation optimale :** Verser {recommended_amount:.2f}€ "
-            f"({optimal_mode['target_rate'] * 100:.0f}% de votre plafond restant)\n"
-            f"**Économie d'impôt estimée :** {estimated_gain:.2f}€ "
-            f"(TMI {tmi * 100:.0f}%)\n\n"
-            f"Le PER permet de déduire les versements de votre revenu imposable, "
-            f"ce qui réduit votre impôt immédiatement. Les sommes sont bloquées "
-            f"jusqu'à la retraite (sauf exceptions : achat résidence principale, "
-            f"décès, invalidité, surendettement)."
+            f"💰 Versez {recommended_amount:.0f} € sur votre PER\n\n"
+            f"📊 **Résumé**\n"
+            f"• Économie d'impôt : **{estimated_gain:.0f} €**\n"
+            f"• Votre TMI : {tmi * 100:.0f}%\n"
+            f"• Plafond restant : {remaining_room:.0f} €\n"
+            f"• Déjà versé : {per_contributed:.0f} €\n\n"
+            f"⚠️ Épargne bloquée jusqu'à la retraite\n"
+            f"(sauf achat résidence principale, invalidité, décès)"
         )
 
         action_steps = [
@@ -180,16 +176,13 @@ class PERStrategy:
     ) -> Recommendation:
         """Create maximum PER recommendation (100% of remaining room)."""
         description = (
-            f"💰 Maximisation PER - Déduction fiscale maximale\n\n"
-            f"En utilisant l'intégralité de votre plafond PER restant "
-            f"({remaining_room:.2f}€), vous pourriez économiser "
-            f"{potential_gain:.2f}€ d'impôt cette année.\n\n"
-            f"Cette stratégie est particulièrement intéressante avec votre TMI "
-            f"de {tmi * 100:.0f}%, car chaque euro versé vous fait économiser "
-            f"{tmi:.2f}€ d'impôt.\n\n"
-            f"⚠️ Attention : assurez-vous de conserver suffisamment de liquidités "
-            f"pour vos besoins courants, car ces sommes seront bloquées jusqu'à "
-            f"la retraite."
+            f"🚀 Maximisez votre plafond PER\n\n"
+            f"📊 **Résumé**\n"
+            f"• Versement : **{remaining_room:.0f} €**\n"
+            f"• Économie d'impôt : **{potential_gain:.0f} €**\n"
+            f"• Votre TMI : {tmi * 100:.0f}%\n\n"
+            f"💡 Chaque euro versé = {tmi:.2f} € d'économie\n\n"
+            f"⚠️ Vérifiez vos liquidités avant ce versement"
         )
 
         return Recommendation(

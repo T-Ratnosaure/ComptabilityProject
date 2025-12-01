@@ -340,7 +340,7 @@ def test_lmnp_estimated_savings():
 
 
 def test_girardin_recommendation_with_profina():
-    """Test Girardin recommendation includes Profina."""
+    """Test Girardin recommendation includes Profina when partners enabled."""
     strategy = GirardinStrategy()
 
     tax_result = {"impot": {"impot_net": 5000}}
@@ -348,6 +348,7 @@ def test_girardin_recommendation_with_profina():
     context = {
         "risk_tolerance": "medium",
         "stable_income": True,
+        "show_partner_suggestions": True,
     }
 
     recs = strategy.analyze(tax_result, profile, context)

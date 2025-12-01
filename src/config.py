@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     LLM_MAX_TOKENS: int = 4096
     LLM_TIMEOUT: int = 60
 
+    # Optimization Settings
+    SHOW_PARTNER_SUGGESTIONS: bool = (
+        False  # Show partner recommendations (Profina, etc.)
+    )
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
