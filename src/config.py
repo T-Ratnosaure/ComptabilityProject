@@ -39,7 +39,7 @@ class Settings(BaseSettings):
 
     # LLM Configuration
     ANTHROPIC_API_KEY: str = ""
-    LLM_MODEL: str = "claude-3-haiku-20240307"  # Claude 3 Haiku (fast, cost-effective)
+    LLM_MODEL: str = "claude-3-5-sonnet-20241022"  # Claude 3.5 Sonnet (recommended)
     LLM_TEMPERATURE: float = 0.7
     LLM_MAX_TOKENS: int = 4096
     LLM_TIMEOUT: int = 60
