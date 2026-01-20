@@ -39,9 +39,8 @@ def calculate_per_plafond(
     # Calculate base plafond (10% of income)
     plafond = professional_income * base_rate
 
-    # Get min/max limits from baremes
-    # Note: min_plafond will be added to baremes_2024.json in future update
-    min_plafond = 4399  # Official value for 2024
+    # Get min/max limits from baremes (min_plafond now in config)
+    min_plafond = per_plafonds.get("min_plafond", 4399)
 
     # Max depends on status
     max_key = f"max_{status}"
