@@ -133,6 +133,24 @@ At the end of every significant work session, **ALWAYS** include a **Manual Test
 
 **Location**: Save in `audits/` directory with date-stamped filename (e.g., `audit-2026-01-20-feature-name.md`)
 
+### End-of-Work-Session Workflow (MANDATORY)
+
+At the end of every significant work session, **AUTOMATICALLY** execute the full delivery workflow without waiting for user prompts:
+
+1. **Run all tests** - Ensure nothing is broken (`uv run pytest`)
+2. **Update README.md** - Reflect new features, fixes, or changes
+3. **Write audit report** - Include manual testing guide in `audits/`
+4. **Commit all changes** - With descriptive conventional commit messages
+5. **Push to remote** - `git push`
+6. **Create PR** - With comprehensive summary and test plan
+7. **Verify CI/CD passes** - Check GitHub Actions status
+8. **Merge PR** - Squash merge and delete branch
+9. **Switch to master** - `git checkout master && git pull`
+
+**DO NOT** wait for the user to ask for any of these steps. This is the expected standard workflow completion.
+
+**Exception**: Only skip merge if CI/CD fails or user explicitly requests review first.
+
 ## Pull Requests
 
 - Create a detailed message of what changed. Focus on the high level description of
