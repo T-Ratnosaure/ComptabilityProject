@@ -136,32 +136,6 @@ The project is implemented in 6 phases:
 - `src/api/routes/optimization.py` - API endpoints including quick simulation
 - `docs/phase4.md` - Complete architecture documentation
 - `docs/LANDING_PAGE_FEATURE.md` - BONUS feature marketing strategy
-**Status:** Complete and merged
-**Goal:** Identify tax optimization opportunities
-
-**Completed:**
-- 7 optimization strategies with personalized recommendations
-- Regime optimization (micro vs réel) with threshold warnings
-- PER contribution calculator (optimal/max recommendations)
-- LMNP investment analysis for high TMI profiles (≥30%)
-- Girardin Industriel 110% reduction via Profina (recommended operator)
-- FCPI/FIP innovation investments (18% reduction)
-- Simple deductions: Dons (66%), Services à la personne (50%), Garde (50%)
-- Company structure recommendations (SASU/EURL/Holding)
-- Main TaxOptimizer orchestrator with priority ranking
-- Type-safe Pydantic models for recommendations
-- JSON-based rule system with official sources
-- Optimization API endpoints (POST /api/v1/optimization/run)
-- Executive summary generation with total savings
-- Comprehensive test suite (46 tests, 90-100% coverage)
-
-**Key Files:**
-- `src/analyzers/optimizer.py` - Main orchestration
-- `src/analyzers/strategies/` - 7 optimization strategies
-- `src/analyzers/rules/` - JSON rule files (PER, LMNP, Girardin, FCPI, general)
-- `src/models/optimization.py` - Pydantic models
-- `src/api/routes/optimization.py` - API endpoints
-- `docs/phase4.md` - Complete architecture documentation
 
 ### Phase 5: LLM Integration (Claude) - COMPLETE ✅
 

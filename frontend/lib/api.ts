@@ -5,6 +5,14 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
 
+// API Endpoints
+const ENDPOINTS = {
+  TAX_CALCULATE: '/api/v1/tax/calculate',
+  OPTIMIZATION_RUN: '/api/v1/optimization/run',
+  LLM_ANALYZE: '/api/v1/llm/analyze',
+  HEALTH: '/health',
+} as const;
+
 export interface TaxCalculationRequest {
   tax_year: number;
   person: {
@@ -192,7 +200,7 @@ export class APIClient {
   async calculateTax(
     data: TaxCalculationRequest
   ): Promise<TaxCalculationResponse> {
-    return this.request<TaxCalculationResponse>('/api/v1/tax/calculate', {
+    return this.request<TaxCalculationResponse>(ENDPOINTS.TAX_CALCULATE, {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -201,21 +209,21 @@ export class APIClient {
   async runOptimization(
     data: OptimizationRequest
   ): Promise<OptimizationResponse> {
-    return this.request<OptimizationResponse>('/api/v1/optimization/run', {
+    return this.request<OptimizationResponse>(ENDPOINTS.OPTIMIZATION_RUN, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async analyzeLLM(data: LLMAnalysisRequest): Promise<LLMAnalysisResponse> {
-    return this.request<LLMAnalysisResponse>('/api/v1/llm/analyze', {
+    return this.request<LLMAnalysisResponse>(ENDPOINTS.LLM_ANALYZE, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async healthCheck(): Promise<{ status: string; version: string }> {
-    return this.request('/health');
+    return this.request(ENDPOINTS.HEALTH);
   }
 }
 

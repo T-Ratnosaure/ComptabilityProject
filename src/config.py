@@ -66,7 +66,19 @@ class Settings(BaseSettings):
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: Any) -> list[str]:
-        """Parse CORS origins from string or list."""
+        """Parse CORS origins from environment variable.
+
+        Accepts either:
+        - A JSON array string: '["http://localhost:3000", "http://localhost:3001"]'
+        - A comma-separated string: 'http://localhost:3000,http://localhost:3001'
+        - A Python list (passthrough)
+
+        Args:
+            v: Raw value from environment or default
+
+        Returns:
+            List of allowed origin URLs
+        """
         if isinstance(v, str):
             # Handle JSON array string
             import json

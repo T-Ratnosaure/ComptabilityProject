@@ -5,6 +5,15 @@ from typing import Any
 from src.tax_engine.rules import TaxRules
 from src.tax_engine.tax_utils import calculate_tax_reduction
 
+# Constants for tax calculations
+# Default URSSAF rate for liberal professions (BNC) - 22%
+# Source: https://www.urssaf.fr/portail/home/independant/mes-cotisations.html
+DEFAULT_URSSAF_RATE = 0.22
+
+# Minimum savings threshold (€) to recommend regime change
+# Below this threshold, the difference is considered negligible
+REGIME_CHANGE_THRESHOLD_EUR = 100
+
 
 def compute_taxable_professional_income(
     regime: str,
@@ -435,7 +444,7 @@ def compute_socials(
     try:
         rate = rules.get_urssaf_rate(activity)
     except KeyError:
-        rate = 0.22  # Default fallback
+        rate = DEFAULT_URSSAF_RATE  # Default fallback
 
     # Calculate expected based on declared CA
     declared_ca = social_data.get("urssaf_declared_ca", 0.0)
@@ -532,14 +541,14 @@ def compare_micro_vs_reel(
     # Round amounts for display
     rounded_economie = round(economie_potentielle, -2)
 
-    if delta_total < -100:
+    if delta_total < -REGIME_CHANGE_THRESHOLD_EUR:
         recommendation = "Scénario : régime réel"
         justification = (
             f"Économie potentielle estimée à environ {rounded_economie:.0f}€ "
             f"({pourcentage_economie:.1f}%) si passage au régime réel. "
             f"Consultez un expert-comptable pour valider cette analyse."
         )
-    elif delta_total > 100:
+    elif delta_total > REGIME_CHANGE_THRESHOLD_EUR:
         recommendation = "Scénario : maintien micro"
         justification = (
             f"Économie potentielle estimée à environ {rounded_economie:.0f}€ "
