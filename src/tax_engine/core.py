@@ -176,13 +176,14 @@ def apply_per_deduction_with_limit(
     # Get PER plafond rules from baremes
     per_plafonds = rules.per_plafonds
     base_rate = per_plafonds.get("base_rate", 0.10)
+    min_plafond = per_plafonds.get("min_plafond", 4399)
     max_plafond = per_plafonds.get("max_salarie", 35194)
 
     # Calculate plafond: 10% of professional income
     plafond = professional_income * base_rate
 
-    # Apply min/max limits
-    plafond = max(4399, min(plafond, max_plafond))
+    # Apply min/max limits (min_plafond from config, not hardcoded)
+    plafond = max(min_plafond, min(plafond, max_plafond))
 
     # Determine deductible and excess
     if per_contribution <= plafond:

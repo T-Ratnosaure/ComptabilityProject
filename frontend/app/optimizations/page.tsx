@@ -98,7 +98,7 @@ export default function OptimizationsPage() {
     setShowOnboarding(false)
   }
 
-  // Calculate realistic tax values based on French tax brackets (2024)
+  // Calculate realistic tax values based on French tax brackets (2025)
   // Abattement varies by status
   const getAbattement = (status: string): number => {
     switch (status) {
@@ -116,7 +116,25 @@ export default function OptimizationsPage() {
     }
   }
 
+  // URSSAF rate varies by status (2025 rates)
+  const getUrssafRate = (status: string): number => {
+    switch (status) {
+      case "micro_bnc":
+        return 0.218 // 21.8% for liberal professions
+      case "micro_bic_service":
+      case "micro_bic_vente":
+        return 0.128 // 12.8% for commercial activities
+      case "reel_bnc":
+        return 0.218 // Same as micro for comparison
+      case "reel_bic":
+        return 0.128 // Same as micro for comparison
+      default:
+        return 0.218
+    }
+  }
+
   const abattement = getAbattement(profileData.status)
+  const urssafRate = getUrssafRate(profileData.status)
   const revenuImposable = profileData.status.startsWith("reel")
     ? profileData.chiffre_affaires - profileData.charges_deductibles
     : profileData.chiffre_affaires * (1 - abattement)
@@ -165,10 +183,10 @@ export default function OptimizationsPage() {
       due_now: impotBrut,
     },
     socials: {
-      urssaf_expected: profileData.chiffre_affaires * 0.218,
+      urssaf_expected: profileData.chiffre_affaires * urssafRate,
       urssaf_paid: 0,
       delta: 0,
-      rate_used: 0.218,
+      rate_used: urssafRate,
     },
   }
 

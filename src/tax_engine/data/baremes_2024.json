@@ -49,10 +49,12 @@
   },
   "per_plafonds": {
     "base_rate": 0.10,
+    "min_plafond": 4399,
     "max_tns": 83088,
     "max_salarie": 35194,
     "max_married_salarie": 70388,
-    "description": "Plafonds déduction PER (10% revenus pro, plafonds selon statut)"
+    "description": "Plafonds déduction PER (10% revenus pro, plafonds selon statut)",
+    "note": "min_plafond is the minimum deductible amount regardless of income"
   },
   "urssaf_rates": {
     "liberal_bnc": 0.218,
