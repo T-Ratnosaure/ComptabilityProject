@@ -8,6 +8,20 @@
       "min_tax_remaining": 500,
       "description": "Viser 35% de l'impôt net, garder minimum 500€"
     },
+    "plafonds": {
+      "plein_droit": {
+        "max_reduction": 40909,
+        "niche_fiscale_rate": 0.44,
+        "description": "Projets < 250 000€ - Réduction max 40 909€ (18 000€ net après rétrocession)"
+      },
+      "avec_agrement": {
+        "max_reduction": 52941,
+        "niche_fiscale_rate": 0.34,
+        "description": "Projets > 250 000€ avec agrément - Réduction max 52 941€"
+      },
+      "niche_fiscale_outre_mer": 18000,
+      "description": "Plafond niches fiscales Outre-Mer: 18 000€ (vs 10 000€ standard)"
+    },
     "types": {
       "industriel": {
         "reduction_rate": 1.10,

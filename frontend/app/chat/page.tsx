@@ -5,8 +5,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { apiClient, LLMAnalysisRequest, LLMAnalysisResponse } from "@/lib/api"
-import { ArrowLeft, Send, Sparkles, User, Bot } from "lucide-react"
+import { apiClient, LLMAnalysisRequest, LLMAnalysisResponse, TaxCalculationRequest, TaxCalculationResponse } from "@/lib/api"
+import { ArrowLeft, Send, Sparkles, User, Bot, AlertCircle } from "lucide-react"
 
 interface Message {
   id: string
@@ -28,60 +28,54 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false)
   const [conversationId, setConversationId] = useState<string | undefined>(undefined)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [profileData, setProfileData] = useState<TaxCalculationRequest | null>(null)
+  const [taxResult, setTaxResult] = useState<TaxCalculationResponse | null>(null)
+  const [hasSimulatorData, setHasSimulatorData] = useState(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
+  // Charger les données du simulateur depuis sessionStorage
+  useEffect(() => {
+    const storedProfile = sessionStorage.getItem("fiscalOptim_profileData")
+    const storedResult = sessionStorage.getItem("fiscalOptim_taxResult")
+
+    if (storedProfile && storedResult) {
+      try {
+        setProfileData(JSON.parse(storedProfile))
+        setTaxResult(JSON.parse(storedResult))
+        setHasSimulatorData(true)
+      } catch {
+        console.error("Erreur lors du chargement des données du simulateur")
+      }
+    }
+  }, [])
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
-  // Mock profile and tax data - in production this would come from context/state
-  const mockProfileData = {
-    tax_year: 2024,
-    person: {
-      name: "Utilisateur",
-      nb_parts: 1,
-      status: "micro-entrepreneur",
-    },
-    income: {
-      professional_gross: 50000,
-      salary: 0,
-      rental_income: 0,
-      capital_income: 0,
-      deductible_expenses: 5000,
-    },
-    deductions: {
-      per_contributions: 0,
-      alimony: 0,
-      other_deductions: 0,
-    },
-    social: {
-      urssaf_declared_ca: 50000,
-      urssaf_paid: 7000,
-    },
-    pas_withheld: 0,
-  }
-
-  const mockTaxResult = {
-    revenu_imposable: 28500,
-    quotient_familial: 28500,
-    impot: {
-      impot_brut: 3200,
-      impot_net: 3200,
-      tmi: 11,
-      taux_effectif: 11.2,
-    },
-    socials: {
-      urssaf_expected: 7150,
-      difference: -150,
-    },
-    charge_totale: 10350,
-  }
-
   const handleSend = async () => {
     if (!input.trim() || loading) return
+
+    // Vérifier si on a des données du simulateur
+    if (!hasSimulatorData || !profileData || !taxResult) {
+      const errorMessage: Message = {
+        id: Date.now().toString() + "_no_data",
+        role: "assistant",
+        content: "Pour vous donner des conseils personnalisés, veuillez d'abord effectuer une simulation dans l'onglet Simulateur. Vos données seront alors utilisées pour personnaliser mes réponses.",
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: "user",
+        content: input,
+        timestamp: new Date()
+      }, errorMessage])
+      setInput("")
+      return
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -99,8 +93,8 @@ export default function ChatPage() {
         user_id: "demo_user",
         conversation_id: conversationId,
         user_question: input,
-        profile_data: mockProfileData,
-        tax_result: mockTaxResult,
+        profile_data: profileData,
+        tax_result: taxResult,
         include_few_shot: true,
         include_context: true,
       }
@@ -279,18 +273,41 @@ export default function ChatPage() {
           </CardContent>
         </Card>
 
-        {/* Info Card */}
-        <Card className="mt-4 border-blue-200 bg-blue-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-blue-900">💡 Conseil</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-xs text-blue-700">
-              Pour des conseils plus précis, assurez-vous d'avoir calculé vos impôts dans le simulateur.
-              L'IA utilisera ces données pour personnaliser ses recommandations.
-            </p>
-          </CardContent>
-        </Card>
+        {/* Status Card */}
+        {hasSimulatorData ? (
+          <Card className="mt-4 border-green-200 bg-green-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-green-900 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                Données chargées
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-xs text-green-700">
+                Vos données de simulation sont chargées. L'assistant utilisera votre situation réelle
+                (CA: {profileData?.income?.professional_gross?.toLocaleString("fr-FR")}€,
+                Statut: {profileData?.person?.status}) pour personnaliser ses conseils.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="mt-4 border-amber-200 bg-amber-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm text-amber-900 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                Aucune donnée de simulation
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-xs text-amber-700">
+                Pour des conseils personnalisés, effectuez d'abord une simulation dans l'onglet{" "}
+                <Link href="/simulator" className="underline font-medium">
+                  Simulateur
+                </Link>.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

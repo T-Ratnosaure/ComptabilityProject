@@ -71,5 +71,118 @@
     "description": "Parts fiscales par situation familiale",
     "plafond_avantage_par_demi_part": 1791,
     "plafond_note": "Plafonnement de l'avantage fiscal par demi-part (enfants notamment)"
+  },
+  "tax_reductions": {
+    "dons": {
+      "rate": 0.66,
+      "plafond_rate": 0.20,
+      "description": "Dons aux associations: 66% de réduction, plafonné à 20% du revenu imposable",
+      "sources": [
+        "https://www.service-public.fr/particuliers/vosdroits/F426"
+      ]
+    },
+    "services_personne": {
+      "rate": 0.50,
+      "plafond": 12000,
+      "plafond_first_year": 15000,
+      "description": "Services à la personne: 50% de crédit d'impôt, plafond 12 000€ (15 000€ 1ère année)",
+      "examples": [
+        "Ménage",
+        "Garde d'enfants à domicile",
+        "Jardinage",
+        "Petits travaux de bricolage",
+        "Soutien scolaire à domicile",
+        "Assistance aux personnes âgées ou handicapées"
+      ],
+      "sources": [
+        "https://www.service-public.fr/particuliers/vosdroits/F12"
+      ]
+    },
+    "frais_garde": {
+      "rate": 0.50,
+      "plafond_per_child": 3500,
+      "age_limit": 6,
+      "description": "Frais de garde d'enfants: 50% de crédit d'impôt, 3 500€ par enfant de moins de 6 ans",
+      "sources": [
+        "https://www.service-public.fr/particuliers/vosdroits/F8"
+      ]
+    }
+  },
+  "cehr": {
+    "description": "Contribution Exceptionnelle sur les Hauts Revenus",
+    "celibataire": [
+      {
+        "rate": 0.03,
+        "lower_bound": 250000,
+        "upper_bound": 500000,
+        "description": "3% sur la tranche 250 000€ - 500 000€"
+      },
+      {
+        "rate": 0.04,
+        "lower_bound": 500000,
+        "upper_bound": null,
+        "description": "4% au-delà de 500 000€"
+      }
+    ],
+    "couple": [
+      {
+        "rate": 0.03,
+        "lower_bound": 500000,
+        "upper_bound": 1000000,
+        "description": "3% sur la tranche 500 000€ - 1 000 000€"
+      },
+      {
+        "rate": 0.04,
+        "lower_bound": 1000000,
+        "upper_bound": null,
+        "description": "4% au-delà de 1 000 000€"
+      }
+    ],
+    "sources": [
+      "https://www.impots.gouv.fr/particulier/contribution-exceptionnelle-sur-les-hauts-revenus",
+      "https://bofip.impots.gouv.fr/bofip/7804-PGP.html/identifiant=BOI-IR-CHR-20170711"
+    ]
+  },
+  "cdhr": {
+    "description": "Contribution Différentielle sur les Hauts Revenus (NOUVEAU 2025)",
+    "note": "Assure un taux effectif minimum de 20% pour les hauts revenus. Cumulative avec CEHR.",
+    "seuil_celibataire": 250000,
+    "seuil_couple": 500000,
+    "taux_cible": 0.20,
+    "calcul": "CDHR = max(0, 20% × RFR - IR - CEHR)",
+    "sources": [
+      "https://www.impots.gouv.fr/actualite/contribution-differentielle-sur-les-hauts-revenus-cdhr",
+      "Loi de Finances 2025"
+    ],
+    "avertissement": "Première application sur revenus 2025 (déclaration 2026). Vérifier les modalités définitives."
+  },
+  "lmnp": {
+    "description": "LMNP (Location Meublée Non Professionnelle) - Optimisation fiscale locative",
+    "regimes": {
+      "micro_bic": {
+        "threshold": 77700,
+        "abattement": 0.50,
+        "description": "Micro-BIC: abattement forfaitaire de 50%"
+      },
+      "reel": {
+        "avg_amortissement_rate": 0.035,
+        "avg_charges_rate": 0.70,
+        "avg_total_deduction_rate": 0.85,
+        "description": "Régime réel: déduction charges + amortissement (~85% total)"
+      }
+    },
+    "market_estimates": {
+      "typical_yield": 0.04,
+      "description": "Rendement locatif moyen estimé (4%) - varie selon localisation et bien"
+    },
+    "eligibility": {
+      "min_tmi": 0.30,
+      "min_investment_capacity": 50000,
+      "description": "TMI minimale 30%, investissement min 50k€"
+    },
+    "sources": [
+      "https://www.service-public.fr/particuliers/vosdroits/F32744",
+      "https://bofip.impots.gouv.fr/bofip/5773-PGP.html"
+    ]
   }
 }

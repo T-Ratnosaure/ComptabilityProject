@@ -107,6 +107,41 @@
       ]
     }
   },
+  "cehr": {
+    "description": "Contribution Exceptionnelle sur les Hauts Revenus",
+    "celibataire": [
+      {
+        "rate": 0.03,
+        "lower_bound": 250000,
+        "upper_bound": 500000,
+        "description": "3% sur la tranche 250 000€ - 500 000€"
+      },
+      {
+        "rate": 0.04,
+        "lower_bound": 500000,
+        "upper_bound": null,
+        "description": "4% au-delà de 500 000€"
+      }
+    ],
+    "couple": [
+      {
+        "rate": 0.03,
+        "lower_bound": 500000,
+        "upper_bound": 1000000,
+        "description": "3% sur la tranche 500 000€ - 1 000 000€"
+      },
+      {
+        "rate": 0.04,
+        "lower_bound": 1000000,
+        "upper_bound": null,
+        "description": "4% au-delà de 1 000 000€"
+      }
+    ],
+    "sources": [
+      "https://www.impots.gouv.fr/particulier/contribution-exceptionnelle-sur-les-hauts-revenus",
+      "https://bofip.impots.gouv.fr/bofip/7773-PGP.html"
+    ]
+  },
   "lmnp": {
     "description": "LMNP (Location Meublée Non Professionnelle) - Optimisation fiscale locative",
     "regimes": {

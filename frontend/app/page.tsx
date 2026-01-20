@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Info } from "lucide-react"
 
 export default function Home() {
   return (
@@ -25,17 +26,20 @@ export default function Home() {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 bg-clip-text text-transparent">
-          Optimisez vos impôts<br />de freelance en 2 minutes
+          Estimez vos impôts<br />de freelance en 2 minutes
         </h2>
         <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-          Calculez instantanément votre impôt, cotisations sociales et découvrez
-          des optimisations fiscales personnalisées avec l'IA.
+          Calculez une estimation de votre impôt, cotisations sociales et découvrez
+          des pistes d'optimisation fiscale à explorer avec votre expert-comptable.
         </p>
         <Link href="/simulator">
           <Button size="lg" className="text-lg px-8 py-6 h-auto">
-            Calculer mes impôts gratuitement →
+            Estimer mes impôts →
           </Button>
         </Link>
+        <p className="text-sm text-slate-500 mt-4">
+          Outil informatif uniquement - Ne remplace pas un conseil professionnel
+        </p>
       </section>
 
       {/* Features */}
@@ -106,9 +110,29 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center text-slate-600">
-          <p>© 2024 FiscalOptim - Optimisation fiscale pour freelances français</p>
+      <footer className="border-t py-8 bg-slate-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center text-slate-600 mb-4">
+            <p>© 2025 FiscalOptim - Estimation fiscale pour freelances français</p>
+          </div>
+          <div className="text-xs text-slate-500 max-w-3xl mx-auto text-center">
+            <div className="flex items-center justify-center gap-1 mb-2">
+              <Info className="h-3 w-3" />
+              <span className="font-semibold">Avertissement légal</span>
+            </div>
+            <p className="mb-2">
+              Cet outil fournit des <strong>estimations informatives</strong> uniquement.
+              Il ne remplace pas les services d'un expert-comptable, avocat fiscaliste ou
+              conseiller en gestion de patrimoine agréé.
+            </p>
+            <p className="mb-2">
+              Les calculs sont basés sur les barèmes fiscaux publics 2025 et peuvent ne pas
+              refléter votre situation personnelle complète.
+            </p>
+            <p className="text-slate-400">
+              Ce service n'est pas enregistré auprès de l'ORIAS, l'AMF, ou l'Ordre des Experts-Comptables.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

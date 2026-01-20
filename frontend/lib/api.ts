@@ -10,6 +10,7 @@ export interface TaxCalculationRequest {
     name: string;
     nb_parts: number;
     status: string;
+    situation_familiale?: 'celibataire' | 'couple';
   };
   income: {
     professional_gross: number;
@@ -34,14 +35,35 @@ export interface TaxCalculationResponse {
   tax_year: number;
   impot: {
     revenu_imposable: number;
+    rfr?: number;
     part_income: number;
     impot_brut: number;
     impot_net: number;
+    impot_ir_seul?: number;
     tmi: number;
     tax_reductions: Record<string, number>;
     per_deduction_applied: number;
     per_deduction_excess: number;
-    per_plafond_detail: any;
+    per_plafond_detail: {
+      plafond: number;
+      available: number;
+      used: number;
+      excess: number;
+    } | null;
+    cehr?: number;
+    cehr_detail?: Array<{
+      rate: number;
+      income_in_bracket: number;
+      cehr_in_bracket: number;
+    }>;
+    cdhr?: number;
+    cdhr_detail?: {
+      applicable: boolean;
+      rfr?: number;
+      taux_effectif_avant?: number;
+      taux_cible?: number;
+      cdhr?: number;
+    };
     tranches_detail: Array<{
       rate: number;
       income_in_bracket: number;

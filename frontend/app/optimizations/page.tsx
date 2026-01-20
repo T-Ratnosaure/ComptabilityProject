@@ -1,19 +1,35 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { apiClient, OptimizationRequest, OptimizationResponse, Recommendation } from "@/lib/api"
-import { ArrowLeft, MessageSquare, TrendingUp, AlertCircle, Sparkles } from "lucide-react"
+import { apiClient, OptimizationRequest, OptimizationResponse, TaxCalculationRequest, TaxCalculationResponse } from "@/lib/api"
+import { ArrowLeft, TrendingUp, AlertCircle, Sparkles, Lightbulb, CheckCircle } from "lucide-react"
+import { Onboarding, PROFESSION_PROFILES } from "@/components/onboarding"
+import { ChatPanel } from "@/components/chat-panel"
+
+interface OnboardingData {
+  profession: string
+  ca: number
+  accompagnement: string
+  defaults: typeof PROFESSION_PROFILES.dev_consultant.defaults
+  tips: string[]
+}
 
 export default function OptimizationsPage() {
+  const [showOnboarding, setShowOnboarding] = useState(true)
+  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<OptimizationResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [simulatorData, setSimulatorData] = useState<TaxCalculationRequest | null>(null)
+  const [simulatorResult, setSimulatorResult] = useState<TaxCalculationResponse | null>(null)
+  const [hasSimulatorData, setHasSimulatorData] = useState(false)
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   const [profileData, setProfileData] = useState({
     status: "micro_bnc",
@@ -28,6 +44,59 @@ export default function OptimizationsPage() {
     risk_tolerance: "moderate",
     stable_income: true,
   })
+
+  // Charger les données du simulateur depuis sessionStorage
+  useEffect(() => {
+    const storedProfile = sessionStorage.getItem("fiscalOptim_profileData")
+    const storedResult = sessionStorage.getItem("fiscalOptim_taxResult")
+
+    if (storedProfile && storedResult) {
+      try {
+        const profile: TaxCalculationRequest = JSON.parse(storedProfile)
+        const result: TaxCalculationResponse = JSON.parse(storedResult)
+
+        setSimulatorData(profile)
+        setSimulatorResult(result)
+        setHasSimulatorData(true)
+
+        // Pré-remplir les données du profil avec celles du simulateur
+        setProfileData({
+          status: profile.person.status,
+          chiffre_affaires: profile.income.professional_gross,
+          charges_deductibles: profile.income.deductible_expenses,
+          nb_parts: profile.person.nb_parts,
+          activity_type: profile.person.status.includes("bnc") ? "BNC" : "BIC",
+        })
+
+        // Skip onboarding si on a des données du simulateur
+        setShowOnboarding(false)
+      } catch {
+        console.error("Erreur lors du chargement des données du simulateur")
+      }
+    }
+  }, [])
+
+  const handleOnboardingComplete = (data: OnboardingData) => {
+    setOnboardingData(data)
+    // Apply defaults from profile
+    setProfileData({
+      status: data.defaults.status,
+      chiffre_affaires: data.ca,
+      charges_deductibles: 0,
+      nb_parts: 1,
+      activity_type: data.defaults.activity_type,
+    })
+    setContextData({
+      investment_capacity: data.defaults.investment_capacity,
+      risk_tolerance: data.defaults.risk_tolerance,
+      stable_income: data.defaults.stable_income,
+    })
+    setShowOnboarding(false)
+  }
+
+  const handleSkipOnboarding = () => {
+    setShowOnboarding(false)
+  }
 
   // Calculate realistic tax values based on French tax brackets (2024)
   // Abattement varies by status
@@ -53,13 +122,13 @@ export default function OptimizationsPage() {
     : profileData.chiffre_affaires * (1 - abattement)
   const partIncome = revenuImposable / profileData.nb_parts
 
-  // Simplified French tax calculation (2024 brackets)
+  // Simplified French tax calculation (2025 brackets)
   const calculateImpot = (income: number): { impot: number; tmi: number } => {
     const brackets = [
-      { limit: 11294, rate: 0 },
-      { limit: 28797, rate: 0.11 },
-      { limit: 82341, rate: 0.30 },
-      { limit: 177106, rate: 0.41 },
+      { limit: 11497, rate: 0 },
+      { limit: 29315, rate: 0.11 },
+      { limit: 83884, rate: 0.30 },
+      { limit: 180271, rate: 0.41 },
       { limit: Infinity, rate: 0.45 },
     ]
     let impot = 0
@@ -80,7 +149,7 @@ export default function OptimizationsPage() {
   const impotBrut = taxCalc.impot * profileData.nb_parts
 
   const mockTaxResult = {
-    tax_year: 2024,
+    tax_year: 2025,
     impot: {
       revenu_imposable: revenuImposable,
       part_income: partIncome,
@@ -109,9 +178,12 @@ export default function OptimizationsPage() {
     setError(null)
 
     try {
+      // Utiliser les vraies données du simulateur si disponibles
+      const taxResult = hasSimulatorData && simulatorResult ? simulatorResult : mockTaxResult
+
       const request: OptimizationRequest = {
         profile: profileData,
-        tax_result: mockTaxResult,
+        tax_result: taxResult,
         context: contextData,
       }
       const response = await apiClient.runOptimization(request)
@@ -165,20 +237,55 @@ export default function OptimizationsPage() {
     return { stars: "⭐⭐⭐", label: "Complexe", color: "bg-red-100 text-red-700" }
   }
 
-  // Format description: handle newlines and basic markdown
+  // Format description: handle newlines and basic markdown (safe - no dangerouslySetInnerHTML)
   const formatDescription = (text: string) => {
-    return text.split('\n').map((line, i) => {
-      // Convert **text** to bold
-      const formattedLine = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      return (
-        <span key={i} dangerouslySetInnerHTML={{ __html: formattedLine }} />
-      )
+    return text.split('\n').map((line, lineIndex) => {
+      // Parse **text** into bold spans safely using React components
+      const parts: React.ReactNode[] = []
+      const regex = /\*\*([^*]+)\*\*/g
+      let lastIndex = 0
+      let match
+      let partIndex = 0
+
+      while ((match = regex.exec(line)) !== null) {
+        // Add text before the bold
+        if (match.index > lastIndex) {
+          parts.push(<span key={`${lineIndex}-${partIndex++}`}>{line.slice(lastIndex, match.index)}</span>)
+        }
+        // Add bold text
+        parts.push(<strong key={`${lineIndex}-${partIndex++}`}>{match[1]}</strong>)
+        lastIndex = match.index + match[0].length
+      }
+      // Add remaining text
+      if (lastIndex < line.length) {
+        parts.push(<span key={`${lineIndex}-${partIndex++}`}>{line.slice(lastIndex)}</span>)
+      }
+      // If no parts, add the whole line
+      if (parts.length === 0) {
+        parts.push(<span key={`${lineIndex}-0`}>{line}</span>)
+      }
+
+      return <span key={`line-${lineIndex}`}>{parts}</span>
     }).reduce((acc: React.ReactNode[], curr, i, arr) => {
       acc.push(curr)
       if (i < arr.length - 1) acc.push(<br key={`br-${i}`} />)
       return acc
     }, [])
   }
+
+  // Show onboarding if not completed
+  if (showOnboarding) {
+    return (
+      <Onboarding
+        onComplete={handleOnboardingComplete}
+        onSkip={handleSkipOnboarding}
+      />
+    )
+  }
+
+  const professionLabel = onboardingData
+    ? PROFESSION_PROFILES[onboardingData.profession as keyof typeof PROFESSION_PROFILES]?.label
+    : null
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white">
@@ -190,14 +297,9 @@ export default function OptimizationsPage() {
             Retour au simulateur
           </Link>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-            🇫🇷 FiscalOptim
+            FiscalOptim
           </h1>
-          <Link href="/chat">
-            <Button variant="outline" size="sm">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Chat IA
-            </Button>
-          </Link>
+          <div className="w-20" />
         </div>
       </header>
 
@@ -207,10 +309,52 @@ export default function OptimizationsPage() {
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
               Optimisations fiscales
             </h2>
-            <p className="text-slate-600 text-lg">
-              Découvrez des stratégies personnalisées pour réduire vos impôts
-            </p>
+            {professionLabel && (
+              <p className="text-slate-600 text-lg">
+                Stratégies personnalisées pour <span className="font-semibold">{professionLabel}</span>
+              </p>
+            )}
           </div>
+
+          {/* Indicateur des données du simulateur */}
+          {hasSimulatorData && simulatorResult && (
+            <Card className="mb-4 border-green-200 bg-green-50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2 text-green-800">
+                  <CheckCircle className="h-5 w-5" />
+                  Données du simulateur chargées
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-green-700 text-sm">
+                  Vos données de simulation sont utilisées : CA {profileData.chiffre_affaires.toLocaleString("fr-FR")}€,
+                  Statut {profileData.status}, Impôt calculé {formatCurrency(simulatorResult.impot.impot_net)}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Tips from onboarding */}
+          {onboardingData && onboardingData.tips.length > 0 && (
+            <Card className="mb-8 border-amber-200 bg-amber-50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2 text-amber-800">
+                  <Lightbulb className="h-5 w-5" />
+                  Conseils pour votre profil
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-1">
+                  {onboardingData.tips.map((tip, i) => (
+                    <li key={i} className="text-amber-900 text-sm flex items-start gap-2">
+                      <span className="text-amber-600">•</span>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Form Column */}
@@ -219,7 +363,11 @@ export default function OptimizationsPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Votre profil</CardTitle>
-                    <CardDescription>Informations pour personnaliser les recommandations</CardDescription>
+                    <CardDescription>
+                      {onboardingData
+                        ? "Valeurs pré-remplies selon votre profil"
+                        : "Informations pour personnaliser les recommandations"}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
@@ -265,7 +413,7 @@ export default function OptimizationsPage() {
                         step="1000"
                         min="0"
                         value={profileData.chiffre_affaires}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, chiffre_affaires: parseFloat(e.target.value) }))}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, chiffre_affaires: parseFloat(e.target.value) || 0 }))}
                         placeholder="50000"
                       />
                     </div>
@@ -278,7 +426,7 @@ export default function OptimizationsPage() {
                         step="100"
                         min="0"
                         value={profileData.charges_deductibles}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, charges_deductibles: parseFloat(e.target.value) }))}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, charges_deductibles: parseFloat(e.target.value) || 0 }))}
                         placeholder="5000"
                       />
                     </div>
@@ -291,7 +439,7 @@ export default function OptimizationsPage() {
                         step="0.5"
                         min="1"
                         value={profileData.nb_parts}
-                        onChange={(e) => setProfileData(prev => ({ ...prev, nb_parts: parseFloat(e.target.value) }))}
+                        onChange={(e) => setProfileData(prev => ({ ...prev, nb_parts: parseFloat(e.target.value) || 1 }))}
                       />
                     </div>
                   </CardContent>
@@ -301,7 +449,7 @@ export default function OptimizationsPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Capacité d'investissement</CardTitle>
-                    <CardDescription>Pour débloquer LMNP, Girardin et autres stratégies avancées</CardDescription>
+                    <CardDescription>Pour débloquer les stratégies avancées</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
@@ -342,7 +490,7 @@ export default function OptimizationsPage() {
                         onChange={(e) => setContextData(prev => ({ ...prev, stable_income: e.target.checked }))}
                         className="h-4 w-4 rounded border-gray-300"
                       />
-                      <Label htmlFor="stable_income">Revenus stables (CDI, activité pérenne)</Label>
+                      <Label htmlFor="stable_income">Revenus stables (activité pérenne)</Label>
                     </div>
                   </CardContent>
                 </Card>
@@ -351,6 +499,18 @@ export default function OptimizationsPage() {
                   <Sparkles className="mr-2 h-5 w-5" />
                   {loading ? "Analyse en cours..." : "Générer les optimisations"}
                 </Button>
+
+                {onboardingData && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => setShowOnboarding(true)}
+                  >
+                    Modifier mon profil métier
+                  </Button>
+                )}
               </form>
             </div>
 
@@ -474,12 +634,15 @@ export default function OptimizationsPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <Link href="/chat">
-                        <Button size="lg" variant="secondary" className="w-full">
-                          <MessageSquare className="mr-2 h-5 w-5" />
-                          Discuter avec l'IA fiscale
-                        </Button>
-                      </Link>
+                      <Button
+                        size="lg"
+                        variant="secondary"
+                        className="w-full"
+                        onClick={() => setIsChatOpen(true)}
+                      >
+                        <Sparkles className="mr-2 h-5 w-5" />
+                        Discuter avec l'IA fiscale
+                      </Button>
                     </CardContent>
                   </Card>
                 </div>
@@ -488,7 +651,7 @@ export default function OptimizationsPage() {
                   <CardHeader>
                     <CardTitle>Recommandations</CardTitle>
                     <CardDescription>
-                      Remplissez le formulaire pour générer vos optimisations personnalisées
+                      Cliquez sur "Générer les optimisations" pour voir vos recommandations
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="py-16 text-center text-slate-400">
@@ -501,6 +664,15 @@ export default function OptimizationsPage() {
           </div>
         </div>
       </div>
+
+      {/* Chat Panel intégré */}
+      <ChatPanel
+        profileData={simulatorData}
+        taxResult={hasSimulatorData ? simulatorResult : mockTaxResult}
+        optimizationResult={result}
+        isOpen={isChatOpen}
+        onToggle={() => setIsChatOpen(!isChatOpen)}
+      />
     </div>
   )
 }

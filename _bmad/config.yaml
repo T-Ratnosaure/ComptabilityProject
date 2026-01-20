@@ -1,0 +1,411 @@
+# BMAD + AGENTIC Framework Configuration — ComptabilityProject
+# Version: 1.1
+# Created: 2026-01-20
+# Updated: 2026-01-20
+# Aligned with: Global WORKFLOW_RULES.md v2.0
+
+# ====================
+# PROJECT INFO
+# ====================
+
+project:
+  name: ComptabilityProject
+  type: French Tax Optimization System
+  domains:
+    - tax_calculation
+    - document_extraction
+    - optimization_analysis
+    - llm_integration
+
+# ====================
+# WORKFLOW TRIGGERS
+# ====================
+
+triggers:
+  # --- Global Triggers (from WORKFLOW_RULES.md) ---
+
+  new_feature:
+    condition: "Any new capability"
+    workflow: FULL_PLANNING
+    threshold: 1
+    agents: [yoni-orchestrator, alexios-ml-predictor, it-core-clovis, quality-control-enforcer, lamine-deployment-expert, wealon-regulatory-auditor]
+
+  domain_crossing:
+    condition: ">= 2 domains touched"
+    workflow: INTEGRATION
+    threshold: 2
+    agents: [yoni-orchestrator, it-core-clovis, quality-control-enforcer, wealon-regulatory-auditor]
+
+  file_impact:
+    condition: ">= 2 files changed"
+    workflow: FULL_PLANNING
+    threshold: 2
+    agents: [yoni-orchestrator, it-core-clovis, quality-control-enforcer, wealon-regulatory-auditor]
+
+  infrastructure:
+    condition: "CI/CD or config changes"
+    workflow: ADR
+    threshold: 1
+    agents: [yoni-orchestrator, lamine-deployment-expert, it-core-clovis, wealon-regulatory-auditor]
+
+  algorithm_unclear:
+    condition: "Uncertainty > 0.5 on algorithm choice"
+    workflow: RESEARCH
+    threshold: 0.5
+    agents: [yoni-orchestrator, alexios-ml-predictor, pierre-jean-ml-advisor, wealon-regulatory-auditor]
+
+  performance_risk:
+    condition: "Performance-critical code"
+    workflow: OPTIMIZATION
+    threshold: 1
+    agents: [yoni-orchestrator, alexios-ml-predictor, it-core-clovis, wealon-regulatory-auditor]
+
+  security_sensitive:
+    condition: "Auth/crypto/input handling"
+    workflow: SECURITY_REVIEW
+    threshold: 1
+    agents: [yoni-orchestrator, cybersecurity-expert-maxime, wealon-regulatory-auditor, quality-control-enforcer]
+
+  simple_change:
+    condition: "Single file, low risk"
+    workflow: SKIP
+    threshold: 0
+    agents: [yoni-orchestrator, it-core-clovis, wealon-regulatory-auditor]
+
+  # --- Project-Specific Triggers (ComptabilityProject) ---
+
+  tax_rule_change:
+    condition: "Changes to tax_engine or analyzers"
+    workflow: TAX_REVIEW
+    threshold: 1
+    agents: [yoni-orchestrator, french-tax-optimizer, legal-compliance-reviewer, quality-control-enforcer, wealon-regulatory-auditor]
+    human_checkpoint: true
+    file_patterns:
+      - "src/tax_engine/**/*.py"
+      - "src/tax_engine/data/*.json"
+      - "src/analyzers/**/*.py"
+      - "src/analyzers/rules/*.json"
+
+  llm_prompt_change:
+    condition: "Changes to prompts or LLM code"
+    workflow: LLM_REVIEW
+    threshold: 1
+    agents: [yoni-orchestrator, antoine-nlp-expert, cybersecurity-expert-maxime, legal-compliance-reviewer, wealon-regulatory-auditor]
+    human_checkpoint: true
+    file_patterns:
+      - "prompts/**/*"
+      - "src/llm/**/*.py"
+
+  document_parser_change:
+    condition: "Changes to document extraction"
+    workflow: INTEGRATION
+    threshold: 1
+    agents: [yoni-orchestrator, data-engineer-sophie, it-core-clovis, quality-control-enforcer, wealon-regulatory-auditor]
+    file_patterns:
+      - "src/extractors/**/*.py"
+
+# ====================
+# WORKFLOW DEFINITIONS
+# ====================
+
+workflows:
+  # --- Global Workflows ---
+
+  FULL_PLANNING:
+    stages:
+      - ANALYZE
+      - SCOPE
+      - ARCHITECT
+      - DECOMPOSE
+    artifacts:
+      - prd-lite.md
+      - architecture.md
+      - task-breakdown.yaml
+    agents:
+      - yoni-orchestrator
+      - alexios-ml-predictor
+      - it-core-clovis
+      - quality-control-enforcer
+      - lamine-deployment-expert
+
+  INTEGRATION:
+    stages:
+      - ANALYZE
+      - INTERFACE_MAPPING
+      - CONTRACT_DEFINITION
+    artifacts:
+      - integration-spec.md
+    agents:
+      - yoni-orchestrator
+      - it-core-clovis
+      - quality-control-enforcer
+
+  ADR:
+    stages:
+      - CONTEXT
+      - OPTIONS
+      - DECISION
+      - CONSEQUENCES
+    artifacts:
+      - adr-{number}-{title}.md
+    agents:
+      - yoni-orchestrator
+      - lamine-deployment-expert
+      - it-core-clovis
+
+  RESEARCH:
+    stages:
+      - PROBLEM_DEFINITION
+      - LITERATURE_REVIEW
+      - PROTOTYPE_PLAN
+    artifacts:
+      - research-brief.md
+      - approach-options.md
+    agents:
+      - yoni-orchestrator
+      - alexios-ml-predictor
+      - pierre-jean-ml-advisor
+
+  OPTIMIZATION:
+    stages:
+      - PROFILE
+      - BENCHMARK
+      - STRATEGY
+    artifacts:
+      - performance-analysis.md
+      - optimization-plan.md
+    agents:
+      - yoni-orchestrator
+      - alexios-ml-predictor
+      - it-core-clovis
+
+  SECURITY_REVIEW:
+    stages:
+      - THREAT_MODEL
+      - ATTACK_SURFACE
+      - MITIGATIONS
+    artifacts:
+      - security-review.md
+      - threat-model.md
+    agents:
+      - yoni-orchestrator
+      - cybersecurity-expert-maxime
+      - wealon-regulatory-auditor
+      - quality-control-enforcer
+
+  # --- Project-Specific Workflows ---
+
+  TAX_REVIEW:
+    stages:
+      - ANALYZE
+      - TAX_VALIDATION
+      - LEGAL_COMPLIANCE
+      - IMPLEMENT
+      - VERIFY
+      - AUDIT
+    artifacts:
+      - tax-interpretation.md
+      - compliance-check.md
+    agents:
+      - yoni-orchestrator
+      - french-tax-optimizer
+      - legal-compliance-reviewer
+      - quality-control-enforcer
+      - wealon-regulatory-auditor
+    human_checkpoint: true
+
+  LLM_REVIEW:
+    stages:
+      - ANALYZE
+      - NLP_REVIEW
+      - SECURITY_CHECK
+      - LEGAL_COMPLIANCE
+      - IMPLEMENT
+      - AUDIT
+    artifacts:
+      - prompt-review.md
+      - safety-check.md
+    agents:
+      - yoni-orchestrator
+      - antoine-nlp-expert
+      - cybersecurity-expert-maxime
+      - legal-compliance-reviewer
+      - wealon-regulatory-auditor
+    human_checkpoint: true
+
+  SKIP:
+    stages: []
+    artifacts: []
+    agents: []
+
+# ====================
+# AGENT ROUTING
+# ====================
+
+routing:
+  entry_gate:
+    agent: yoni-orchestrator
+    trigger: start_of_task
+    required: true
+
+  exit_gate:
+    agent: wealon-regulatory-auditor
+    trigger: end_of_task
+    required: true
+    blocks_completion: true
+
+  tracks:
+    development:
+      agents:
+        - it-core-clovis
+        - quality-control-enforcer
+        - lamine-deployment-expert
+      triggers:
+        - code_change
+        - pr_creation
+
+    ml_algorithm:
+      agents:
+        - alexios-ml-predictor
+        - pierre-jean-ml-advisor
+      triggers:
+        - algorithm_unclear
+        - performance_risk
+
+    security:
+      agents:
+        - cybersecurity-expert-maxime
+        - wealon-regulatory-auditor
+      triggers:
+        - security_sensitive
+
+    tax_domain:
+      agents:
+        - french-tax-optimizer
+        - legal-compliance-reviewer
+      triggers:
+        - tax_rule_change
+
+    llm_domain:
+      agents:
+        - antoine-nlp-expert
+        - cybersecurity-expert-maxime
+        - legal-compliance-reviewer
+      triggers:
+        - llm_prompt_change
+
+# ====================
+# FILE PATTERNS
+# ====================
+
+file_patterns:
+  tax_critical:
+    - "src/tax_engine/**/*.py"
+    - "src/tax_engine/data/*.json"
+    - "src/analyzers/**/*.py"
+    - "src/analyzers/rules/*.json"
+
+  llm_critical:
+    - "prompts/**/*"
+    - "src/llm/**/*.py"
+
+  security_critical:
+    - "src/security/**/*.py"
+    - "src/api/dependencies.py"
+    - ".env*"
+
+  document_extraction:
+    - "src/extractors/**/*.py"
+
+  frontend:
+    - "frontend/**/*"
+
+# ====================
+# ARTIFACT LOCATIONS
+# ====================
+
+artifacts:
+  prd_lite: "docs/planning/prd-lite/{date}-{feature}.md"
+  architecture: "docs/planning/architecture/{date}-{feature}.md"
+  task_breakdown: "docs/planning/task-breakdowns/{date}-{feature}.yaml"
+  research: "docs/planning/research/{date}-{topic}.md"
+  adr: "docs/adr/{number}-{title}.md"
+  audit: "audits/audit-{date}-{topic}.md"
+
+# ====================
+# QUALITY GATES
+# ====================
+
+quality_gates:
+  pre_commit:
+    - ruff_format
+    - ruff_check
+    - pyrefly_check
+
+  pre_merge:
+    - all_tests_pass
+    - coverage_minimum: 70
+    - no_security_warnings
+    - wealon_audit_passed
+
+  tax_changes:
+    - source_citation_required
+    - human_verification_required
+    - legal_compliance_review
+
+  task_completion:
+    - wealon_audit  # MANDATORY EXIT GATE
+
+# ====================
+# ESCALATION RULES
+# ====================
+
+escalation:
+  uncertainty_threshold: 0.5
+
+  mandatory_human_approval:
+    - tax_rule_interpretation
+    - investment_recommendation_wording
+    - disclaimer_changes
+    - bareme_updates
+    - llm_system_prompt_changes
+
+  stop_conditions:
+    - wealon_audit_failed
+    - legal_compliance_failed
+    - security_vulnerability_detected
+    - test_coverage_below_threshold
+
+# ====================
+# AUDIT CONFIGURATION
+# ====================
+
+audit:
+  wealon_required: true
+  audit_storage: "audits/"
+  audit_retention_days: 365
+
+  audit_checklist:
+    - code_quality
+    - test_coverage
+    - security_scan
+    - documentation
+    - compliance_check
+
+# ====================
+# GOVERNANCE
+# ====================
+
+governance:
+  baseline_version: "1.1"
+  global_rules_version: "2.0"
+  global_rules_path: "~/.claude/WORKFLOW_RULES.md"
+
+  change_requires:
+    minor: documentation
+    major: human_approval_and_version_bump
+
+  protected_files:
+    - "docs/agents/AGENTS.md"
+    - "docs/project-context.md"
+    - "_bmad/config.yaml"

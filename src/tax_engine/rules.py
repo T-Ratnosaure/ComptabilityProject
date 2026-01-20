@@ -116,6 +116,26 @@ class TaxRules:
         return self.data.get("tax_reductions", {})
 
     @property
+    def cehr(self) -> dict[str, Any]:
+        """Get CEHR (Contribution Exceptionnelle sur les Hauts Revenus) brackets.
+
+        Returns:
+            Dict with celibataire and couple brackets
+        """
+        return self.data.get("cehr", {})
+
+    @property
+    def cdhr(self) -> dict[str, Any]:
+        """Get CDHR (Contribution Différentielle sur les Hauts Revenus) config.
+
+        CDHR is new in 2025 - ensures 20% minimum effective tax rate on high incomes.
+
+        Returns:
+            Dict with seuil_celibataire, seuil_couple, taux_cible
+        """
+        return self.data.get("cdhr", {})
+
+    @property
     def lmnp(self) -> dict[str, Any]:
         """Get LMNP (Location Meublée Non Professionnelle) configuration.
 
