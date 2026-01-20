@@ -2,6 +2,25 @@
   "year": 2024,
   "source": "https://www.impots.gouv.fr/particulier/calcul-de-limpot",
   "source_date": "2024-01-01",
+  "verification": {
+    "verified_date": "2026-01-20",
+    "verified_by": "manual_check",
+    "verification_sources": [
+      "https://www.impots.gouv.fr/particulier/calcul-de-limpot",
+      "https://bofip.impots.gouv.fr/bofip/2494-PGP.html"
+    ],
+    "next_verification_due": "2027-01-01",
+    "checklist": {
+      "income_tax_brackets": true,
+      "urssaf_rates": true,
+      "abattements": true,
+      "plafonds_micro": true,
+      "per_plafonds": true,
+      "quotient_familial": true,
+      "cehr_brackets": true
+    },
+    "notes": "Barème 2024 vérifié contre impots.gouv.fr et BOFiP. Taux URSSAF approximatifs - vérifier sur autoentrepreneur.urssaf.fr pour taux exact."
+  },
   "income_tax_brackets": [
     {
       "rate": 0.0,
