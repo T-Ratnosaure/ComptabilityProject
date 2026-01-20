@@ -165,6 +165,7 @@ export default function OptimizationsPage() {
 
   const taxCalc = calculateImpot(partIncome)
   const impotBrut = taxCalc.impot * profileData.nb_parts
+  const urssafExpected = profileData.chiffre_affaires * urssafRate
 
   const mockTaxResult = {
     tax_year: 2025,
@@ -559,7 +560,7 @@ export default function OptimizationsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex justify-around py-4">
+                      <div className="grid grid-cols-3 gap-4 py-4">
                         <div className="text-center">
                           <p className="text-slate-600 mb-2">Impôt actuel</p>
                           <p className="text-3xl font-bold text-slate-700">
@@ -568,8 +569,17 @@ export default function OptimizationsPage() {
                           <p className="text-slate-500 mt-1">avant optimisation</p>
                         </div>
                         <div className="text-center">
+                          <p className="text-slate-600 mb-2">Cotisations URSSAF</p>
+                          <p className="text-3xl font-bold text-orange-600">
+                            {formatCurrency(urssafExpected)}
+                          </p>
+                          <p className="text-slate-500 mt-1">
+                            {(urssafRate * 100).toFixed(1)}% du CA
+                          </p>
+                        </div>
+                        <div className="text-center">
                           <p className="text-slate-600 mb-2">Économies possibles</p>
-                          <p className="text-5xl font-bold text-green-600">
+                          <p className="text-3xl font-bold text-green-600">
                             -{formatCurrency(result.potential_savings_total)}
                           </p>
                           <p className="text-slate-500 mt-1">par an</p>
