@@ -370,6 +370,189 @@ I've created this audit directory since it didn't exist - clearly, regular audit
 
 ---
 
+## Manual Testing Guide
+
+This section describes how a human can visually verify the changes made in this session.
+
+### Prerequisites
+
+1. **Start the backend server**:
+   ```bash
+   cd C:\Users\larai\ComptabilityProject
+   uv run uvicorn src.api.main:app --reload --port 8000
+   ```
+
+2. **Start the frontend dev server**:
+   ```bash
+   cd C:\Users\larai\ComptabilityProject\frontend
+   npm run dev
+   ```
+
+3. Open browser to `http://localhost:3000`
+
+---
+
+### Test 1: Legal Disclaimers (Visual)
+
+**Steps**:
+1. Navigate to the **homepage** (`/`)
+2. Scroll to the footer
+
+**Expected Result**:
+- Footer contains disclaimer text: "Cet outil fournit des estimations informatives uniquement"
+- Footer mentions "ORIAS, AMF, Ordre des Experts-Comptables"
+
+**Steps**:
+1. Navigate to **Simulator** (`/simulator`)
+
+**Expected Result**:
+- Yellow/amber warning banner at the top with "Avertissement important"
+- Text mentions "estimations informatives" and "expert-comptable"
+
+---
+
+### Test 2: Situation Familiale Dropdown (UI)
+
+**Steps**:
+1. Go to `/simulator`
+2. Look at the "Informations personnelles" section
+
+**Expected Result**:
+- New dropdown labeled "Situation familiale" visible
+- Options: "Célibataire / Divorcé(e) / Veuf(ve)" and "Marié(e) / Pacsé(e) (imposition commune)"
+- Default selection is "Célibataire"
+
+---
+
+### Test 3: CEHR/CDHR Calculation (Functional)
+
+**Steps**:
+1. Go to `/simulator`
+2. Fill in:
+   - Chiffre d'affaires brut: **400,000**
+   - Statut: Micro-BNC
+   - Situation familiale: Célibataire
+   - Nombre de parts: 1
+3. Click "Calculer mes impôts"
+
+**Expected Result**:
+- Results section shows "CEHR (hauts revenus)" with a non-zero amount (orange text)
+- If effective rate < 20%, "CDHR (taux mini 20%)" appears in red
+- "Impôt total" includes IR + CEHR + CDHR
+
+**Verification Math** (for 400k gross, micro-BNC):
+- Revenu imposable ≈ 264,000€ (after 34% abattement)
+- RFR = 264,000€ (no PER)
+- CEHR = (264k - 250k) × 3% = 420€
+
+---
+
+### Test 4: Tax Brackets 2025 (Functional)
+
+**Steps**:
+1. Go to `/optimizations`
+2. Enter Chiffre d'affaires: **50,000**
+3. Look at the calculated TMI
+
+**Expected Result**:
+- TMI should be 11% (income falls in 11,497€ - 29,315€ bracket after abattement)
+- NOT using old 2024 brackets (11,294€ - 28,797€)
+
+---
+
+### Test 5: SessionStorage Security (Technical)
+
+**Steps**:
+1. Go to `/simulator`
+2. Fill form and click "Calculer"
+3. Open browser DevTools (F12) → Application tab → Session Storage
+
+**Expected Result**:
+- Data stored under `sessionStorage` (NOT `localStorage`)
+- Keys: `fiscalOptim_profileData`, `fiscalOptim_taxResult`
+- Data clears when you close the tab (verify by closing and reopening)
+
+---
+
+### Test 6: XSS Protection (Security)
+
+**Steps**:
+1. This requires backend modification to test properly
+2. Alternatively, inspect the code in `/optimizations` page
+
+**Expected Result**:
+- The `formatDescription` function in `optimizations/page.tsx` should NOT use `dangerouslySetInnerHTML`
+- It should use React components (`<strong>`, `<span>`) for rendering
+
+**Code Verification**:
+```bash
+grep -n "dangerouslySetInnerHTML" frontend/app/optimizations/page.tsx
+# Should return NO results
+```
+
+---
+
+### Test 7: Frontend Build (CI/CD)
+
+**Steps**:
+```bash
+cd C:\Users\larai\ComptabilityProject\frontend
+npm run build
+```
+
+**Expected Result**:
+- Build completes successfully with no errors
+- Output shows all routes compiled
+
+---
+
+### Test 8: Backend Tests (Automated)
+
+**Steps**:
+```bash
+cd C:\Users\larai\ComptabilityProject
+uv run pytest tests/test_cehr_cdhr.py -v
+```
+
+**Expected Result**:
+- All 18 tests pass
+- Tests cover: CEHR brackets, situation_familiale, RFR calculation, CDHR 20% rule
+
+---
+
+### Test 9: Couple vs Single CEHR Threshold
+
+**Steps**:
+1. Go to `/simulator`
+2. Enter:
+   - Chiffre d'affaires: **350,000**
+   - Situation familiale: **Célibataire**
+3. Calculate → Note CEHR amount
+4. Change Situation familiale to **Marié(e) / Pacsé(e)**
+5. Calculate again
+
+**Expected Result**:
+- As Célibataire: CEHR applies (threshold 250k)
+- As Couple: CEHR = 0€ (threshold 500k, income below)
+
+This confirms `situation_familiale` is being used correctly, not `nb_parts`.
+
+---
+
+### Test 10: High Net Worth Warning
+
+**Steps**:
+1. Go to `/simulator`
+2. Enter Chiffre d'affaires: **400,000** (results in RFR > 250k)
+3. Calculate
+
+**Expected Result**:
+- Red alert box appears: "Revenus élevés détectés (CEHR/CDHR applicable)"
+- Text mentions "250 000€" threshold
+- Recommends consulting expert-comptable
+
+---
+
 *I'll be watching.*
 
 ---
