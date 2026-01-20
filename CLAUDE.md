@@ -213,6 +213,29 @@ When exiting plan mode to begin implementation:
 > **BMAD is a behavior, not a structure.**
 > Every user request goes through Yoni, who determines the appropriate workflow.
 
+### ⚠️ Regulatory-First Interpretation of Global Workflows
+
+**This is a TAX COMPLIANCE project, not a trading or ML experimentation platform.**
+
+Global workflows from WORKFLOW_RULES.md must be interpreted through a regulatory lens:
+
+| Workflow/Trigger | Global Intent | **ComptabilityProject Interpretation** |
+|------------------|---------------|----------------------------------------|
+| RESEARCH | Algorithm exploration | **Tax rule interpretation, legal ambiguity resolution, accounting semantics** |
+| OPTIMIZATION | Performance maximization | **Risk reduction, clarity, explainability, conservative compliance** |
+| algorithm_unclear | ML model selection | **Tax calculation method uncertainty, regulatory interpretation** |
+| performance_risk | Latency/throughput | **Audit trail integrity, calculation accuracy, source verification** |
+
+**Key Principle:** Presence of ML agents (alexios, pierre-jean) ≠ encouragement to use ML.
+
+- Deterministic logic is **PREFERRED** unless ML is explicitly justified
+- "Optimization" means **reducing regulatory risk**, not maximizing tax savings
+- "Research" means **understanding official sources**, not experimenting with models
+
+> **If in doubt:** Choose the simpler, more auditable, more conservative approach.
+
+---
+
 ### 1. ALWAYS CALL YONI FIRST
 
 **FOR EVERY USER REQUEST**, you MUST call `yoni-orchestrator` via the Task tool.

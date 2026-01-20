@@ -31,6 +31,22 @@ Provide French freelancers with:
 | Tax filing service | Does not submit to DGFIP |
 | Binding tax calculation | Only informational |
 
+### 1.3 Regulatory-First Interpretation
+
+**This project uses global BMAD workflows (WORKFLOW_RULES.md v2.0), but they must be interpreted through a tax compliance lens:**
+
+| Global Concept | Tax Domain Interpretation |
+|----------------|---------------------------|
+| **RESEARCH workflow** | Tax rule interpretation, legal ambiguity resolution, accounting semantics — NOT ML experimentation |
+| **OPTIMIZATION workflow** | Risk reduction, clarity, explainability, conservative compliance — NOT aggressive tax minimization |
+| **algorithm_unclear trigger** | Tax calculation method uncertainty, regulatory interpretation — NOT ML model selection |
+| **performance_risk trigger** | Audit trail integrity, calculation accuracy, source verification — NOT latency optimization |
+| **ML agents (alexios, pierre-jean)** | Available for complexity analysis — NOT encouragement to use ML models |
+
+**Core Principle:** Deterministic, auditable logic is ALWAYS preferred over ML approaches unless explicitly justified and approved.
+
+> "Optimization" in this project means **reducing regulatory risk and improving clarity**, not maximizing tax savings.
+
 ---
 
 ## 2. Domain Model
