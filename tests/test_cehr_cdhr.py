@@ -12,7 +12,7 @@ These tests validate:
 
 import pytest
 
-from src.tax_engine.core import compute_cehr, compute_cdhr, compute_ir
+from src.tax_engine.core import compute_cdhr, compute_cehr, compute_ir
 from src.tax_engine.rules import get_tax_rules
 
 
