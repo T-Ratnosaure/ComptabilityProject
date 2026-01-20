@@ -232,6 +232,14 @@ The project is implemented in 6 phases:
   - AuditLog/AuditEntry models tracking all calculation steps
   - REST API for audit trail retrieval and export
   - Input hash verification for data integrity
+- **Barème Verification (TD001)**:
+  - Verification metadata in barème JSON files (verified_date, sources, checklist)
+  - Automated verification script (`scripts/verify_baremes.py`)
+  - CI-ready strict mode for freshness checks
+- **Glossary (TD005)**:
+  - Interactive glossary page with 30+ French tax terms
+  - Search and category filtering
+  - Related terms and examples
 
 **In Progress:**
 - Frontend-backend integration testing
@@ -247,6 +255,8 @@ The project is implemented in 6 phases:
 - `audits/` - Regulatory audit reports with manual testing guides
 - `src/audit/` - Audit trail service (AuditLogger, compliance tracking)
 - `src/api/routes/audit.py` - Audit API endpoints
+- `frontend/app/glossary/` - Interactive tax terms glossary
+- `scripts/verify_baremes.py` - Barème verification script
 
 ## Project Structure
 

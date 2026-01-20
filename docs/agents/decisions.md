@@ -274,10 +274,17 @@ Tax barèmes in JSON files are the source of truth. If wrong, all calculations a
 **Implementation:** PR #32 - feat(td005-td001): Add glossary and barème verification
 
 Components added:
-- Added verification metadata to barème JSON files (verified_date, sources, checklist)
-- Created `scripts/verify_baremes.py` automated verification script
-- Supports `--strict` mode for CI integration
-- Verifies field completeness, freshness, and bracket consistency
+- Added `verification` metadata to barème JSON files including:
+  - `verified_date`: Date of last manual verification
+  - `verified_by`: Method of verification
+  - `verification_sources`: Official source URLs
+  - `next_verification_due`: When re-verification is needed
+  - `checklist`: Item-by-item verification status
+- Created `scripts/verify_baremes.py` for automated verification checks:
+  - Validates required fields present
+  - Checks verification freshness
+  - Validates bracket consistency (no gaps/overlaps)
+  - Supports `--strict` mode for CI integration
 
 ### TD002 Resolution Details
 

@@ -16,6 +16,9 @@ export default function Home() {
             </span>
           </h1>
           <div className="flex gap-3">
+            <Link href="/glossary">
+              <Button variant="ghost">Glossaire</Button>
+            </Link>
             <Link href="/dashboard">
               <Button variant="outline">Dashboard</Button>
             </Link>
