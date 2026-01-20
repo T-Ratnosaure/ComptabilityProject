@@ -115,6 +115,24 @@ When exiting plan mode to begin implementation:
   - Tech stack and dependencies
   - Usage examples (when applicable)
 
+### Work Completion Reports
+At the end of every significant work session, **ALWAYS** include a **Manual Testing Guide** in the audit report or summary. This guide must explain how a human can visually test and verify what was done.
+
+**Required sections**:
+1. **Prerequisites** - How to start backend/frontend servers
+2. **Test Cases** - Numbered list of manual tests with:
+   - Steps to perform
+   - Expected results
+   - Verification criteria
+3. **Coverage Areas**:
+   - Visual/UI changes
+   - Functional changes
+   - Security fixes
+   - API changes
+   - Configuration changes
+
+**Location**: Save in `audits/` directory with date-stamped filename (e.g., `audit-2026-01-20-feature-name.md`)
+
 ## Pull Requests
 
 - Create a detailed message of what changed. Focus on the high level description of
