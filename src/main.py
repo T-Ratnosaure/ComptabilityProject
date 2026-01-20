@@ -8,9 +8,13 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from src.api.routes import audit, documents, llm_analysis, optimization, tax
 from src.config import settings
+from src.database.session import AsyncSessionLocal
 
 # Configure logging
 logging.basicConfig(
@@ -18,6 +22,9 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 
 @asynccontextmanager
@@ -50,6 +57,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Add rate limiter to app state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 
 # Global Exception Handlers
 @app.exception_handler(Exception)
@@ -76,19 +87,12 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
         },
     )
 
-    # Return sanitized error (no stack trace)
-    if settings.DEBUG:
-        # In debug mode, include exception type
-        detail = f"Internal server error: {exc.__class__.__name__}"
-    else:
-        # In production, generic message only
-        detail = "An internal error occurred. Please try again later."
-
+    # Always return generic message - never expose exception details
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "error": "INTERNAL_SERVER_ERROR",
-            "detail": detail,
+            "detail": "An internal error occurred. Please try again later.",
             "request_id": id(request),  # For support/debugging
         },
     )
@@ -167,13 +171,20 @@ async def file_not_found_handler(
     )
 
 
-# Configure CORS
+# Configure CORS with explicit methods and headers
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Accept",
+        "Accept-Language",
+        "Content-Type",
+        "Authorization",
+        "X-Requested-With",
+        "X-API-Key",
+    ],
 )
 
 # Register API routers
@@ -185,22 +196,40 @@ app.include_router(audit.router)
 
 
 @app.get("/health", tags=["Health"])
-async def health_check() -> dict[str, str]:
-    """Health check endpoint.
+async def health_check() -> dict[str, str | bool]:
+    """Health check endpoint with database connectivity verification.
 
     Returns:
-        dict: Health status
+        dict: Health status including database connectivity
     """
+    # Check database connectivity
+    db_healthy = False
+    try:
+        async with AsyncSessionLocal() as session:
+            from sqlalchemy import text
+
+            await session.execute(text("SELECT 1"))
+            db_healthy = True
+    except Exception as e:
+        logger.error(f"Database health check failed: {e}")
+
+    status_str = "healthy" if db_healthy else "degraded"
+
     return {
-        "status": "healthy",
+        "status": status_str,
         "version": settings.APP_VERSION,
         "environment": settings.ENVIRONMENT,
+        "database": "connected" if db_healthy else "disconnected",
     }
 
 
 @app.get(f"{settings.API_V1_PREFIX}/status", tags=["Health"])
-async def api_status() -> dict[str, str]:
+@limiter.limit(settings.RATE_LIMIT_GENERAL)
+async def api_status(request: Request) -> dict[str, str]:
     """API status endpoint.
+
+    Args:
+        request: FastAPI request (required for rate limiting)
 
     Returns:
         dict: API status and configuration

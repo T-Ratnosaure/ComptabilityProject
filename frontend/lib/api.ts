@@ -3,6 +3,7 @@
  */
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
 
 export interface TaxCalculationRequest {
   tax_year: number;
@@ -161,10 +162,19 @@ export class APIClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    // Include API key if configured (required for authenticated endpoints)
+    if (API_KEY) {
+      headers['X-API-Key'] = API_KEY;
+    }
+
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        ...headers,
         ...options.headers,
       },
     });

@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from src.api.auth import verify_api_key
 from src.api.dependencies import get_llm_service
 from src.llm.exceptions import LLMAPIError, LLMRateLimitError, LLMTimeoutError
 from src.llm.llm_service import LLMAnalysisService
@@ -57,6 +58,7 @@ class AnalyzeResponse(BaseModel):
 async def analyze_fiscal_situation(
     request: AnalyzeRequest,
     llm_service: LLMAnalysisService = Depends(get_llm_service),
+    _api_key: str = Depends(verify_api_key),
 ) -> dict[str, Any]:
     """Analyze fiscal situation and provide recommendations.
 
@@ -145,6 +147,7 @@ async def analyze_fiscal_situation(
 async def analyze_fiscal_situation_stream(
     request: AnalyzeRequest,
     llm_service: LLMAnalysisService = Depends(get_llm_service),
+    _api_key: str = Depends(verify_api_key),
 ) -> StreamingResponse:
     """Analyze fiscal situation with streaming response.
 
@@ -220,6 +223,7 @@ async def analyze_fiscal_situation_stream(
 async def get_conversation(
     conversation_id: str,
     llm_service: LLMAnalysisService = Depends(get_llm_service),
+    _api_key: str = Depends(verify_api_key),
 ) -> dict[str, Any]:
     """Get conversation history.
 
@@ -265,6 +269,7 @@ async def get_conversation(
 async def delete_conversation(
     conversation_id: str,
     llm_service: LLMAnalysisService = Depends(get_llm_service),
+    _api_key: str = Depends(verify_api_key),
 ) -> dict[str, str]:
     """Delete conversation and all messages.
 

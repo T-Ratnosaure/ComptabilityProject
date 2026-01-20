@@ -31,6 +31,19 @@ export default function ChatPage() {
   const [profileData, setProfileData] = useState<TaxCalculationRequest | null>(null)
   const [taxResult, setTaxResult] = useState<TaxCalculationResponse | null>(null)
   const [hasSimulatorData, setHasSimulatorData] = useState(false)
+  const [sessionUserId, setSessionUserId] = useState<string>("")
+
+  // Generate or retrieve unique session user ID
+  useEffect(() => {
+    const storedUserId = sessionStorage.getItem("fiscalOptim_sessionUserId")
+    if (storedUserId) {
+      setSessionUserId(storedUserId)
+    } else {
+      const newUserId = `user_${crypto.randomUUID()}`
+      sessionStorage.setItem("fiscalOptim_sessionUserId", newUserId)
+      setSessionUserId(newUserId)
+    }
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -90,7 +103,7 @@ export default function ChatPage() {
 
     try {
       const request: LLMAnalysisRequest = {
-        user_id: "demo_user",
+        user_id: sessionUserId,
         conversation_id: conversationId,
         user_question: input,
         profile_data: profileData,
@@ -264,8 +277,9 @@ export default function ChatPage() {
               />
               <Button
                 onClick={handleSend}
-                disabled={!input.trim() || loading}
+                disabled={!input.trim() || loading || !sessionUserId}
                 size="lg"
+                aria-label="Envoyer le message"
               >
                 <Send className="h-5 w-5" />
               </Button>

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "ComptabilityProject"
     APP_VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
-    DEBUG: bool = True
+    DEBUG: bool = False  # Default to False for security; set True in .env for dev
 
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./data/database/comptability.db"
@@ -32,6 +32,14 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
     ]
+
+    # API Security
+    API_SECRET_KEY: str = ""  # Required for production
+
+    # Rate Limiting
+    RATE_LIMIT_GENERAL: str = "100/minute"
+    RATE_LIMIT_LLM: str = "10/minute"
+    RATE_LIMIT_AUTH: str = "5/minute"
 
     # Logging
     LOG_LEVEL: str = "INFO"
