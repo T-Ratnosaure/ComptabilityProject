@@ -7,7 +7,7 @@
     "dev:clean": "rimraf .next && next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "clean": "rimraf .next"
   },
   "dependencies": {
