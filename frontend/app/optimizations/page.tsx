@@ -11,6 +11,7 @@ import { apiClient, OptimizationRequest, OptimizationResponse, TaxCalculationReq
 import { ArrowLeft, TrendingUp, AlertCircle, Sparkles, Lightbulb, CheckCircle } from "lucide-react"
 import { Onboarding, PROFESSION_PROFILES } from "@/components/onboarding"
 import { ChatPanel } from "@/components/chat-panel"
+import { CIFConsultationWarning } from "@/components/legal-disclaimer"
 
 interface OnboardingData {
   profession: string
@@ -315,8 +316,11 @@ export default function OptimizationsPage() {
             <ArrowLeft className="h-4 w-4" />
             Retour au simulateur
           </Link>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
             FiscalOptim
+            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
+              Beta
+            </span>
           </h1>
           <div className="w-20" />
         </div>
@@ -385,7 +389,7 @@ export default function OptimizationsPage() {
                     <CardDescription>
                       {onboardingData
                         ? "Valeurs pré-remplies selon votre profil"
-                        : "Informations pour personnaliser les recommandations"}
+                        : "Informations pour personnaliser les scénarios"}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -588,10 +592,13 @@ export default function OptimizationsPage() {
                     </CardContent>
                   </Card>
 
+                  {/* CIF Warning for investment scenarios */}
+                  <CIFConsultationWarning />
+
                   {/* Recommendations */}
                   <div className="space-y-4">
                     <h3 className="text-2xl font-bold text-slate-900">
-                      {result.recommendations.length} recommandations personnalisées
+                      {result.recommendations.length} scénarios d'optimisation
                     </h3>
 
                     {result.recommendations.map((rec, index) => (
@@ -656,9 +663,9 @@ export default function OptimizationsPage() {
                   {/* CTA */}
                   <Card className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-0">
                     <CardHeader>
-                      <CardTitle className="text-white text-xl">Besoin de conseils personnalisés ?</CardTitle>
+                      <CardTitle className="text-white text-xl">Des questions sur ces scénarios ?</CardTitle>
                       <CardDescription className="text-white/90">
-                        Discutez avec notre IA pour obtenir des recommandations adaptées à votre situation
+                        Discutez avec notre IA pour explorer des scénarios adaptés à votre situation
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -677,9 +684,9 @@ export default function OptimizationsPage() {
               ) : (
                 <Card className="border-slate-200">
                   <CardHeader>
-                    <CardTitle>Recommandations</CardTitle>
+                    <CardTitle>Scénarios d'optimisation</CardTitle>
                     <CardDescription>
-                      Cliquez sur "Générer les optimisations" pour voir vos recommandations
+                      Cliquez sur "Générer les optimisations" pour explorer des scénarios adaptés
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="py-16 text-center text-slate-400">

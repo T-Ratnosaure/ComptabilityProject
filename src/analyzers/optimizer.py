@@ -157,10 +157,12 @@ class TaxOptimizer:
             "by_risk": self._count_by_risk(),
             "by_complexity": self._count_by_complexity(),
             "disclaimer": (
-                "Ces recommandations sont des estimations basées sur votre "
-                "situation fiscale. Elles ne remplacent pas un conseil "
-                "personnalisé d'un expert-comptable ou avocat fiscaliste. "
-                "Toujours valider avec un professionnel avant toute décision."
+                "Ces scénarios sont des illustrations basées sur votre "
+                "situation fiscale déclarée. Ils ne constituent pas un conseil "
+                "en investissement ni un conseil fiscal personnalisé. "
+                "Pour toute décision engageante, consultez un expert-comptable, "
+                "un avocat fiscaliste, ou un CIF agréé ORIAS. "
+                "Version Beta - Outil à vocation éducative uniquement."
             ),
         }
 
@@ -186,23 +188,28 @@ class TaxOptimizer:
         """Generate executive summary."""
         if len(self.recommendations) == 0:
             return (
-                "Aucune optimisation majeure détectée. "
+                "Aucun scénario d'optimisation identifié. "
                 "Votre situation fiscale semble déjà optimisée."
             )
 
+        # Round total savings for educational display
+        rounded_savings = round(total_savings, -2)
+
         summary = (
-            f"🎯 {len(self.recommendations)} optimisation(s) fiscale(s) détectée(s)\n\n"
-            f"💰 Économies potentielles totales : {total_savings:.2f}€\n"
-            f"⭐ Recommandations prioritaires : {high_priority}\n\n"
+            f"🎯 {len(self.recommendations)} scénario(s) "
+            f"d'optimisation identifié(s)\n\n"
+            f"💰 Économies potentielles estimées : environ {rounded_savings:,.0f} €\n"
+            f"⭐ Scénarios prioritaires : {high_priority}\n\n"
         )
 
         # Add top 3 recommendations
         top_recs = self.recommendations[:3]
-        summary += "**Top 3 optimisations :**\n"
+        summary += "**Top 3 scénarios à explorer :**\n"
         for i, rec in enumerate(top_recs, 1):
+            rounded_impact = round(rec.impact_estimated, -2)
             summary += (
                 f"{i}. {rec.title} "
-                f"(+{rec.impact_estimated:.2f}€, "
+                f"(environ +{rounded_impact:,.0f} €, "
                 f"risque: {rec.risk.value}, "
                 f"complexité: {rec.complexity.value})\n"
             )

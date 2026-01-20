@@ -97,31 +97,40 @@ class FCPIFIPStrategy:
         }
         risk = risk_level_map.get(fcpi_rules["risk"], RiskLevel.MEDIUM)
 
+        # Round amounts for educational display
+        rounded_investment = round(recommended_investment, -2)
+        rounded_reduction = round(reduction, -2)
+        rounded_cost = round(effective_cost, -2)
+
+        red_pct = int(reduction_pct)
         description = (
-            f"💼 Investissement FCPI (Innovation)\n\n"
-            f"📊 **Résumé**\n"
-            f"• Investissement : **{recommended_investment:.0f} €**\n"
-            f"• Réduction d'impôt : **{reduction:.0f} €** ({reduction_pct:.0f}%)\n"
-            f"• Coût réel : {effective_cost:.0f} €\n"
+            f"💼 FCPI (Fonds Innovation) - Comment ça fonctionne\n\n"
+            f"📊 **Exemple illustratif basé sur votre profil**\n"
+            f"• Si vous investissiez ~**{rounded_investment:,.0f} €**\n"
+            f"• Réduction potentielle : ~**{rounded_reduction:,.0f} €** "
+            f"({red_pct}%)\n"
+            f"• Coût réel estimé : ~{rounded_cost:,.0f} €\n"
             f"• Plafond annuel : {plafond:.0f} €\n\n"
             f"⏳ **Durée de blocage** : {commitment_years} ans\n\n"
-            f"🇫🇷 Soutenez l'innovation française avec un potentiel de plus-value"
+            f"🇫🇷 Les FCPI financent l'innovation française\n\n"
+            f"📌 **AVERTISSEMENT** : Exemple informatif uniquement. "
+            f"Consultez un CIF agréé ORIAS avant toute décision."
         )
 
-        min_invest = recommended_investment * 0.8
+        min_invest = round(recommended_investment * 0.8, -2)
         action_steps = [
-            "Comparer les FCPI disponibles (performances historiques, frais)",
-            "Vérifier que le fonds est éligible à la réduction d'impôt",
-            "Souscrire avant le 31 décembre",
-            f"Investir entre {min_invest:.2f}€ et {recommended_investment:.2f}€",
+            "Comparer les FCPI disponibles (performances, frais)",
+            "Vérifier que le fonds est éligible à la réduction",
+            "Consulter un CIF agréé pour des conseils personnalisés",
+            f"Fourchette indicative : {min_invest:,.0f}€-{rounded_investment:,.0f}€",
+            "Souscrire avant le 31/12 si vous décidez d'investir",
             "Conserver les justificatifs de souscription",
-            "Déclarer l'investissement sur votre déclaration 2042 C",
-            "Ne pas dépasser le plafond annuel",
+            "Déclarer sur votre déclaration 2042 C",
         ]
 
         return Recommendation(
             id=str(uuid.uuid4()),
-            title=f"FCPI - Réduction {reduction_rate * 100:.0f}% + Innovation",
+            title=f"FCPI - Scénario réduction {reduction_rate * 100:.0f}%",
             description=description,
             impact_estimated=reduction,
             risk=risk,

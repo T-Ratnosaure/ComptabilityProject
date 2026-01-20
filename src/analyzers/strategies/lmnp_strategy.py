@@ -91,28 +91,36 @@ class LMNPStrategy:
         # Estimate tax savings with LMNP réel
         estimated_savings = estimated_rental * tmi * total_deduction_rate
 
+        # Round amounts for educational display
+        rounded_investment = round(investment_capacity, -3)  # Round to nearest 1000
+        rounded_savings = round(estimated_savings, -2)
+        rounded_rental = round(estimated_rental, -2)
+
         description = (
-            f"🏠 Investissement locatif LMNP\n\n"
-            f"📊 **Résumé**\n"
-            f"• Investissement : **{investment_capacity:.0f} €**\n"
-            f"• Économie d'impôt/an : **~{estimated_savings:.0f} €**\n"
-            f"• Loyers estimés : {estimated_rental:.0f} €/an\n"
+            f"🏠 LMNP - Comment ça fonctionne\n\n"
+            f"📊 **Exemple illustratif basé sur votre profil**\n"
+            f"• Si vous investissiez ~**{rounded_investment:,.0f} €**\n"
+            f"• Économie potentielle : ~**{rounded_savings:,.0f} €/an**\n"
+            f"• Loyers estimés : ~{rounded_rental:,.0f} €/an\n"
             f"• Votre TMI : {tmi * 100:.0f}%\n\n"
-            f"✅ **Avantages du régime réel**\n"
-            f"• Amortissement du bien (3-4% par an)\n"
+            f"✅ **Principes du régime réel**\n"
+            f"• Amortissement du bien (~3-4% par an)\n"
             f"• Charges déductibles (travaux, intérêts)\n"
-            f"• Imposition quasi-nulle pendant plusieurs années"
+            f"• Imposition réduite pendant plusieurs années\n\n"
+            f"📌 **AVERTISSEMENT** : Exemple informatif uniquement. "
+            f"L'immobilier comporte des risques. "
+            f"Consultez un CGP ou CIF agréé avant toute décision."
         )
 
         action_steps = [
             "Étudier le marché locatif de votre zone cible",
             "Définir votre budget d'investissement (apport + emprunt)",
-            "Consulter un conseiller en gestion de patrimoine",
+            "Consulter un conseiller en gestion de patrimoine (CGP) agréé",
             "Sélectionner un bien avec bon potentiel locatif",
-            "Opter pour le régime réel LMNP (plus avantageux que micro-BIC)",
+            "Étudier le régime réel LMNP avec un expert-comptable",
             "Faire appel à un expert-comptable spécialisé LMNP",
             "Mettre en place la comptabilité et l'amortissement",
-            "Louer le bien meublé (durée minimale 1 an recommandée)",
+            "Louer le bien meublé (durée minimale généralement 1 an)",
         ]
 
         warnings = [
@@ -127,7 +135,7 @@ class LMNPStrategy:
 
         return Recommendation(
             id=str(uuid.uuid4()),
-            title="LMNP - Investissement locatif meublé défiscalisé",
+            title="LMNP - Scénario investissement locatif meublé",
             description=description,
             impact_estimated=estimated_savings,
             risk=RiskLevel.MEDIUM,
