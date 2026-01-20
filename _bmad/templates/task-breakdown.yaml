@@ -1,0 +1,111 @@
+# Task Breakdown Template
+# Feature: [Feature Name]
+# Date: [YYYY-MM-DD]
+# PRD: [link]
+# Architecture: [link]
+
+feature: "[Feature Name]"
+date: "YYYY-MM-DD"
+prd_reference: "docs/planning/prd-lite/[file].md"
+architecture_reference: "docs/planning/architecture/[file].md"
+total_tasks: 0  # Update when tasks defined
+
+# Task status: pending | in_progress | complete | blocked
+# Agent: yoni-orchestrator | quality-control-enforcer | it-core-clovis |
+#        french-tax-optimizer | legal-compliance-reviewer | antoine-nlp-expert |
+#        data-engineer-sophie | cybersecurity-expert-maxime | lamine-deployment-expert |
+#        wealon-regulatory-auditor
+
+tasks:
+  - id: 1
+    title: "[Task title]"
+    description: "[Detailed description]"
+    status: pending
+    agent: "[assigned agent]"
+    depends_on: []
+    files:
+      - "[file path]"
+    artifacts:
+      - "[artifact]"
+    acceptance_criteria:
+      - "[criterion 1]"
+      - "[criterion 2]"
+    tax_impact: false  # true if affects tax calculations
+    human_approval: false  # true if requires human sign-off
+
+  - id: 2
+    title: "[Task title]"
+    description: "[Detailed description]"
+    status: pending
+    agent: "[assigned agent]"
+    depends_on: [1]  # Depends on task 1
+    files:
+      - "[file path]"
+    artifacts:
+      - "[artifact]"
+    acceptance_criteria:
+      - "[criterion]"
+    tax_impact: false
+    human_approval: false
+
+  # Quality Control Task (always include)
+  - id: 90
+    title: "Quality Control Review"
+    description: "Review all implementation for shortcuts and completeness"
+    status: pending
+    agent: quality-control-enforcer
+    depends_on: []  # Update with implementation task IDs
+    files: []
+    artifacts:
+      - "QC assessment"
+    acceptance_criteria:
+      - "No shortcuts identified"
+      - "Implementation complete"
+      - "Tests adequate"
+    tax_impact: false
+    human_approval: false
+
+  # Git Workflow Task (always include)
+  - id: 91
+    title: "Git Workflow Compliance"
+    description: "Verify branch, commits, and PR follow standards"
+    status: pending
+    agent: it-core-clovis
+    depends_on: [90]
+    files: []
+    artifacts:
+      - "Git compliance check"
+    acceptance_criteria:
+      - "Branch naming correct"
+      - "Commits follow convention"
+      - "PR ready for review"
+    tax_impact: false
+    human_approval: false
+
+  # Final Audit Task (always include)
+  - id: 99
+    title: "Final Audit"
+    description: "Wealon audit of all changes before completion"
+    status: pending
+    agent: wealon-regulatory-auditor
+    depends_on: [91]
+    files: []
+    artifacts:
+      - "Audit report"
+    acceptance_criteria:
+      - "All issues resolved"
+      - "Audit APPROVED"
+    tax_impact: false
+    human_approval: false
+
+# Completion tracking
+completion:
+  total_tasks: 0
+  completed: 0
+  blocked: 0
+  in_progress: 0
+  pending: 0
+
+# Notes
+notes:
+  - "[Any additional notes]"
