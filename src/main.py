@@ -9,7 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from src.api.routes import documents, llm_analysis, optimization, tax
+from src.api.routes import audit, documents, llm_analysis, optimization, tax
 from src.config import settings
 
 # Configure logging
@@ -181,6 +181,7 @@ app.include_router(documents.router)
 app.include_router(tax.router)
 app.include_router(optimization.router)
 app.include_router(llm_analysis.router)
+app.include_router(audit.router)
 
 
 @app.get("/health", tags=["Health"])
