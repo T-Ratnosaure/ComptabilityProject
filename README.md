@@ -210,6 +210,23 @@ The project is implemented in 6 phases:
 - ThreadPoolExecutor for non-blocking OCR/PDF processing
 - Global error handlers in FastAPI
 - End-to-end integration tests
+- **CEHR/CDHR Tax Fixes** (January 2025):
+  - CEHR now uses RFR (Revenu Fiscal de Référence) instead of revenu_imposable
+  - Added `situation_familiale` parameter for couple/célibataire detection
+  - Implemented CDHR (Contribution Différentielle 2025) - 20% minimum effective rate
+  - Synchronized frontend tax brackets to 2025 values
+- **Security Improvements**:
+  - Fixed XSS vulnerability (removed dangerouslySetInnerHTML)
+  - Switched from localStorage to sessionStorage for sensitive data
+  - Added TypeScript interfaces for rfr, cdhr, cdhr_detail, situation_familiale
+- **Legal Compliance**:
+  - Added LegalDisclaimerBanner, HighNetWorthWarning, InvestmentRiskWarning components
+  - ORIAS/AMF/OEC disclosure in footer
+- **CI/CD**:
+  - Added frontend build and lint job to GitHub Actions
+- **Documentation**:
+  - BMAD governance framework
+  - Manual testing guides in `audits/` directory
 
 **In Progress:**
 - Frontend-backend integration testing
@@ -218,9 +235,11 @@ The project is implemented in 6 phases:
 
 **Key Files:**
 - `frontend/app/` - Next.js pages (home, dashboard, simulator, optimizations, chat)
-- `frontend/components/ui/` - Reusable UI components (button, card, input, select)
+- `frontend/components/ui/` - Reusable UI components (button, card, input, select, alert)
+- `frontend/components/legal-disclaimer.tsx` - Legal compliance components
 - `frontend/lib/api.ts` - TypeScript API client
 - `frontend/.env.example` - Environment configuration template
+- `audits/` - Regulatory audit reports with manual testing guides
 
 ## Project Structure
 
@@ -374,6 +393,13 @@ See `CLAUDE.md` for complete development guidelines.
 ## Current Status
 
 **Phase 6 is in progress!** Integration & Polish for production readiness.
+
+### Recent Updates (January 2025)
+- ✅ **CEHR/CDHR Tax Fixes** - Critical tax calculation corrections for high-income users
+- ✅ **CDHR Implementation** - New 2025 contribution ensuring 20% minimum effective rate
+- ✅ **Security Hardening** - XSS fix, sessionStorage for sensitive data
+- ✅ **Legal Compliance** - Disclaimer components and regulatory warnings
+- ✅ **Frontend CI/CD** - Automated build and lint checks
 
 ### Current Focus
 - ✨ End-to-end workflow testing (Document → Tax → Optimization → LLM)
