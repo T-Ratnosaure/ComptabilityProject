@@ -529,22 +529,28 @@ def compare_micro_vs_reel(
         (economie_potentielle / max(charge_micro, 1)) * 100 if charge_micro > 0 else 0.0
     )
 
+    # Round amounts for display
+    rounded_economie = round(economie_potentielle, -2)
+
     if delta_total < -100:
-        recommendation = "Passer au réel"
+        recommendation = "Scénario : régime réel"
         justification = (
-            f"Économie de {economie_potentielle:.0f}€ ({pourcentage_economie:.1f}%) "
-            f"en passant au régime réel."
+            f"Économie potentielle estimée à environ {rounded_economie:.0f}€ "
+            f"({pourcentage_economie:.1f}%) si passage au régime réel. "
+            f"Consultez un expert-comptable pour valider cette analyse."
         )
     elif delta_total > 100:
-        recommendation = "Rester en micro"
+        recommendation = "Scénario : maintien micro"
         justification = (
-            f"Économie de {economie_potentielle:.0f}€ ({pourcentage_economie:.1f}%) "
-            f"en restant en micro."
+            f"Économie potentielle estimée à environ {rounded_economie:.0f}€ "
+            f"({pourcentage_economie:.1f}%) en conservant le régime micro. "
+            f"Cette estimation est fournie à titre indicatif."
         )
     else:
-        recommendation = "Rester en micro"
+        recommendation = "Scénario : maintien micro"
         justification = (
-            "Différence négligeable. Le micro est recommandé pour sa simplicité."
+            "Différence négligeable entre les deux régimes. "
+            "Le régime micro est généralement plus simple à gérer administrativement."
         )
 
     # Extract context

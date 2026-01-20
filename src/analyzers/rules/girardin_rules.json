@@ -6,7 +6,7 @@
     "recommended_investment": {
       "target_reduction_rate": 0.35,
       "min_tax_remaining": 500,
-      "description": "Viser 35% de l'impôt net, garder minimum 500€"
+      "description": "Exemple: viser environ 35% de l'impôt net, garder minimum 500€ (illustration)"
     },
     "plafonds": {
       "plein_droit": {
@@ -33,15 +33,15 @@
     },
     "eligibility": {
       "min_impot": 3000,
-      "description": "Impôt minimum requis (3 000€)",
+      "description": "Impôt minimum généralement observé pour ce type d'investissement (3 000€)",
       "stable_income": true,
-      "description_income": "Revenus stables recommandés",
+      "description_income": "Revenus stables généralement requis par les opérateurs",
       "risk_tolerance": "medium_to_high",
-      "description_risk": "Nécessite une tolérance au risque moyenne à élevée"
+      "description_risk": "Investissement considéré à risque moyen à élevé"
     },
     "recommended_provider": {
       "name": "Profina",
-      "description": "Opérateur reconnu et fiable pour Girardin Industriel",
+      "description": "Exemple d'opérateur - à titre informatif uniquement, non affilié",
       "website": "https://www.profina.fr",
       "advantages": [
         "Expertise reconnue depuis plus de 20 ans",

@@ -92,20 +92,27 @@ class DeductionsStrategy:
             tax_red_config = self.tax_rules.tax_reductions["dons"]
             reduction_pct = tax_red_config["rate"] * 100
             plafond_pct = tax_red_config["plafond_rate"] * 100
+
+            # Round for display
+            rounded_don = round(suggested_don, -1)
+            rounded_reduction = round(reduction, -1)
+
+            cost_net = rounded_don - rounded_reduction
+            remaining = plafond - current_dons
             description = (
-                f"🎁 Faites un don à une association\n\n"
-                f"📊 **Résumé**\n"
-                f"• Don suggéré : **{suggested_don:.0f} €**\n"
-                f"• Réduction d'impôt : **{reduction:.0f} €** ({reduction_pct:.0f}%)\n"
-                f"• Coût réel : {suggested_don - reduction:.0f} €\n"
-                f"• Plafond restant : {plafond - current_dons:.0f} €\n\n"
-                f"💡 Un don de {suggested_don:.0f} € ne vous coûte "
-                f"que {suggested_don - reduction:.0f} € !"
+                f"🎁 Dons aux associations - Comment ça fonctionne\n\n"
+                f"📊 **Exemple illustratif**\n"
+                f"• Si vous faisiez un don d'environ **{rounded_don:,.0f} €**\n"
+                f"• Réduction potentielle : ~**{rounded_reduction:,.0f} €** "
+                f"({reduction_pct:.0f}%)\n"
+                f"• Coût net estimé : environ {cost_net:,.0f} €\n"
+                f"• Plafond restant : ~{remaining:,.0f} €\n\n"
+                f"💡 Mécanisme : {reduction_pct:.0f}% du don déduit de l'impôt"
             )
 
             return Recommendation(
                 id=str(uuid.uuid4()),
-                title="Dons aux associations - Réduction 66%",
+                title="Dons aux associations - Scénario réduction 66%",
                 description=description,
                 impact_estimated=reduction,
                 risk=RiskLevel.LOW,
@@ -160,14 +167,20 @@ class DeductionsStrategy:
             credit = suggested_expense * services_rules["credit_rate"]
             credit_pct = services_rules["credit_rate"] * 100
 
+            # Round for display
+            rounded_expense = round(suggested_expense, -2)
+            rounded_credit = round(credit, -1)
+
+            cost_net = rounded_expense - rounded_credit
             description = (
-                f"🏠 Services à la personne\n\n"
-                f"📊 **Résumé**\n"
-                f"• Dépenses suggérées : **{suggested_expense:.0f} €**\n"
-                f"• Crédit d'impôt : **{credit:.0f} €** ({credit_pct:.0f}%)\n"
-                f"• Coût réel : {suggested_expense - credit:.0f} €\n"
-                f"• Plafond annuel : {plafond:.0f} €\n\n"
-                f"✅ **Services éligibles**\n"
+                f"🏠 Services à la personne - Comment ça fonctionne\n\n"
+                f"📊 **Exemple illustratif**\n"
+                f"• Dépenses exemple : ~**{rounded_expense:,.0f} €**\n"
+                f"• Crédit potentiel : ~**{rounded_credit:,.0f} €** "
+                f"({credit_pct:.0f}%)\n"
+                f"• Coût net estimé : environ {cost_net:,.0f} €\n"
+                f"• Plafond annuel : {plafond:,.0f} €\n\n"
+                f"✅ **Services généralement éligibles**\n"
                 f"• Ménage, repassage\n"
                 f"• Jardinage, bricolage\n"
                 f"• Garde d'enfants\n"
@@ -176,7 +189,7 @@ class DeductionsStrategy:
 
             return Recommendation(
                 id=str(uuid.uuid4()),
-                title="Services à la personne - Crédit 50%",
+                title="Services à la personne - Scénario crédit 50%",
                 description=description,
                 impact_estimated=credit,
                 risk=RiskLevel.LOW,
@@ -226,20 +239,25 @@ class DeductionsStrategy:
             credit_pct = garde_rules["credit_rate"] * 100
             plafond_per_child = garde_rules["plafond_per_child"]
 
+            # Round for display
+            rounded_expense = round(suggested_expense, -2)
+            rounded_credit = round(credit, -1)
+
             description = (
-                f"👶 Frais de garde d'enfants\n\n"
-                f"📊 **Résumé**\n"
-                f"• Frais déclarables : **{suggested_expense:.0f} €**\n"
-                f"• Crédit d'impôt : **{credit:.0f} €** ({credit_pct:.0f}%)\n"
-                f"• Plafond : {plafond_per_child} € par enfant\n\n"
+                f"👶 Frais de garde d'enfants - Comment ça fonctionne\n\n"
+                f"📊 **Exemple illustratif**\n"
+                f"• Si vous déclariez environ **{rounded_expense:,.0f} €** de frais\n"
+                f"• Crédit d'impôt potentiel : environ **{rounded_credit:,.0f} €** "
+                f"({credit_pct:.0f}%)\n"
+                f"• Plafond : {plafond_per_child:,} € par enfant\n\n"
                 f"👨‍👩‍👧 **Votre situation**\n"
                 f"• {children_under_6} enfant(s) de moins de 6 ans\n"
-                f"• Plafond total : {plafond_total:.0f} €"
+                f"• Plafond total estimé : {plafond_total:,.0f} €"
             )
 
             return Recommendation(
                 id=str(uuid.uuid4()),
-                title=f"Frais de garde ({children_under_6} enfant(s)) - Crédit 50%",
+                title=f"Frais garde ({children_under_6} enfant) - Scénario crédit 50%",
                 description=description,
                 impact_estimated=credit,
                 risk=RiskLevel.LOW,

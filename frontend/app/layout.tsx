@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FiscalOptim - Optimisation fiscale pour freelances",
-  description: "Calculez vos impôts et découvrez des optimisations fiscales personnalisées avec l'IA",
+  title: "FiscalOptim (Beta) - Optimisation fiscale pour freelances",
+  description: "Calculez vos impôts et explorez des scénarios d'optimisation fiscale avec l'IA - Outil informatif",
 };
 
 export default function RootLayout({

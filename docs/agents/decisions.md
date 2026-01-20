@@ -42,7 +42,7 @@ The BMAD methodology requires defining which agents to use. CartesSociete (gamin
 ### D002: Investment Recommendation Approach
 
 **Date:** 2026-01-20
-**Status:** OPEN — REQUIRES HUMAN DECISION
+**Status:** DECIDED
 
 **Context:**
 The system recommends LMNP, FCPI/FIP, and Girardin investments. This may constitute regulated investment advice (Conseil en Investissement Financier).
@@ -56,14 +56,22 @@ The system recommends LMNP, FCPI/FIP, and Girardin investments. This may constit
 | C. Keep as "informational scenarios" | Reframe as education | MEDIUM |
 | D. Obtain CIF license | Full compliance | HIGH (cost/complexity) |
 
-**Recommendation:** Option C — Reframe as informational scenarios
+**Decision:** Option C — Reframe as informational scenarios
 
 **Rationale:**
 - Provides user value without crossing into advice
 - Consistent with "tax optimization" vs "investment advice" framing
 - Requires strong disclaimer language
+- No commercial relationships with providers (OQ001 resolved)
 
-**Pending:** Human approval required before implementation.
+**Implementation Required:**
+- Change prescriptive language ("Investissez X€") to conditional ("Si vous investissiez X€...")
+- Add "Exemple illustratif" framing to all investment scenarios
+- Use "environ" prefix and round amounts (e.g., "environ 5 800€")
+- Add CIF consultation disclaimer to all investment-related content
+- Strengthen disclaimers given no professional liability insurance (OQ002)
+
+**Approved:** 2026-01-20 by project owner
 
 ---
 
@@ -172,7 +180,7 @@ Tax barèmes in JSON files are the source of truth. If wrong, all calculations a
 
 ---
 
-## Open Questions (Not Yet Decided)
+## Open Questions (Resolved)
 
 ### OQ001: Commercial Relationships
 
@@ -180,7 +188,11 @@ Tax barèmes in JSON files are the source of truth. If wrong, all calculations a
 
 **Impact:** If yes, must be disclosed. May affect recommendation credibility.
 
-**Status:** AWAITING HUMAN INPUT
+**Status:** DECIDED — 2026-01-20
+
+**Answer:** No commercial relationships exist with any investment providers (Girardin, FCPI/FIP, etc.)
+
+**Consequence:** No disclosure required. Recommendations can be presented as neutral educational information.
 
 ---
 
@@ -190,7 +202,15 @@ Tax barèmes in JSON files are the source of truth. If wrong, all calculations a
 
 **Impact:** Affects risk tolerance for advice features.
 
-**Status:** AWAITING HUMAN INPUT
+**Status:** DECIDED — 2026-01-20
+
+**Answer:** No professional liability insurance.
+
+**Consequence:**
+- Must strengthen all disclaimers
+- Must use educational framing (not advice)
+- Beta designation required to reduce liability exposure
+- All investment scenarios must include CIF consultation recommendation
 
 ---
 
@@ -200,7 +220,15 @@ Tax barèmes in JSON files are the source of truth. If wrong, all calculations a
 
 **Impact:** User expectations, legal positioning.
 
-**Status:** AWAITING HUMAN INPUT
+**Status:** DECIDED — 2026-01-20
+
+**Answer:** Yes — Mark as Beta.
+
+**Implementation:**
+- Add "Beta" badge to all page headers
+- Update page titles to include "(Beta)"
+- Add beta disclaimer in footer
+- Communicate that tool is in development phase
 
 ---
 

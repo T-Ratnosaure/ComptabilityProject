@@ -89,12 +89,17 @@ class RegimeStrategy:
         # Build recommendation
         target_regime = "micro-BNC" if recommended == "micro" else "réel"
         impact = abs(delta)
+        rounded_impact = round(impact, -2)
 
         description = (
+            f"📊 **Comparaison de régimes fiscaux**\n\n"
             f"Vous êtes actuellement en régime {current_regime}. "
-            f"Un passage au régime {target_regime} pourrait vous faire économiser "
-            f"environ {impact:.2f}€ d'impôt sur le revenu.\n\n"
-            f"{comparison.get('recommendation_reason', '')}"
+            f"D'après notre simulation, un passage au régime {target_regime} "
+            f"pourrait potentiellement générer une économie d'environ "
+            f"**{rounded_impact:,.0f} €** d'impôt sur le revenu.\n\n"
+            f"{comparison.get('recommendation_reason', '')}\n\n"
+            f"📌 *Cette estimation est fournie à titre indicatif. "
+            f"Consultez un expert-comptable pour valider cette analyse.*"
         )
 
         action_steps = []
@@ -116,7 +121,7 @@ class RegimeStrategy:
 
         return Recommendation(
             id=str(uuid.uuid4()),
-            title=f"Optimisation régime fiscal : passage au {target_regime}",
+            title=f"Régime fiscal - Scénario passage au {target_regime}",
             description=description,
             impact_estimated=impact,
             risk=RiskLevel.LOW,

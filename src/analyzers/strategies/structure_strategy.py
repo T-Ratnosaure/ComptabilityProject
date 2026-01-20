@@ -84,11 +84,14 @@ class StructureStrategy:
     ) -> Recommendation:
         """Create SASU/EURL recommendation."""
         charges_pct = charges_rate * 100
+        rounded_revenue = round(annual_revenue, -3)
         description = (
-            f"🏢 Structuration en société (SASU IS / EURL IS)\n\n"
-            f"Avec un CA de {annual_revenue:.2f}€ et un taux de charges "
-            f"de {charges_pct:.1f}%, la création d'une société soumise à l'IS "
-            f"(Impôt sur les Sociétés) pourrait optimiser votre fiscalité.\n\n"
+            f"🏢 Structuration en société - Comment ça fonctionne\n\n"
+            f"📊 **Exemple illustratif basé sur votre profil**\n"
+            f"Avec un CA d'environ {rounded_revenue:,.0f}€ et un taux de charges "
+            f"d'environ {charges_pct:.0f}%, une société soumise à l'IS "
+            f"(Impôt sur les Sociétés) pourrait potentiellement optimiser "
+            f"votre fiscalité.\n\n"
             f"**Avantages fiscaux :**\n"
             f"- IS à 15% jusqu'à 42 500€ de bénéfice (puis 25%)\n"
             f"- Arbitrage rémunération/dividendes optimisable\n"
@@ -104,8 +107,9 @@ class StructureStrategy:
             f"- Gérant majoritaire = TNS (Travailleur Non Salarié)\n"
             f"- Cotisations sociales ~45% du salaire net\n"
             f"- Moins de charges sociales mais moins de protection\n\n"
-            f"**⚠️ Important :** Cette transformation nécessite une étude approfondie "
-            f"par un expert-comptable et un avocat fiscaliste."
+            f"**⚠️ Important :** Ce type de transformation nécessite une étude "
+            f"approfondie par un expert-comptable et un avocat fiscaliste. "
+            f"Les informations ci-dessus sont fournies à titre éducatif uniquement."
         )
 
         action_steps = [
@@ -129,7 +133,7 @@ class StructureStrategy:
 
         return Recommendation(
             id=str(uuid.uuid4()),
-            title="Création SASU/EURL IS - Optimisation structure",
+            title="Structure SASU/EURL IS - Scénario optimisation",
             description=description,
             impact_estimated=estimated_savings,
             risk=RiskLevel.MEDIUM,
@@ -170,10 +174,12 @@ class StructureStrategy:
         if not has_patrimony_strategy:
             return None
 
+        rounded_revenue = round(annual_revenue, -3)
         description = (
             f"🏛️ Holding patrimoniale - Structuration avancée\n\n"
-            f"Avec un CA de {annual_revenue:.2f}€ et une stratégie patrimoniale, "
-            f"une structure de holding peut offrir des avantages significatifs.\n\n"
+            f"📊 **Information générale**\n"
+            f"Avec un CA d'environ {rounded_revenue:,.0f}€ et une stratégie "
+            f"patrimoniale, une holding peut offrir des avantages.\n\n"
             f"**Structure type :**\n"
             f"- HOLDING (SASU ou EURL) détient 100% de l'EXPLOITATION\n"
             f"- + éventuellement SCI pour l'immobilier professionnel\n\n"
@@ -183,10 +189,12 @@ class StructureStrategy:
             f"- Optimisation transmission (pacte Dutreil)\n"
             f"- Protection patrimoniale renforcée\n"
             f"- Investissements via la holding (LBO, participations)\n\n"
-            f"**⚠️ ATTENTION :** Montage complexe réservé aux situations avec :\n"
+            f"**⚠️ ATTENTION :** Montage complexe réservé aux situations :\n"
             f"- CA > 100k€ stable\n"
             f"- Stratégie patrimoniale long terme\n"
-            f"- Conseillé par expert-comptable ET avocat fiscaliste"
+            f"- Conseil d'expert-comptable ET avocat fiscaliste indispensable\n\n"
+            f"📌 *Ces informations sont fournies à titre éducatif. "
+            f"Une étude personnalisée par des professionnels est indispensable.*"
         )
 
         # Get estimated savings and costs from JSON
@@ -196,7 +204,7 @@ class StructureStrategy:
 
         return Recommendation(
             id=str(uuid.uuid4()),
-            title="Holding patrimoniale - Structure avancée",
+            title="Holding patrimoniale - Scénario structure avancée",
             description=description,
             impact_estimated=annual_revenue * estimated_savings_rate,
             risk=RiskLevel.MEDIUM,

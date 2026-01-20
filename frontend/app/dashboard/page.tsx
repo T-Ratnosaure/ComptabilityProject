@@ -89,8 +89,11 @@ export default function DashboardPage() {
             <ArrowLeft className="h-4 w-4" />
             Accueil
           </Link>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
             🇫🇷 FiscalOptim
+            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
+              Beta
+            </span>
           </h1>
           <div className="flex gap-2">
             <Link href="/simulator">

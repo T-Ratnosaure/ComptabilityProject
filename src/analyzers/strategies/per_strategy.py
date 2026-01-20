@@ -120,15 +120,22 @@ class PERStrategy:
         recommended_amount = remaining_room * optimal_mode["target_rate"]
         estimated_gain = recommended_amount * tmi
 
+        # Round amounts for educational display
+        rounded_amount = round(recommended_amount, -2)
+        rounded_gain = round(estimated_gain, -2)
+        rounded_room = round(remaining_room, -2)
+
         description = (
-            f"💰 Versez {recommended_amount:.0f} € sur votre PER\n\n"
-            f"📊 **Résumé**\n"
-            f"• Économie d'impôt : **{estimated_gain:.0f} €**\n"
-            f"• Votre TMI : {tmi * 100:.0f}%\n"
-            f"• Plafond restant : {remaining_room:.0f} €\n"
-            f"• Déjà versé : {per_contributed:.0f} €\n\n"
-            f"⚠️ Épargne bloquée jusqu'à la retraite\n"
-            f"(sauf achat résidence principale, invalidité, décès)"
+            f"💰 PER (Plan Épargne Retraite) - Comment ça fonctionne\n\n"
+            f"📊 **Exemple illustratif basé sur votre profil**\n"
+            f"• Si vous versiez environ **{rounded_amount:,.0f} €** sur un PER\n"
+            f"• Réduction d'impôt potentielle : environ **{rounded_gain:,.0f} €**\n"
+            f"• Votre TMI estimé : {tmi * 100:.0f}%\n"
+            f"• Plafond restant approximatif : {rounded_room:,.0f} €\n\n"
+            f"⚠️ **Épargne bloquée** jusqu'à la retraite\n"
+            f"(sauf achat résidence principale, invalidité, décès)\n\n"
+            f"📌 *Ces chiffres sont des estimations. "
+            f"Consultez un CIF agréé ORIAS avant toute décision.*"
         )
 
         action_steps = [
@@ -141,7 +148,7 @@ class PERStrategy:
 
         return Recommendation(
             id=str(uuid.uuid4()),
-            title="PER - Versement optimal pour réduction d'impôt",
+            title="PER - Scénario versement optimal",
             description=description,
             impact_estimated=estimated_gain,
             risk=RiskLevel.LOW,
@@ -175,19 +182,25 @@ class PERStrategy:
         self, remaining_room: float, tmi: float, potential_gain: float
     ) -> Recommendation:
         """Create maximum PER recommendation (100% of remaining room)."""
+        # Round amounts for educational display
+        rounded_room = round(remaining_room, -2)
+        rounded_gain = round(potential_gain, -2)
+
         description = (
-            f"🚀 Maximisez votre plafond PER\n\n"
-            f"📊 **Résumé**\n"
-            f"• Versement : **{remaining_room:.0f} €**\n"
-            f"• Économie d'impôt : **{potential_gain:.0f} €**\n"
-            f"• Votre TMI : {tmi * 100:.0f}%\n\n"
-            f"💡 Chaque euro versé = {tmi:.2f} € d'économie\n\n"
-            f"⚠️ Vérifiez vos liquidités avant ce versement"
+            f"🚀 PER - Scénario maximisation du plafond\n\n"
+            f"📊 **Exemple illustratif**\n"
+            f"• Si vous versiez environ **{rounded_room:,.0f} €**\n"
+            f"• Réduction d'impôt potentielle : environ **{rounded_gain:,.0f} €**\n"
+            f"• TMI estimé : {tmi * 100:.0f}%\n\n"
+            f"💡 Mécanisme : chaque euro versé réduit votre base imposable\n\n"
+            f"⚠️ **Attention** : vérifiez vos liquidités avant tout versement. "
+            f"Épargne bloquée jusqu'à la retraite.\n\n"
+            f"📌 *Consultez un CIF agréé ORIAS avant toute décision d'investissement.*"
         )
 
         return Recommendation(
             id=str(uuid.uuid4()),
-            title="PER - Maximisation du plafond de déduction",
+            title="PER - Scénario maximisation plafond",
             description=description,
             impact_estimated=potential_gain,
             risk=RiskLevel.LOW,

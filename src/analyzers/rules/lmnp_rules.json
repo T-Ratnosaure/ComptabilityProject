@@ -20,9 +20,9 @@
     },
     "eligibility": {
       "min_tmi": 0.30,
-      "description": "TMI minimale recommandée pour LMNP réel",
+      "description": "TMI à partir de laquelle le LMNP réel est généralement considéré intéressant",
       "min_investment_capacity": 50000,
-      "description_investment": "Capacité d'investissement minimale recommandée"
+      "description_investment": "Capacité d'investissement minimale observée pour ce type de projet"
     },
     "advantages": {
       "fiscal": [
@@ -38,10 +38,11 @@
       ]
     },
     "warnings": [
-      "Engagement locatif long terme recommandé",
-      "Gestion locative à prévoir",
-      "Marché locatif à étudier",
-      "Consulter un expert-comptable avant investissement"
+      "Engagement locatif long terme généralement nécessaire",
+      "Gestion locative à prévoir (risque de vacance, impayés)",
+      "Marché locatif à étudier attentivement",
+      "Consulter un CGP ou expert-comptable avant toute décision",
+      "Les rendements passés ne préjugent pas des rendements futurs"
     ]
   },
   "sources": [

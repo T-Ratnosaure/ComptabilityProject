@@ -7,7 +7,7 @@
       "plafond_rate": 0.4,
       "impot_rate": 0.3,
       "min_amount": 1000,
-      "description": "Investir 40% du plafond ou 30% de l'impôt, minimum 1000€"
+      "description": "Exemple: environ 40% du plafond ou 30% de l'impôt (illustration)"
     },
     "fcpi": {
       "name": "FCPI (Fonds Communs de Placement dans l'Innovation)",
@@ -20,9 +20,9 @@
     },
     "eligibility": {
       "min_impot": 1000,
-      "description": "Impôt minimum recommandé",
+      "description": "Impôt minimum généralement observé pour ce type d'investissement",
       "risk_tolerance": "medium",
-      "description_risk": "Tolérance au risque moyenne requise"
+      "description_risk": "Investissement considéré à risque moyen"
     },
     "advantages": [
       "Réduction d'impôt immédiate",

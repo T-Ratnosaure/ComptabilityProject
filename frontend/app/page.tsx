@@ -9,8 +9,11 @@ export default function Home() {
       {/* Header */}
       <header className="border-b bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
             🇫🇷 FiscalOptim
+            <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">
+              Beta
+            </span>
           </h1>
           <div className="flex gap-3">
             <Link href="/dashboard">
@@ -29,8 +32,8 @@ export default function Home() {
           Estimez vos impôts<br />de freelance en 2 minutes
         </h2>
         <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-          Calculez une estimation de votre impôt, cotisations sociales et découvrez
-          des pistes d'optimisation fiscale à explorer avec votre expert-comptable.
+          Calculez une estimation de votre impôt, cotisations sociales et explorez
+          des scénarios d'optimisation fiscale à étudier avec votre expert-comptable.
         </p>
         <Link href="/simulator">
           <Button size="lg" className="text-lg px-8 py-6 h-auto">
@@ -69,8 +72,8 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <CardDescription className="text-base">
-                Notre IA analyse votre situation et suggère des stratégies d'optimisation
-                adaptées (PER, LMNP, changement de régime...).
+                Notre IA analyse votre situation et présente des scénarios d'optimisation
+                à explorer (PER, LMNP, changement de régime...).
               </CardDescription>
             </CardContent>
           </Card>
@@ -113,6 +116,7 @@ export default function Home() {
       <footer className="border-t py-8 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="text-center text-slate-600 mb-4">
+            <p className="text-amber-600 font-semibold mb-1">Version Beta - Outil en développement</p>
             <p>© 2025 FiscalOptim - Estimation fiscale pour freelances français</p>
           </div>
           <div className="text-xs text-slate-500 max-w-3xl mx-auto text-center">
@@ -121,9 +125,13 @@ export default function Home() {
               <span className="font-semibold">Avertissement légal</span>
             </div>
             <p className="mb-2">
-              Cet outil fournit des <strong>estimations informatives</strong> uniquement.
+              Cet outil fournit des <strong>estimations informatives à titre éducatif</strong> uniquement.
               Il ne remplace pas les services d'un expert-comptable, avocat fiscaliste ou
               conseiller en gestion de patrimoine agréé.
+            </p>
+            <p className="mb-2">
+              Les scénarios d'investissement présentés ne constituent pas un conseil en investissement.
+              Consultez un Conseiller en Investissements Financiers (CIF) agréé ORIAS avant toute décision.
             </p>
             <p className="mb-2">
               Les calculs sont basés sur les barèmes fiscaux publics 2025 et peuvent ne pas

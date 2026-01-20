@@ -104,32 +104,41 @@ class GirardinStrategy:
         commitment_years = industriel_rules["commitment_years"]
 
         # Build description based on whether partner suggestions are enabled
+        # Round amounts for display
+        rounded_investment = round(optimal_investment, -2)  # Round to nearest 100
+        rounded_reduction = round(target_reduction, -2)
+        rounded_gain = round(net_gain, -2)
+
         if show_partners:
-            # Get Profina info
+            # Get Profina info - educational framing
             profina = self.rules["recommended_provider"]
+            rounded_impot = round(impot_net, -2)
             description = (
-                f"Girardin Industriel - Defiscalisation Outre-Mer via Profina\n\n"
-                f"Le dispositif Girardin Industriel permet d'obtenir une reduction "
-                f"d'impot de **110%** du montant investi dans des equipements "
+                f"Girardin Industriel - Défiscalisation Outre-Mer\n\n"
+                f"Le dispositif Girardin Industriel permet d'obtenir une réduction "
+                f"d'impôt de **110%** du montant investi dans des équipements "
                 f"productifs en Outre-Mer.\n\n"
-                f"**Pour votre situation (impot de {impot_net:.2f} EUR) :**\n"
-                f"- Investissement recommande : {optimal_investment:.2f} EUR\n"
-                f"- Reduction d'impot : {target_reduction:.2f} EUR\n"
-                f"- Gain net : +{net_gain:.2f} EUR (rendement {rendement_pct:.1f}%)\n\n"
-                f"**Operateur recommande : {profina['name']}**\n"
+                f"**Exemple illustratif (impôt ~{rounded_impot:,.0f} €) :**\n"
+                f"- Si vous investissiez ~{rounded_investment:,.0f} €\n"
+                f"- Réduction potentielle : ~{rounded_reduction:,.0f} €\n"
+                f"- Gain net estimé : ~+{rounded_gain:,.0f} € "
+                f"(rendement {rendement_pct:.1f}%)\n\n"
+                f"**Opérateur (exemple) : {profina['name']}**\n"
                 f"{profina['description']}\n\n"
-                f"**Pourquoi Profina ?**\n"
+                f"**Caractéristiques :**\n"
             )
             for advantage in profina["advantages"]:
                 description += f"- {advantage}\n"
             description += (
                 f"\nSite : {profina['website']}\n\n"
-                f"**Important :** Le Girardin est un investissement a risque. "
-                f"La reduction est acquise immediatement, mais l'engagement est de "
-                f"{commitment_years} ans. Profina securise les montages "
-                f"mais le risque zero n'existe pas."
+                f"**Important :** Le Girardin est un investissement à risque. "
+                f"La réduction est acquise immédiatement, mais l'engagement est de "
+                f"{commitment_years} ans.\n\n"
+                f"📌 **AVERTISSEMENT** : Cet exemple est fourni à titre informatif. "
+                f"Consultez un Conseiller en Investissements Financiers (CIF) agréé "
+                f"avant toute décision d'investissement."
             )
-            title = "Girardin Industriel via Profina - Reduction 110%"
+            title = "Girardin Industriel - Scénario 110%"
             action_steps = [
                 f"Contacter Profina ({profina['website']})",
                 "Demander une simulation personnalisee",
@@ -140,19 +149,24 @@ class GirardinStrategy:
                 "Declarer la reduction sur votre declaration 2042 C",
             ]
         else:
-            # Generic description without partner info
+            # Generic description without partner info - educational framing
+            rounded_investment = round(optimal_investment, -2)
+            rounded_reduction = round(target_reduction, -2)
+            rounded_gain = round(net_gain, -2)
             description = (
-                f"🌴 Girardin Industriel - Outre-Mer\n\n"
-                f"📊 **Résumé**\n"
-                f"• Investissement : **{optimal_investment:.0f} €**\n"
-                f"• Réduction d'impôt : **{target_reduction:.0f} €** (110%)\n"
-                f"• Gain net : **+{net_gain:.0f} €**\n"
-                f"• Rendement : {rendement_pct:.1f}%\n\n"
+                f"🌴 Girardin Industriel - Comment ça fonctionne\n\n"
+                f"📊 **Exemple illustratif basé sur votre profil**\n"
+                f"• Si vous investissiez ~**{rounded_investment:,.0f} €**\n"
+                f"• Réduction potentielle : ~**{rounded_reduction:,.0f} €** (110%)\n"
+                f"• Gain net estimé : ~**+{rounded_gain:,.0f} €**\n"
+                f"• Rendement indicatif : {rendement_pct:.1f}%\n\n"
                 f"⏳ **Engagement** : {commitment_years} ans\n"
-                f"📋 **Plafond légal** : {max_reduction_plein_droit:,.0f} € max/an\n\n"
-                f"⚠️ Choisissez un opérateur agréé avec garantie de bonne fin"
+                f"📋 **Plafond** : {max_reduction_plein_droit:,.0f} € max/an\n\n"
+                f"⚠️ Choisissez un opérateur agréé (garantie bonne fin)\n\n"
+                f"📌 **AVERTISSEMENT** : Exemple informatif uniquement. "
+                f"Consultez un CIF agréé ORIAS avant toute décision."
             )
-            title = "Girardin Industriel - Reduction 110%"
+            title = "Girardin Industriel - Scénario 110%"
             action_steps = [
                 "Rechercher des operateurs Girardin agrees",
                 "Comparer les offres et les garanties proposees",
