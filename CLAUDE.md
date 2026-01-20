@@ -146,8 +146,14 @@ At the end of every significant work session, **AUTOMATICALLY** execute the full
 7. **Verify CI/CD passes** - Check GitHub Actions status
 8. **Merge PR** - Squash merge and delete branch
 9. **Switch to master** - `git checkout master && git pull`
+10. **DISPLAY MANUAL TESTING GUIDE** - Show the user how to manually verify changes
 
 **DO NOT** wait for the user to ask for any of these steps. This is the expected standard workflow completion.
+
+**Step 10 is CRITICAL**: Always end your summary by displaying the manual testing guide directly in the conversation. Include:
+- Prerequisites (how to start servers)
+- Numbered test cases with steps and expected results
+- Commands to run (curl, browser URLs, etc.)
 
 **Exception**: Only skip merge if CI/CD fails or user explicitly requests review first.
 
