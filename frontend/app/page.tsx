@@ -120,7 +120,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center text-slate-600 mb-4">
             <p className="text-amber-600 font-semibold mb-1">Version Beta - Outil en développement</p>
-            <p>© 2025 FiscalOptim - Estimation fiscale pour freelances français</p>
+            <p>© {new Date().getFullYear()} FiscalOptim - Estimation fiscale pour freelances français</p>
           </div>
           <div className="text-xs text-slate-500 max-w-3xl mx-auto text-center">
             <div className="flex items-center justify-center gap-1 mb-2">

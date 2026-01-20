@@ -4,8 +4,6 @@ from io import BytesIO
 from typing import Any
 
 # Deferred imports to avoid loading python-magic at module level (hangs on Windows)
-# Import magic only when actually needed in validate_mime_type()
-MAGIC_AVAILABLE = False
 PYPDF_AVAILABLE = False
 PIL_AVAILABLE = False
 
