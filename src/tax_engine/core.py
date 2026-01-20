@@ -258,7 +258,12 @@ def compute_ir(
     """Compute income tax (IR).
 
     Args:
-        person: Person data with nb_parts, status
+        person: Person data with:
+            - nb_parts: Number of fiscal parts (quotient familial)
+            - status: Tax regime (micro_bnc, micro_bic_service, reel_bnc, etc.)
+            - situation_familiale: 'couple' (married/PACS joint) or 'celibataire'
+              (single, divorced, widowed, separate filing). Used for CEHR brackets.
+              Defaults to 'celibataire' if not provided.
         income: Income data (professional_gross, salary, rental, capital)
         deductions: Deductions (PER, alimony, etc.) and tax reductions data
         rules: Tax rules for year
@@ -266,15 +271,21 @@ def compute_ir(
     Returns:
         Dict with:
             - revenu_imposable: Taxable income after deductions
+            - rfr: Revenu Fiscal de Référence (different from revenu_imposable)
             - part_income: Income per part
             - impot_brut: Gross tax before reductions
-            - impot_net: Net tax after reductions
+            - impot_net: Net tax after reductions (including CEHR and CDHR)
+            - impot_ir_seul: IR without CEHR/CDHR
             - tmi: Marginal tax rate (0.0, 0.11, 0.30, 0.41, 0.45)
             - tax_reductions: Dict of applied reductions
             - brackets: List of bracket details
             - per_deduction_applied: PER amount actually deducted
             - per_deduction_excess: PER amount exceeding plafond
             - per_plafond_detail: Dict with {applied, excess, plafond_max}
+            - cehr: CEHR amount (0 if below threshold)
+            - cehr_detail: CEHR bracket details (empty if not applicable)
+            - cdhr: CDHR amount (0 if below threshold or effective rate >= 20%)
+            - cdhr_detail: CDHR calculation details (empty if not applicable)
     """
     # Compute taxable professional income
     taxable_prof = compute_taxable_professional_income(
@@ -341,17 +352,52 @@ def compute_ir(
             "plafond_max": round(per_plafond, 2),
         }
 
+    # Calculate RFR (Revenu Fiscal de Référence)
+    # RFR = revenu_imposable + items that were deducted but must be reintegrated
+    # Key difference: PER contributions are deducted from RI but included in RFR
+    rfr = revenu_imposable + per_deduction  # Reintegrate PER deduction
+    # Note: Other items to reintegrate in real RFR: certain abattements,
+    # plus-values with specific regimes, etc. Simplified here for main case.
+
+    # Get situation_familiale for CEHR/CDHR brackets (not nb_parts!)
+    # 'couple' = married/PACS with joint filing (imposition commune)
+    # 'celibataire' = single, divorced, widowed, or separate filing
+    situation_familiale = person.get("situation_familiale", "celibataire")
+
+    # Compute CEHR (Contribution Exceptionnelle sur les Hauts Revenus)
+    # CEHR is based on RFR, NOT revenu_imposable
+    cehr_amount, cehr_detail = compute_cehr(rfr, situation_familiale, rules)
+
+    # Compute CDHR (Contribution Différentielle sur les Hauts Revenus) - NEW 2025
+    # CDHR ensures minimum 20% effective tax rate on high incomes
+    cdhr_amount, cdhr_detail = compute_cdhr(
+        rfr=rfr,
+        impot_ir=impot_net,  # IR after reductions, before CEHR
+        cehr=cehr_amount,
+        situation_familiale=situation_familiale,
+        rules=rules,
+    )
+
+    # Add CEHR and CDHR to total tax
+    impot_total = impot_net + cehr_amount + cdhr_amount
+
     return {
         "revenu_imposable": round(revenu_imposable, 2),
+        "rfr": round(rfr, 2),
         "part_income": round(part_income, 2),
         "impot_brut": round(impot_brut, 2),
-        "impot_net": round(impot_net, 2),
+        "impot_net": round(impot_total, 2),  # Total includes CEHR + CDHR
+        "impot_ir_seul": round(impot_net, 2),  # IR without CEHR/CDHR
         "tmi": tmi,
         "tax_reductions": tax_reductions,
         "brackets": brackets_detail,
         "per_deduction_applied": round(per_deduction, 2),
         "per_deduction_excess": round(per_excess, 2),
         "per_plafond_detail": per_plafond_detail,
+        "cehr": cehr_amount,
+        "cehr_detail": cehr_detail,
+        "cdhr": cdhr_amount,
+        "cdhr_detail": cdhr_detail,
     }
 
 
@@ -532,6 +578,160 @@ def compare_micro_vs_reel(
         "charges_reelles": charges_reelles,
         "taux_abattement_micro": abattement_rate,
     }
+
+
+def compute_cehr(
+    revenu_fiscal_reference: float,
+    situation_familiale: str,
+    rules: TaxRules,
+) -> tuple[float, list[dict[str, Any]]]:
+    """Compute CEHR (Contribution Exceptionnelle sur les Hauts Revenus).
+
+    Args:
+        revenu_fiscal_reference: Revenu fiscal de référence (RFR)
+            Note: RFR includes PER contributions and other items deducted from
+            revenu_imposable. It is NOT the same as revenu_imposable.
+        situation_familiale: Family status for CEHR bracket selection.
+            'couple' for married/PACS with joint filing (imposition commune)
+            'celibataire' for single, divorced, widowed, or separate filing
+        rules: Tax rules with CEHR brackets
+
+    Returns:
+        Tuple of (cehr_amount, brackets_detail)
+
+    Note:
+        CEHR brackets differ between single (250k/500k thresholds) and
+        couple (500k/1M thresholds). The situation_familiale determines
+        which brackets apply, NOT the number of parts (nb_parts).
+        A single parent with 2 children (nb_parts=2.0) uses 'celibataire' brackets.
+    """
+    cehr_config = rules.cehr
+    if not cehr_config:
+        return 0.0, []
+
+    # Use explicit situation_familiale - do NOT infer from nb_parts
+    # A single parent with children (nb_parts >= 2) still uses celibataire brackets
+    is_couple = situation_familiale.lower() == "couple"
+    brackets = cehr_config.get("couple" if is_couple else "celibataire", [])
+
+    cehr = 0.0
+    brackets_detail = []
+
+    for bracket in brackets:
+        rate = bracket["rate"]
+        lower = bracket["lower_bound"]
+        upper = bracket.get("upper_bound")
+
+        if upper is None:
+            # Last bracket (no upper limit)
+            if revenu_fiscal_reference > lower:
+                taxable_in_bracket = revenu_fiscal_reference - lower
+                tax_in_bracket = taxable_in_bracket * rate
+                cehr += tax_in_bracket
+                brackets_detail.append(
+                    {
+                        "rate": rate,
+                        "income_in_bracket": round(taxable_in_bracket, 2),
+                        "cehr_in_bracket": round(tax_in_bracket, 2),
+                    }
+                )
+        else:
+            if revenu_fiscal_reference > lower:
+                taxable_in_bracket = min(revenu_fiscal_reference, upper) - lower
+                tax_in_bracket = taxable_in_bracket * rate
+                cehr += tax_in_bracket
+                brackets_detail.append(
+                    {
+                        "rate": rate,
+                        "income_in_bracket": round(taxable_in_bracket, 2),
+                        "cehr_in_bracket": round(tax_in_bracket, 2),
+                    }
+                )
+
+    return round(cehr, 2), brackets_detail
+
+
+def compute_cdhr(
+    rfr: float,
+    impot_ir: float,
+    cehr: float,
+    situation_familiale: str,
+    rules: TaxRules,
+) -> tuple[float, dict[str, Any]]:
+    """Compute CDHR (Contribution Différentielle sur les Hauts Revenus) - NEW 2025.
+
+    The CDHR ensures a minimum effective tax rate of 20% on high incomes.
+    It applies when (IR + CEHR) / RFR < 20% for high-income taxpayers.
+
+    Args:
+        rfr: Revenu Fiscal de Référence
+        impot_ir: Income tax amount (after reductions, before CEHR)
+        cehr: CEHR amount already calculated
+        situation_familiale: 'couple' or 'celibataire' for threshold selection
+        rules: Tax rules with CDHR configuration
+
+    Returns:
+        Tuple of (cdhr_amount, detail_dict)
+
+    Note:
+        CDHR was introduced in 2025 (Loi de Finances 2025).
+        It is CUMULATIVE with CEHR - both can apply to the same taxpayer.
+
+    Sources:
+        - https://www.impots.gouv.fr/actualite/contribution-differentielle-sur-les-hauts-revenus-cdhr
+        - Loi de Finances 2025
+    """
+    cdhr_config = rules.cdhr
+    if not cdhr_config:
+        return 0.0, {}
+
+    # Get threshold based on situation (same logic as CEHR)
+    is_couple = situation_familiale.lower() == "couple"
+    threshold = cdhr_config.get(
+        "seuil_couple" if is_couple else "seuil_celibataire", 250000
+    )
+    target_rate = cdhr_config.get("taux_cible", 0.20)  # 20% minimum effective rate
+
+    # CDHR only applies above the threshold
+    if rfr <= threshold:
+        return 0.0, {}
+
+    # Calculate current effective tax rate
+    # Effective rate = (IR + CEHR) / RFR
+    total_tax_before_cdhr = impot_ir + cehr
+    effective_rate = total_tax_before_cdhr / rfr if rfr > 0 else 0.0
+
+    # If effective rate is already >= 20%, no CDHR needed
+    if effective_rate >= target_rate:
+        return 0.0, {
+            "applicable": False,
+            "reason": "Taux effectif déjà >= 20%",
+            "taux_effectif": round(effective_rate, 4),
+            "taux_cible": target_rate,
+        }
+
+    # CDHR = (target_rate × RFR) - (IR + CEHR)
+    # This brings the total tax up to 20% of RFR
+    target_tax = target_rate * rfr
+    cdhr_amount = target_tax - total_tax_before_cdhr
+
+    # CDHR cannot be negative
+    cdhr_amount = max(0.0, cdhr_amount)
+
+    detail = {
+        "applicable": True,
+        "rfr": round(rfr, 2),
+        "seuil": threshold,
+        "ir_avant_cdhr": round(impot_ir, 2),
+        "cehr": round(cehr, 2),
+        "taux_effectif_avant": round(effective_rate, 4),
+        "taux_cible": target_rate,
+        "impot_cible": round(target_tax, 2),
+        "cdhr": round(cdhr_amount, 2),
+        "taux_effectif_apres": round((total_tax_before_cdhr + cdhr_amount) / rfr, 4),
+    }
+
+    return round(cdhr_amount, 2), detail
 
 
 def compute_pas_result(impot_net: float, pas_withheld: float) -> dict[str, float]:

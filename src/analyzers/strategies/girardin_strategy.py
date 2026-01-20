@@ -75,9 +75,17 @@ class GirardinStrategy:
         target_reduction_rate = investment_rules["target_reduction_rate"]
         min_tax_remaining = investment_rules["min_tax_remaining"]
 
-        # Calculate optimal investment
+        # Get legal ceiling from JSON (plafond de plein droit = 40 909€)
+        plafonds = self.rules.get("plafonds", {})
+        max_reduction_plein_droit = plafonds.get("plein_droit", {}).get(
+            "max_reduction", 40909
+        )
+
+        # Calculate optimal investment with legal ceiling
         target_reduction = min(
-            impot_net * target_reduction_rate, impot_net - min_tax_remaining
+            impot_net * target_reduction_rate,
+            impot_net - min_tax_remaining,
+            max_reduction_plein_droit,  # Apply legal ceiling
         )
         optimal_investment = target_reduction / reduction_rate
 
@@ -140,7 +148,8 @@ class GirardinStrategy:
                 f"• Réduction d'impôt : **{target_reduction:.0f} €** (110%)\n"
                 f"• Gain net : **+{net_gain:.0f} €**\n"
                 f"• Rendement : {rendement_pct:.1f}%\n\n"
-                f"⏳ **Engagement** : {commitment_years} ans\n\n"
+                f"⏳ **Engagement** : {commitment_years} ans\n"
+                f"📋 **Plafond légal** : {max_reduction_plein_droit:,.0f} € max/an\n\n"
                 f"⚠️ Choisissez un opérateur agréé avec garantie de bonne fin"
             )
             title = "Girardin Industriel - Reduction 110%"

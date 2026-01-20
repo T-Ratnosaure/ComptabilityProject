@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { apiClient, TaxCalculationRequest, TaxCalculationResponse } from "@/lib/api"
 import { ArrowLeft, Calculator, TrendingUp } from "lucide-react"
+import { LegalDisclaimerBanner, LegalDisclaimerFooter } from "@/components/legal-disclaimer"
 
 export default function SimulatorPage() {
   const [loading, setLoading] = useState(false)
@@ -20,7 +21,7 @@ export default function SimulatorPage() {
     person: {
       name: "",
       nb_parts: 1,
-      status: "micro-entrepreneur",
+      status: "micro_bnc",
     },
     income: {
       professional_gross: 0,
@@ -49,6 +50,10 @@ export default function SimulatorPage() {
     try {
       const response = await apiClient.calculateTax(formData)
       setResult(response)
+
+      // Sauvegarder les données dans localStorage pour le chat IA
+      localStorage.setItem("fiscalOptim_profileData", JSON.stringify(formData))
+      localStorage.setItem("fiscalOptim_taxResult", JSON.stringify(response))
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de calcul")
     } finally {
@@ -117,12 +122,17 @@ export default function SimulatorPage() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
+          {/* Legal Disclaimer Banner */}
+          <div className="mb-6">
+            <LegalDisclaimerBanner />
+          </div>
+
           <div className="text-center mb-8">
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-              Simulateur d'impôts
+              Simulateur d'impôts (Estimation)
             </h2>
             <p className="text-slate-600 text-lg">
-              Calculez vos impôts et cotisations sociales en temps réel
+              Estimez vos impôts et cotisations sociales - résultats indicatifs uniquement
             </p>
           </div>
 
@@ -157,10 +167,11 @@ export default function SimulatorPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="micro-entrepreneur">Micro-entrepreneur</SelectItem>
-                          <SelectItem value="indépendant">Indépendant (BNC/BIC réel)</SelectItem>
-                          <SelectItem value="salarié">Salarié</SelectItem>
-                          <SelectItem value="mixte">Mixte</SelectItem>
+                          <SelectItem value="micro_bnc">Micro-BNC (Professions libérales)</SelectItem>
+                          <SelectItem value="micro_bic_service">Micro-BIC Services</SelectItem>
+                          <SelectItem value="micro_bic_vente">Micro-BIC Ventes</SelectItem>
+                          <SelectItem value="reel_bnc">Réel BNC</SelectItem>
+                          <SelectItem value="reel_bic">Réel BIC</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -379,32 +390,38 @@ export default function SimulatorPage() {
                     <CardContent className="space-y-4">
                       <div className="flex justify-between items-center p-4 bg-white rounded-lg">
                         <span className="text-slate-600">Revenu imposable</span>
-                        <span className="text-xl font-bold">{formatCurrency(result.revenu_imposable)}</span>
+                        <span className="text-xl font-bold">{formatCurrency(result.impot.revenu_imposable)}</span>
                       </div>
 
                       <div className="flex justify-between items-center p-4 bg-white rounded-lg">
-                        <span className="text-slate-600">Quotient familial</span>
-                        <span className="text-xl font-bold">{formatCurrency(result.quotient_familial)}</span>
+                        <span className="text-slate-600">Revenu par part</span>
+                        <span className="text-xl font-bold">{formatCurrency(result.impot.part_income)}</span>
                       </div>
 
                       <div className="border-t pt-4">
                         <h3 className="font-semibold text-lg mb-3">Impôt sur le revenu</h3>
                         <div className="space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-slate-600">Impôt brut</span>
+                            <span className="text-slate-600">IR brut</span>
                             <span className="font-semibold">{formatCurrency(result.impot.impot_brut)}</span>
                           </div>
+                          {result.impot.cehr !== undefined && result.impot.cehr > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">CEHR (hauts revenus)</span>
+                              <span className="font-semibold text-orange-600">{formatCurrency(result.impot.cehr)}</span>
+                            </div>
+                          )}
                           <div className="flex justify-between">
-                            <span className="text-slate-600">Impôt net</span>
+                            <span className="text-slate-600">Impôt total</span>
                             <span className="font-semibold text-violet-600">{formatCurrency(result.impot.impot_net)}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-600">TMI</span>
-                            <span className="font-semibold">{formatPercent(result.impot.tmi)}</span>
+                            <span className="font-semibold">{(result.impot.tmi * 100).toFixed(0)}%</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-600">Taux effectif</span>
-                            <span className="font-semibold">{formatPercent(result.impot.taux_effectif)}</span>
+                            <span className="text-slate-600">À payer maintenant</span>
+                            <span className="font-semibold">{formatCurrency(result.impot.due_now)}</span>
                           </div>
                         </div>
                       </div>
@@ -417,9 +434,13 @@ export default function SimulatorPage() {
                             <span className="font-semibold">{formatCurrency(result.socials.urssaf_expected)}</span>
                           </div>
                           <div className="flex justify-between">
+                            <span className="text-slate-600">URSSAF payée</span>
+                            <span className="font-semibold">{formatCurrency(result.socials.urssaf_paid)}</span>
+                          </div>
+                          <div className="flex justify-between">
                             <span className="text-slate-600">Différence</span>
-                            <span className={`font-semibold ${result.socials.difference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {formatCurrency(result.socials.difference)}
+                            <span className={`font-semibold ${result.socials.delta >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {formatCurrency(result.socials.delta)}
                             </span>
                           </div>
                         </div>
@@ -428,7 +449,7 @@ export default function SimulatorPage() {
                       <div className="border-t pt-4">
                         <div className="flex justify-between items-center p-4 bg-violet-600 text-white rounded-lg">
                           <span className="font-semibold text-lg">Charge fiscale totale</span>
-                          <span className="text-2xl font-bold">{formatCurrency(result.charge_totale)}</span>
+                          <span className="text-2xl font-bold">{formatCurrency(result.impot.impot_net + result.socials.urssaf_expected)}</span>
                         </div>
                       </div>
                     </CardContent>

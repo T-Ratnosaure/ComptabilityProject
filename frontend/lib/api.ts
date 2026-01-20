@@ -37,11 +37,18 @@ export interface TaxCalculationResponse {
     part_income: number;
     impot_brut: number;
     impot_net: number;
+    impot_ir_seul?: number;
     tmi: number;
     tax_reductions: Record<string, number>;
     per_deduction_applied: number;
     per_deduction_excess: number;
     per_plafond_detail: any;
+    cehr?: number;
+    cehr_detail?: Array<{
+      rate: number;
+      income_in_bracket: number;
+      cehr_in_bracket: number;
+    }>;
     tranches_detail: Array<{
       rate: number;
       income_in_bracket: number;
