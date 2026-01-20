@@ -37,6 +37,74 @@ When exiting plan mode to begin implementation:
 - Run main script: `python main.py`
 - Or with UV: `uv run python main.py`
 
+## MANDATORY: Testing Before Completion
+
+**ALWAYS run these tests before committing/pushing any changes:**
+
+### 1. Backend Tests (REQUIRED)
+```bash
+cd /c/Users/larai/ComptabilityProject
+uv run pytest tests/ -v
+```
+Expected: All tests pass (some skips are OK for API key tests)
+
+### 2. Linting (REQUIRED)
+```bash
+uv run ruff check .
+uv run ruff format . --check
+```
+Expected: No errors
+
+### 3. Type Checking (REQUIRED)
+```bash
+uv run pyrefly check
+```
+Expected: May have pre-existing errors, but no NEW errors from your changes
+
+### 4. Frontend Build (REQUIRED if frontend changed)
+```bash
+cd frontend
+npm run build
+```
+Expected: Build succeeds with no errors
+
+### 5. Run Application Locally (for manual testing)
+```bash
+# Terminal 1: Backend API
+cd /c/Users/larai/ComptabilityProject
+uv run uvicorn src.api.main:app --reload --port 8000
+
+# Terminal 2: Frontend
+cd /c/Users/larai/ComptabilityProject/frontend
+npm run dev
+```
+URLs:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+
+### 6. Manual Verification Checklist
+
+**Always provide this checklist in your completion summary:**
+
+| Area | What to Check | URL/Command |
+|------|---------------|-------------|
+| Home Page | Page loads, navigation works | http://localhost:3000 |
+| Simulator | Tax calculation works | http://localhost:3000/simulator |
+| Optimizations | Scenarios display correctly | http://localhost:3000/optimizations |
+| Dashboard | Data displays | http://localhost:3000/dashboard |
+| Chat | Chat interface works | http://localhost:3000/chat |
+| API Health | Backend responds | `curl http://localhost:8000/health` |
+
+### Quick Test Command (Copy-Paste Ready)
+```bash
+cd /c/Users/larai/ComptabilityProject && \
+uv run pytest tests/ -v --tb=short && \
+uv run ruff check . && \
+cd frontend && npm run build && \
+echo "✅ All tests passed!"
+```
+
 ## Project Structure
 
 - `main.py` - Application entry point with basic setup
