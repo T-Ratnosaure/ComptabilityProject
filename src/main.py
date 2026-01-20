@@ -187,6 +187,27 @@ app.add_middleware(
     ],
 )
 
+
+# Request size limit middleware
+MAX_REQUEST_SIZE = 10 * 1024 * 1024  # 10 MB
+
+
+@app.middleware("http")
+async def limit_request_size(request: Request, call_next):
+    """Reject requests exceeding the maximum allowed size."""
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > MAX_REQUEST_SIZE:
+        max_size_mb = MAX_REQUEST_SIZE // (1024 * 1024)
+        return JSONResponse(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            content={
+                "error": "REQUEST_TOO_LARGE",
+                "detail": f"Request body exceeds {max_size_mb} MB limit",
+            },
+        )
+    return await call_next(request)
+
+
 # Register API routers
 app.include_router(documents.router)
 app.include_router(tax.router)

@@ -136,6 +136,127 @@ class TestBaremeApplication:
         assert tax == pytest.approx(expected, abs=0.1)
 
 
+class TestBracketBoundaryEdgeCases:
+    """Edge case tests for tax bracket boundaries."""
+
+    def test_exactly_at_first_bracket_limit(self):
+        """Test income exactly at 0%/11% boundary (11294)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(11294.0, rules)
+
+        # Exactly at 11294, tax should be 0
+        assert tax == pytest.approx(0.0)
+
+    def test_one_euro_above_first_bracket(self):
+        """Test income 1 euro above first bracket (11295)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(11295.0, rules)
+
+        # 1 euro in 11% bracket
+        expected = 1.0 * 0.11
+        assert tax == pytest.approx(expected, abs=0.01)
+
+    def test_exactly_at_second_bracket_limit(self):
+        """Test income exactly at 11%/30% boundary (28797)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(28797.0, rules)
+
+        # Full 11% bracket: (28797 - 11294) * 0.11
+        expected = (28797 - 11294) * 0.11
+        assert tax == pytest.approx(expected, abs=0.1)
+
+    def test_one_euro_above_second_bracket(self):
+        """Test income 1 euro above second bracket (28798)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(28798.0, rules)
+
+        # Full 11% bracket + 1 euro at 30%
+        expected = (28797 - 11294) * 0.11 + 1.0 * 0.30
+        assert tax == pytest.approx(expected, abs=0.1)
+
+    def test_exactly_at_third_bracket_limit(self):
+        """Test income exactly at 30%/41% boundary (82341)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(82341.0, rules)
+
+        # Full 11% and 30% brackets
+        expected = (28797 - 11294) * 0.11 + (82341 - 28797) * 0.30
+        assert tax == pytest.approx(expected, abs=1.0)
+
+    def test_one_euro_above_third_bracket(self):
+        """Test income 1 euro above third bracket (82342)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(82342.0, rules)
+
+        # Full 11%, 30% brackets + 1 euro at 41%
+        expected = (28797 - 11294) * 0.11 + (82341 - 28797) * 0.30 + 1.0 * 0.41
+        assert tax == pytest.approx(expected, abs=1.0)
+
+    def test_exactly_at_fourth_bracket_limit(self):
+        """Test income exactly at 41%/45% boundary (177106)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(177106.0, rules)
+
+        # Full 11%, 30%, and 41% brackets
+        expected = (
+            (28797 - 11294) * 0.11 + (82341 - 28797) * 0.30 + (177106 - 82341) * 0.41
+        )
+        assert tax == pytest.approx(expected, abs=1.0)
+
+    def test_one_euro_above_fourth_bracket(self):
+        """Test income 1 euro above fourth bracket (177107)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(177107.0, rules)
+
+        # All brackets + 1 euro at 45%
+        expected = (
+            (28797 - 11294) * 0.11
+            + (82341 - 28797) * 0.30
+            + (177106 - 82341) * 0.41
+            + 1.0 * 0.45
+        )
+        assert tax == pytest.approx(expected, abs=1.0)
+
+    def test_very_high_income_in_top_bracket(self):
+        """Test very high income (1M) in top 45% bracket."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(1000000.0, rules)
+
+        # All brackets filled + large amount in 45%
+        expected = (
+            (28797 - 11294) * 0.11
+            + (82341 - 28797) * 0.30
+            + (177106 - 82341) * 0.41
+            + (1000000 - 177106) * 0.45
+        )
+        assert tax == pytest.approx(expected, abs=10.0)
+
+    def test_negative_income_returns_zero(self):
+        """Test that negative income returns zero tax (edge case)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(-1000.0, rules)
+
+        # Negative income should result in 0 tax
+        assert tax == 0.0
+
+    def test_very_small_income(self):
+        """Test very small income (1 euro)."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(1.0, rules)
+
+        # 1 euro is in 0% bracket
+        assert tax == 0.0
+
+    def test_penny_amounts_handled(self):
+        """Test fractional amounts (cents) are handled correctly."""
+        rules = get_tax_rules(2024)
+        tax = apply_bareme(11294.50, rules)
+
+        # 0.50 euro in 11% bracket
+        expected = 0.50 * 0.11
+        assert tax == pytest.approx(expected, abs=0.01)
+
+
 class TestFullCalculation:
     """Tests for complete tax calculations."""
 
