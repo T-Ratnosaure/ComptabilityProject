@@ -94,7 +94,7 @@ export interface TaxCalculationResponse {
     };
   };
   warnings?: string[];
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface OptimizationContext {

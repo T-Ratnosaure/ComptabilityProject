@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, ArrowLeft, Briefcase, TrendingUp, Shield, Check } from "lucide-react"
+import { ArrowRight, ArrowLeft, Check } from "lucide-react"
 
 // Profession profiles with default values
 const PROFESSION_PROFILES = {

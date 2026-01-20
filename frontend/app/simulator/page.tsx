@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { apiClient, TaxCalculationRequest, TaxCalculationResponse } from "@/lib/api"
 import { ArrowLeft, Calculator, TrendingUp } from "lucide-react"
-import { LegalDisclaimerBanner, LegalDisclaimerFooter } from "@/components/legal-disclaimer"
+import { LegalDisclaimerBanner } from "@/components/legal-disclaimer"
 
 export default function SimulatorPage() {
   const [loading, setLoading] = useState(false)
@@ -95,14 +95,6 @@ export default function SimulatorPage() {
       style: 'currency',
       currency: 'EUR'
     }).format(value)
-  }
-
-  const formatPercent = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'percent',
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 2
-    }).format(value / 100)
   }
 
   return (

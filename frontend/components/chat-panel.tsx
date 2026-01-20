@@ -66,18 +66,6 @@ export function ChatPanel({
     setLoading(true)
 
     try {
-      // Construire le contexte avec les optimisations si disponibles
-      const optimizationContext = optimizationResult ? {
-        recommendations_count: optimizationResult.recommendations.length,
-        potential_savings: optimizationResult.potential_savings_total,
-        recommendations_summary: optimizationResult.recommendations.map(r => ({
-          title: r.title,
-          impact: r.impact_estimated,
-          category: r.category,
-          risk: r.risk,
-        })),
-      } : undefined
-
       // Créer les données de profil pour l'API (utiliser des valeurs par défaut si non disponibles)
       const apiProfileData: TaxCalculationRequest = profileData || {
         tax_year: 2025,
