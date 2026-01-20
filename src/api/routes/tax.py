@@ -3,9 +3,10 @@
 from enum import Enum
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
+from src.api.auth import verify_api_key
 from src.tax_engine.calculator import calculate_tax
 
 router = APIRouter(prefix="/api/v1/tax", tags=["tax"])
@@ -74,7 +75,10 @@ class TaxCalculationRequest(BaseModel):
 
 
 @router.post("/calculate", response_model=dict[str, Any])
-async def calculate_taxes(request: TaxCalculationRequest) -> dict[str, Any]:
+async def calculate_taxes(
+    request: TaxCalculationRequest,
+    _api_key: str = Depends(verify_api_key),
+) -> dict[str, Any]:
     """Calculate French income tax and social contributions.
 
     This endpoint calculates:

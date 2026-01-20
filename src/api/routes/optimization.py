@@ -1,9 +1,10 @@
 """Optimization API routes."""
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from src.analyzers.optimizer import TaxOptimizer
+from src.api.auth import verify_api_key
 from src.models.optimization import OptimizationResult
 from src.tax_engine.core import compute_ir
 from src.tax_engine.rules import get_tax_rules
@@ -70,6 +71,7 @@ class OptimizationRequest(BaseModel):
 @router.post("/run", response_model=OptimizationResult)
 async def run_optimization(
     request: OptimizationRequest,
+    _api_key: str = Depends(verify_api_key),
 ) -> OptimizationResult:
     """
     Run complete tax optimization analysis.
