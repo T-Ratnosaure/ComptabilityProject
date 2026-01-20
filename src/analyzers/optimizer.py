@@ -13,10 +13,22 @@ from src.models.optimization import (
     OptimizationResult,
     Recommendation,
 )
+from src.models.strategy_interdependencies import StrategyInteractionChecker
 
 
 class TaxOptimizer:
     """Main tax optimization engine orchestrator."""
+
+    # Map recommendation categories to strategy identifiers for interdependency checking
+    CATEGORY_TO_STRATEGY = {
+        "regime": "regime_change",
+        "epargne_retraite": "per",
+        "investissement_locatif": "lmnp",
+        "defiscalisation": "girardin",  # Also covers FCPI/FIP
+        "investissement": "fcpi_fip",
+        "deductions": "deductions",
+        "structure": "structure_change",
+    }
 
     def __init__(self) -> None:
         """Initialize all optimization strategies."""
@@ -29,6 +41,7 @@ class TaxOptimizer:
         self.structure_strategy = StructureStrategy()
 
         self.recommendations: list[Recommendation] = []
+        self.interaction_checker = StrategyInteractionChecker()
 
     async def run(
         self,
@@ -132,8 +145,27 @@ class TaxOptimizer:
 
     def _generate_result(self, context: dict) -> OptimizationResult:
         """Generate final optimization result with summary."""
-        # Calculate total potential savings
-        total_savings = sum(rec.impact_estimated for rec in self.recommendations)
+        # Extract strategy identifiers from recommendations
+        active_strategies = self._get_active_strategies()
+
+        # Check for strategy interactions
+        interaction_warnings = self.interaction_checker.get_all_warnings(
+            active_strategies
+        )
+        interaction_recommendations = self.interaction_checker.get_all_recommendations(
+            active_strategies
+        )
+        conflicts = self.interaction_checker.check_conflicts(active_strategies)
+        synergies = self.interaction_checker.check_synergies(active_strategies)
+
+        # Calculate combined impact modifier
+        impact_modifier = self.interaction_checker.calculate_combined_impact_modifier(
+            active_strategies
+        )
+
+        # Calculate total potential savings (adjusted by interaction modifier)
+        raw_savings = sum(rec.impact_estimated for rec in self.recommendations)
+        total_savings = raw_savings * impact_modifier
 
         # Count high-priority recommendations (impact > 1000€ or easy + low risk)
         high_priority = sum(
@@ -150,12 +182,36 @@ class TaxOptimizer:
         # Generate executive summary
         summary = self._generate_summary(total_savings, high_priority)
 
-        # Build metadata
+        # Build metadata with interaction information
         metadata = {
             "total_recommendations": len(self.recommendations),
             "by_category": self._count_by_category(),
             "by_risk": self._count_by_risk(),
             "by_complexity": self._count_by_complexity(),
+            "strategy_interactions": {
+                "active_strategies": active_strategies,
+                "conflicts": [
+                    {
+                        "strategies": [c[0], c[1]],
+                        "description": c[2].description,
+                        "warning": c[2].warning_message,
+                    }
+                    for c in conflicts
+                ],
+                "synergies": [
+                    {
+                        "strategies": [s[0], s[1]],
+                        "description": s[2].description,
+                        "recommendation": s[2].recommendation,
+                    }
+                    for s in synergies
+                ],
+                "impact_modifier": round(impact_modifier, 2),
+                "raw_savings": round(raw_savings, 2),
+                "adjusted_savings": round(total_savings, 2),
+            },
+            "interaction_warnings": interaction_warnings,
+            "interaction_recommendations": interaction_recommendations,
             "disclaimer": (
                 "Ces scénarios sont des illustrations basées sur votre "
                 "situation fiscale déclarée. Ils ne constituent pas un conseil "
@@ -239,3 +295,17 @@ class TaxOptimizer:
             complexity = rec.complexity.value
             counts[complexity] = counts.get(complexity, 0) + 1
         return counts
+
+    def _get_active_strategies(self) -> list[str]:
+        """Extract unique strategy identifiers from recommendations.
+
+        Returns:
+            List of strategy identifiers for interaction checking
+        """
+        strategies: set[str] = set()
+        for rec in self.recommendations:
+            category = rec.category.value
+            strategy = self.CATEGORY_TO_STRATEGY.get(category)
+            if strategy:
+                strategies.add(strategy)
+        return list(strategies)

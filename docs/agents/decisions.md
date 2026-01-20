@@ -262,11 +262,46 @@ Tax barèmes in JSON files are the source of truth. If wrong, all calculations a
 
 | ID | Debt | Impact | Plan | Status |
 |----|------|--------|------|--------|
-| TD001 | Barème JSON manually maintained | Data accuracy risk | Implement automated verification | OPEN |
-| TD002 | No extraction confidence scores | User trust | Add to document extraction | OPEN |
-| TD003 | Strategy interdependencies not modeled | Calculation accuracy | Future enhancement | OPEN |
+| TD001 | Barème JSON manually maintained | Data accuracy risk | ~~Implement automated verification~~ | **RESOLVED** (PR #32) |
+| TD002 | No extraction confidence scores | User trust | ~~Add to document extraction~~ | **RESOLVED** (PR #33) |
+| TD003 | Strategy interdependencies not modeled | Calculation accuracy | ~~Future enhancement~~ | **RESOLVED** (PR #33) |
 | TD004 | No audit trail for calculations | Compliance | ~~Add logging~~ | **RESOLVED** (PR #31) |
-| TD005 | Glossary not implemented | User confusion | Create glossary page | OPEN |
+| TD005 | Glossary not implemented | User confusion | ~~Create glossary page~~ | **RESOLVED** (PR #32) |
+
+### TD001 Resolution Details
+
+**Resolved:** 2026-01-20
+**Implementation:** PR #32 - feat(td005-td001): Add glossary and barème verification
+
+Components added:
+- Added verification metadata to barème JSON files (verified_date, sources, checklist)
+- Created `scripts/verify_baremes.py` automated verification script
+- Supports `--strict` mode for CI integration
+- Verifies field completeness, freshness, and bracket consistency
+
+### TD002 Resolution Details
+
+**Resolved:** 2026-01-20
+**Implementation:** PR #33 - feat(td002-td003): Add confidence scores and strategy interdependencies
+
+Components added:
+- `ConfidenceLevel` enum (HIGH/MEDIUM/LOW/UNCERTAIN) for extraction confidence
+- `FieldConfidence` and `ExtractionConfidenceReport` Pydantic models
+- Multi-pattern matching with confidence boosting in base parser
+- Updated `AvisImpositionParser` to return confidence reports
+- Per-field confidence tracking with extraction method metadata
+
+### TD003 Resolution Details
+
+**Resolved:** 2026-01-20
+**Implementation:** PR #33 - feat(td002-td003): Add confidence scores and strategy interdependencies
+
+Components added:
+- `InteractionType` enum (CONFLICT/SYNERGY/DEPENDENCY/NEUTRAL)
+- `StrategyInteraction` model with impact modifiers and warnings
+- 11 predefined strategy interactions (PER, LMNP, Girardin, FCPI/FIP, etc.)
+- `StrategyInteractionChecker` for conflict/synergy detection
+- Integration with `TaxOptimizer._generate_result()` for interaction metadata
 
 ### TD004 Resolution Details
 
@@ -279,6 +314,18 @@ Components added:
 - Full integration with `TaxCalculator` tracking all calculation steps
 - REST API endpoints for audit trail retrieval and export
 - Compliance with French tax authority documentation requirements
+
+### TD005 Resolution Details
+
+**Resolved:** 2026-01-20
+**Implementation:** PR #32 - feat(td005-td001): Add glossary and barème verification
+
+Components added:
+- Interactive glossary page at `/glossary` with 30+ French tax terms
+- Categories: Revenus, Régimes, Impôt, Cotisations, Hauts revenus, Optimisation, Administratif
+- Search and category filtering functionality
+- Related terms navigation
+- Glossary link added to main navigation
 
 ---
 
