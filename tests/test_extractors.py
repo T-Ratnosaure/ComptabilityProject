@@ -29,7 +29,7 @@ class TestAvisImpositionParser:
         """
 
         parser = AvisImpositionParser()
-        result = await parser.parse(text)
+        result, confidence_report = await parser.parse(text)
         fields = result.model_dump(exclude_none=True)
 
         assert fields["revenu_fiscal_reference"] == 45000
@@ -40,6 +40,11 @@ class TestAvisImpositionParser:
         assert fields["situation_familiale"] == "marié"
         assert fields["year"] == 2023
 
+        # Verify confidence report is generated
+        assert confidence_report is not None
+        assert confidence_report.document_type == "avis_imposition"
+        assert confidence_report.overall_score > 0
+
     @pytest.mark.anyio
     async def test_parse_minimal_document(self):
         """Test parsing with minimal required fields."""
@@ -48,10 +53,11 @@ class TestAvisImpositionParser:
         """
 
         parser = AvisImpositionParser()
-        result = await parser.parse(text)
+        result, confidence_report = await parser.parse(text)
         fields = result.model_dump(exclude_none=True)
 
         assert fields["revenu_fiscal_reference"] == 30000
+        assert confidence_report is not None
 
     @pytest.mark.anyio
     async def test_parse_missing_critical_fields(self):
