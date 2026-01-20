@@ -45,10 +45,10 @@ export default function OptimizationsPage() {
     stable_income: true,
   })
 
-  // Charger les données du simulateur depuis localStorage
+  // Charger les données du simulateur depuis sessionStorage
   useEffect(() => {
-    const storedProfile = localStorage.getItem("fiscalOptim_profileData")
-    const storedResult = localStorage.getItem("fiscalOptim_taxResult")
+    const storedProfile = sessionStorage.getItem("fiscalOptim_profileData")
+    const storedResult = sessionStorage.getItem("fiscalOptim_taxResult")
 
     if (storedProfile && storedResult) {
       try {
@@ -237,14 +237,35 @@ export default function OptimizationsPage() {
     return { stars: "⭐⭐⭐", label: "Complexe", color: "bg-red-100 text-red-700" }
   }
 
-  // Format description: handle newlines and basic markdown
+  // Format description: handle newlines and basic markdown (safe - no dangerouslySetInnerHTML)
   const formatDescription = (text: string) => {
-    return text.split('\n').map((line, i) => {
-      // Convert **text** to bold
-      const formattedLine = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      return (
-        <span key={i} dangerouslySetInnerHTML={{ __html: formattedLine }} />
-      )
+    return text.split('\n').map((line, lineIndex) => {
+      // Parse **text** into bold spans safely using React components
+      const parts: React.ReactNode[] = []
+      const regex = /\*\*([^*]+)\*\*/g
+      let lastIndex = 0
+      let match
+      let partIndex = 0
+
+      while ((match = regex.exec(line)) !== null) {
+        // Add text before the bold
+        if (match.index > lastIndex) {
+          parts.push(<span key={`${lineIndex}-${partIndex++}`}>{line.slice(lastIndex, match.index)}</span>)
+        }
+        // Add bold text
+        parts.push(<strong key={`${lineIndex}-${partIndex++}`}>{match[1]}</strong>)
+        lastIndex = match.index + match[0].length
+      }
+      // Add remaining text
+      if (lastIndex < line.length) {
+        parts.push(<span key={`${lineIndex}-${partIndex++}`}>{line.slice(lastIndex)}</span>)
+      }
+      // If no parts, add the whole line
+      if (parts.length === 0) {
+        parts.push(<span key={`${lineIndex}-0`}>{line}</span>)
+      }
+
+      return <span key={`line-${lineIndex}`}>{parts}</span>
     }).reduce((acc: React.ReactNode[], curr, i, arr) => {
       acc.push(curr)
       if (i < arr.length - 1) acc.push(<br key={`br-${i}`} />)

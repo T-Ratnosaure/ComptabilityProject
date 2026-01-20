@@ -17,11 +17,12 @@ export default function SimulatorPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [formData, setFormData] = useState<TaxCalculationRequest>({
-    tax_year: 2024,
+    tax_year: 2025,
     person: {
       name: "",
       nb_parts: 1,
       status: "micro_bnc",
+      situation_familiale: "celibataire",
     },
     income: {
       professional_gross: 0,
@@ -51,9 +52,9 @@ export default function SimulatorPage() {
       const response = await apiClient.calculateTax(formData)
       setResult(response)
 
-      // Sauvegarder les données dans localStorage pour le chat IA
-      localStorage.setItem("fiscalOptim_profileData", JSON.stringify(formData))
-      localStorage.setItem("fiscalOptim_taxResult", JSON.stringify(response))
+      // Sauvegarder les données dans sessionStorage pour le chat IA
+      sessionStorage.setItem("fiscalOptim_profileData", JSON.stringify(formData))
+      sessionStorage.setItem("fiscalOptim_taxResult", JSON.stringify(response))
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de calcul")
     } finally {
@@ -186,6 +187,22 @@ export default function SimulatorPage() {
                         value={formData.person.nb_parts}
                         onChange={(e) => updatePerson("nb_parts", parseFloat(e.target.value))}
                       />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="situation_familiale">Situation familiale</Label>
+                      <Select
+                        value={formData.person.situation_familiale || "celibataire"}
+                        onValueChange={(value) => updatePerson("situation_familiale", value)}
+                      >
+                        <SelectTrigger id="situation_familiale">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="celibataire">Célibataire / Divorcé(e) / Veuf(ve)</SelectItem>
+                          <SelectItem value="couple">Marié(e) / Pacsé(e) (imposition commune)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div>
@@ -409,6 +426,12 @@ export default function SimulatorPage() {
                             <div className="flex justify-between">
                               <span className="text-slate-600">CEHR (hauts revenus)</span>
                               <span className="font-semibold text-orange-600">{formatCurrency(result.impot.cehr)}</span>
+                            </div>
+                          )}
+                          {result.impot.cdhr !== undefined && result.impot.cdhr > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">CDHR (taux mini 20%)</span>
+                              <span className="font-semibold text-red-600">{formatCurrency(result.impot.cdhr)}</span>
                             </div>
                           )}
                           <div className="flex justify-between">

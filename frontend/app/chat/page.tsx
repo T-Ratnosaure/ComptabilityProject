@@ -36,10 +36,10 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  // Charger les données du simulateur depuis localStorage
+  // Charger les données du simulateur depuis sessionStorage
   useEffect(() => {
-    const storedProfile = localStorage.getItem("fiscalOptim_profileData")
-    const storedResult = localStorage.getItem("fiscalOptim_taxResult")
+    const storedProfile = sessionStorage.getItem("fiscalOptim_profileData")
+    const storedResult = sessionStorage.getItem("fiscalOptim_taxResult")
 
     if (storedProfile && storedResult) {
       try {
