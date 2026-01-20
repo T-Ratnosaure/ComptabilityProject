@@ -227,6 +227,11 @@ The project is implemented in 6 phases:
 - **Documentation**:
   - BMAD governance framework
   - Manual testing guides in `audits/` directory
+- **Compliance (TD004)**:
+  - Audit trail system for tax calculations (5-year retention)
+  - AuditLog/AuditEntry models tracking all calculation steps
+  - REST API for audit trail retrieval and export
+  - Input hash verification for data integrity
 
 **In Progress:**
 - Frontend-backend integration testing
@@ -240,6 +245,8 @@ The project is implemented in 6 phases:
 - `frontend/lib/api.ts` - TypeScript API client
 - `frontend/.env.example` - Environment configuration template
 - `audits/` - Regulatory audit reports with manual testing guides
+- `src/audit/` - Audit trail service (AuditLogger, compliance tracking)
+- `src/api/routes/audit.py` - Audit API endpoints
 
 ## Project Structure
 

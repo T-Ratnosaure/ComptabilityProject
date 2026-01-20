@@ -260,13 +260,25 @@ Tax barèmes in JSON files are the source of truth. If wrong, all calculations a
 
 ## Technical Debt Register
 
-| ID | Debt | Impact | Plan |
-|----|------|--------|------|
-| TD001 | Barème JSON manually maintained | Data accuracy risk | Implement automated verification |
-| TD002 | No extraction confidence scores | User trust | Add to document extraction |
-| TD003 | Strategy interdependencies not modeled | Calculation accuracy | Future enhancement |
-| TD004 | No audit trail for calculations | Compliance | Add logging |
-| TD005 | Glossary not implemented | User confusion | Create glossary page |
+| ID | Debt | Impact | Plan | Status |
+|----|------|--------|------|--------|
+| TD001 | Barème JSON manually maintained | Data accuracy risk | Implement automated verification | OPEN |
+| TD002 | No extraction confidence scores | User trust | Add to document extraction | OPEN |
+| TD003 | Strategy interdependencies not modeled | Calculation accuracy | Future enhancement | OPEN |
+| TD004 | No audit trail for calculations | Compliance | ~~Add logging~~ | **RESOLVED** (PR #31) |
+| TD005 | Glossary not implemented | User confusion | Create glossary page | OPEN |
+
+### TD004 Resolution Details
+
+**Resolved:** 2026-01-20
+**Implementation:** PR #31 - feat(audit): Implement TD004 audit trail for tax calculations
+
+Components added:
+- `AuditLog` and `AuditEntry` SQLAlchemy models with 5-year retention
+- `AuditLogger` service for non-blocking audit logging
+- Full integration with `TaxCalculator` tracking all calculation steps
+- REST API endpoints for audit trail retrieval and export
+- Compliance with French tax authority documentation requirements
 
 ---
 
